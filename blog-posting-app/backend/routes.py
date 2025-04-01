@@ -2,8 +2,10 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from models import User, BlogPost, db
 
+
 routes = Blueprint('routes', __name__)
 
+# User registration route
 @routes.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -20,6 +22,8 @@ def register():
 
     return jsonify({"msg": "User created successfully"}), 201
 
+
+# Login route
 @routes.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -33,12 +37,16 @@ def login():
 
     return jsonify({"msg": "Bad username or password"}), 401
 
+
+# Blog post routes
 @routes.route('/posts', methods=['GET'])
 @jwt_required()
 def get_posts():
     posts = BlogPost.query.all()
     return jsonify([post.to_dict() for post in posts]), 200
 
+
+# Create a new blog post
 @routes.route('/posts', methods=['POST'])
 @jwt_required()
 def create_post():
@@ -53,12 +61,16 @@ def create_post():
 
     return jsonify(new_post.to_dict()), 201
 
+
+# Get a single blog post
 @routes.route('/posts/<int:post_id>', methods=['GET'])
 @jwt_required()
 def get_post(post_id):
     post = BlogPost.query.get_or_404(post_id)
     return jsonify(post.to_dict()), 200
 
+
+# Update a blog post
 @routes.route('/posts/<int:post_id>', methods=['PUT'])
 @jwt_required()
 def update_post(post_id):
@@ -71,6 +83,8 @@ def update_post(post_id):
 
     return jsonify(post.to_dict()), 200
 
+
+# Delete a blog post
 @routes.route('/posts/<int:post_id>', methods=['DELETE'])
 @jwt_required()
 def delete_post(post_id):
