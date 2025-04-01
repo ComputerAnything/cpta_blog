@@ -1,8 +1,16 @@
+from dotenv import load_dotenv
 import os
 
-# To configure the Flask application, we can create a config class and include the necessary settings.
-# To get the SQLALCHEMY_DATABASE_URI, 
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Configuration class for the Flask application
 class Config:
-    SQLALCHEMY_DATABASE_URI =
+    # Database configuration
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'mysql+mysqldb://root:password@localhost:3306/blog_db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Secret key for session management
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your_secret_key'
+

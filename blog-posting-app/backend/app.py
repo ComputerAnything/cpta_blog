@@ -11,6 +11,10 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 jwt = JWTManager(app)
 
+# Import models to ensure they are registered with Flask-Migrate
+from models import User, BlogPost
+
+# Import routes
 from routes import *
 
 if __name__ == '__main__':
