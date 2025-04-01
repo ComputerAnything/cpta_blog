@@ -1,0 +1,23 @@
+# Ignore environment variables
+.env
+**/.env
+
+# Python compiled files
+__pycache__/
+*.pyc
+
+# Node.js dependencies
+node_modules/
+
+# React build artifacts
+build/
+
+# Logs
+*.log
+
+# Docker artifacts
+*.pid
+
+
+
+
