@@ -1,8 +1,13 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from models import User, BlogPost, db
+from models import User, BlogPost
+from flask_sqlalchemy import SQLAlchemy
 
 
+# Initialize the database
+db = SQLAlchemy()
+
+# Create a blueprint for the routes
 routes = Blueprint('routes', __name__)
 
 # User registration route
@@ -15,7 +20,8 @@ def register():
     if User.query.filter_by(username=username).first():
         return jsonify({"msg": "User already exists"}), 400
 
-    new_user = User(username=username)
+    new_user = User()
+    new_user.username = username
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
@@ -55,7 +61,7 @@ def create_post():
     content = data.get('content')
     user_id = get_jwt_identity()
 
-    new_post = BlogPost(title=title, content=content, user_id=user_id)
+    new_post = BlogPost(name=title, content=content, user_id=user_id)  # Replace 'name' with the correct attribute if different
     db.session.add(new_post)
     db.session.commit()
 

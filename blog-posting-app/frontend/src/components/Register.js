@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import API from '../services/api';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 
 // This component handles user registration
 const Register = () => {
-  // State variables to hold form data
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate(); // Initialize useNavigate
 
   // Function to handle form submission
   const handleRegister = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
     try {
       const response = await API.post('/register', { username, email, password });
-      setMessage('Registration successful! You can now log in.');
+      setMessage('Registration successful! Redirecting...');
+      navigate('/blogs', { state: { message: 'Welcome to the blog posts page!' } });
     } catch (error) {
       setMessage('Registration failed. Please try again.');
     }

@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import API from '../services/api';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 
 
 // This component handles user login
 const Login = () => {
-  // State variables to hold username and password
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate(); // Initialize useNavigate
 
-  // Function to handle login form submission
+  // Function to handle form submission
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
     try {
       const response = await API.post('/login', { username, password });
-      localStorage.setItem('token', response.data.access_token);
+      localStorage.setItem('token', response.data.access_token); // Save the token in localStorage
       alert('Login successful!');
+      navigate('/blogs', { state: { message: 'Welcome to the blog posts page!' } });
     } catch (error) {
       alert('Login failed!');
     }
