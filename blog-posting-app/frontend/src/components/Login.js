@@ -11,7 +11,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const successMessage = location.state?.message;
-  
+
   // Function to handle form submission
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -45,6 +45,7 @@ const Login = () => {
         />
         <button type="submit">Login</button>
       </form>
+      {message && <p>{message}</p>}
       <p>
         Don't have an account? <Link to="/register">Register here</Link>
       </p>

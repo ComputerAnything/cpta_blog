@@ -40,12 +40,18 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
+    # Check if the user exists
     user = User.query.filter_by(username=username).first()
-    if user and user.check_password(password):
-        access_token = create_access_token(identity=user.id)
-        return jsonify(access_token=access_token), 200
+    if not user:
+        return jsonify({"msg": "User does not exist"}), 404
 
-    return jsonify({"msg": "Bad username or password"}), 401
+    # Check if the password is correct
+    if not user.check_password(password):
+        return jsonify({"msg": "Incorrect password"}), 401
+
+    # Generate access token if login is successful
+    access_token = create_access_token(identity=user.id)
+    return jsonify({"access_token": access_token}), 200
 
 
 # Blog post routes
