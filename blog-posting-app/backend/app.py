@@ -2,11 +2,16 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 from config import Config
 
 
+# Initialize Flask app
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# cors
+CORS(app)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -17,6 +22,7 @@ from models import User, BlogPost
 
 # Import routes
 from routes import *
+app.register_blueprint(routes)
 
 if __name__ == '__main__':
     app.run(debug=True)

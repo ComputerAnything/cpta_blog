@@ -38,26 +38,28 @@ blog-posting-app
 
 1. Navigate to the `backend` directory.
 2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-3. Set up the database connection in `config.py`.
-4. Run the application:
-   ```
-   python app.py
-   ```
+  ```
+  pip install -r requirements.txt
+  ```
+3. Set up the database connection in `config.py`, setup any environment variables you might need.
+4. Make initial database migrations
+  ```
+  flask db init # This initializes the migration directory
+  flask db migrate -m "initial migration"
+  flask db upgrade
+  ```
 
 ## Frontend Setup
 
 1. Navigate to the `frontend` directory.
 2. Install the required dependencies:
-   ```
-   npm install
-   ```
+  ```
+  npm install
+  ```
 3. Start the React application:
-   ```
-   npm start
-   ```
+  ```
+  npm start
+  ```
 
 ## Features
 
