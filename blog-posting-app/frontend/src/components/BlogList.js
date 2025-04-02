@@ -38,7 +38,7 @@ const BlogList = () => {
   // Render the list of posts
   return (
     <div>
-      <h1>Hello {username}, Welcome to the Blog!</h1>
+      <h1>Hello {username}, Welcome to the Computer Anything Blog!</h1>
       <button onClick={() => navigate('/create-post')} style={{ marginRight: '10px' }}>
         Create New Post
       </button>
