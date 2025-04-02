@@ -14,7 +14,7 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
-          path="/blogs"
+          path="/blog"
           element={
             <ProtectedRoute>
               <BlogList />

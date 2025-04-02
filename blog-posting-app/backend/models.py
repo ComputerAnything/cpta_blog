@@ -24,7 +24,6 @@ class User(db.Model):
         # This is useful for debugging and logging purposes.
         return f'<User {self.username}>'
 
-
 # BlogPost model
 class BlogPost(db.Model):
     __tablename__ = 'blog_posts'
@@ -34,9 +33,6 @@ class BlogPost(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Define the relationship with the User model
-    # This allows us to access the user who created the post
-    # through the BlogPost model.
     user = db.relationship('User', backref=db.backref('posts', lazy=True))
 
     def to_dict(self):
@@ -44,7 +40,8 @@ class BlogPost(db.Model):
             "id": self.id,
             "title": self.title,
             "content": self.content,
-            "user_id": self.user_id
+            "user_id": self.user_id,
+            "created_at": self.created_at.isoformat()
         }
 
     def __repr__(self):

@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useLocation, useNavigate } from 'react-router-dom';
 import API from '../services/api';
 
-
-// This component fetches and displays a list of blog posts
 const BlogList = () => {
   const [posts, setPosts] = useState([]);
-  const [username, setUsername] = useState(localStorage.getItem('username'));
+  const [username] = useState(localStorage.getItem('username'));
   const location = useLocation();
   const navigate = useNavigate();
   const message = location.state?.message;
 
-  // Fetch posts from the API when the component mounts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -20,37 +17,39 @@ const BlogList = () => {
         });
         setPosts(response.data);
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Error fetching posts:', error.response?.data || error.message);
+        setPosts([]); // Clear posts if there's an error
       }
     };
-    // Call the fetchPosts function
+
     fetchPosts();
   }, []);
 
-  // Handle logout
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('username'); // Remove the username from localStorage
+    localStorage.removeItem('username');
     navigate('/');
   };
 
-  // Render the list of posts
   return (
     <div>
-    {/* create a header, greeting the current user */}
       <h1>Welcome to the Blog!</h1>
       <h2>Hello {username}</h2>
       <h1>Blog Posts</h1>
       {message && <p>{message}</p>}
-      <button onClick={handleLogout}>Logout</button> {/* Add Logout button */}
-      <ul>
-        {posts.map((post) => (
-          <li key={post.id}>
-            <h2>{post.title}</h2>
-            <p>{post.content}</p>
-          </li>
-        ))}
-      </ul>
+      <button onClick={handleLogout}>Logout</button>
+      {posts.length > 0 ? (
+        <ul>
+          {posts.map((post) => (
+            <li key={post.id}>
+              <h2>{post.title}</h2>
+              <p>{post.content}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No posts available or an error occurred.</p>
+      )}
     </div>
   );
 };

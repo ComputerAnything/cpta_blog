@@ -1,3 +1,4 @@
+import logging
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -10,19 +11,20 @@ from config import Config
 app = Flask(__name__)
 app.config.from_object(Config)
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s')
+
 # cors
 CORS(app)
 
+# Initialize database and migration
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 jwt = JWTManager(app)
 
-# Import models to ensure they are registered with Flask-Migrate
-from models import User, BlogPost
-
 # Import routes
 from routes import *
-app.register_blueprint(routes)
+app.register_blueprint(routes) # Register the blueprint 
 
 if __name__ == '__main__':
     app.run(debug=True)

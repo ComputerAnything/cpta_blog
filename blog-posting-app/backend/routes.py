@@ -54,58 +54,8 @@ def login():
     return jsonify({"access_token": access_token}), 200
 
 
-# Blog post routes
+# Route to get all blog posts
 @routes.route('/posts', methods=['GET'])
-@jwt_required()
 def get_posts():
     posts = BlogPost.query.all()
     return jsonify([post.to_dict() for post in posts]), 200
-
-
-# Create a new blog post
-@routes.route('/posts', methods=['POST'])
-@jwt_required()
-def create_post():
-    data = request.get_json()
-    title = data.get('title')
-    content = data.get('content')
-    user_id = get_jwt_identity()
-
-    new_post = BlogPost(name=title, content=content, user_id=user_id)  # Replace 'name' with the correct attribute if different
-    db.session.add(new_post)
-    db.session.commit()
-
-    return jsonify(new_post.to_dict()), 201
-
-
-# Get a single blog post
-@routes.route('/posts/<int:post_id>', methods=['GET'])
-@jwt_required()
-def get_post(post_id):
-    post = BlogPost.query.get_or_404(post_id)
-    return jsonify(post.to_dict()), 200
-
-
-# Update a blog post
-@routes.route('/posts/<int:post_id>', methods=['PUT'])
-@jwt_required()
-def update_post(post_id):
-    data = request.get_json()
-    post = BlogPost.query.get_or_404(post_id)
-
-    post.title = data.get('title', post.title)
-    post.content = data.get('content', post.content)
-    db.session.commit()
-
-    return jsonify(post.to_dict()), 200
-
-
-# Delete a blog post
-@routes.route('/posts/<int:post_id>', methods=['DELETE'])
-@jwt_required()
-def delete_post(post_id):
-    post = BlogPost.query.get_or_404(post_id)
-    db.session.delete(post)
-    db.session.commit()
-
-    return jsonify({"msg": "Post deleted"}), 200

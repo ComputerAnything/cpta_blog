@@ -53,6 +53,10 @@ const Register = () => {
         />
         <button type="submit">Register</button>
       </form>
+      {/* Already a member? Login */}
+      <p>
+        Already a member? <a href="/">Login</a>
+      </p>
       {message && <p>{message}</p>}
     </div>
   );
