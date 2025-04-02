@@ -6,8 +6,9 @@ import API from '../services/api';
 // This component fetches and displays a list of blog posts
 const BlogList = () => {
   const [posts, setPosts] = useState([]);
+  const [username, setUsername] = useState(localStorage.getItem('username'));
   const location = useLocation();
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const message = location.state?.message;
 
   // Fetch posts from the API when the component mounts
@@ -28,13 +29,17 @@ const BlogList = () => {
 
   // Handle logout
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Remove the token from localStorage
-    navigate('/'); // Redirect to the login page
+    localStorage.removeItem('token');
+    localStorage.removeItem('username'); // Remove the username from localStorage
+    navigate('/');
   };
 
   // Render the list of posts
   return (
     <div>
+    {/* create a header, greeting the current user */}
+      <h1>Welcome to the Blog!</h1>
+      <h2>Hello {username}</h2>
       <h1>Blog Posts</h1>
       {message && <p>{message}</p>}
       <button onClick={handleLogout}>Logout</button> {/* Add Logout button */}

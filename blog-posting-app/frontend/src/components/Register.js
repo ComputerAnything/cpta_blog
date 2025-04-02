@@ -16,9 +16,11 @@ const Register = () => {
     e.preventDefault();
     try {
       const response = await API.post('/register', { username, email, password });
-      setMessage('Registration successful! Redirecting...');
-      navigate('/blogs', { state: { message: 'Welcome to the blog posts page!' } });
+      setMessage('Registration successful! Redirecting to login...');
+      // Redirect to login page with a success message
+      navigate('/', { state: { message: 'Account creation successful, now login!' } });
     } catch (error) {
+      console.error('Error during registration:', error.response?.data || error.message);
       setMessage('Registration failed. Please try again.');
     }
   };

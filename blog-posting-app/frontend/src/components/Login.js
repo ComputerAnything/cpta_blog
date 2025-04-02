@@ -1,30 +1,35 @@
 import React, { useState } from 'react';
 import API from '../services/api';
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 
 // This component handles user login
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // Initialize useNavigate
-
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const successMessage = location.state?.message;
+  
   // Function to handle form submission
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await API.post('/login', { username, password });
       localStorage.setItem('token', response.data.access_token); // Save the token in localStorage
-      alert('Login successful!');
-      navigate('/blogs', { state: { message: 'Welcome to the blog posts page!' } });
+      localStorage.setItem('username', username); // Save the username in localStorage
+      navigate('/blogs'); // Redirect to the blogs page
     } catch (error) {
-      alert('Login failed!');
+      setMessage('Login failed. Please check your credentials.');
     }
   };
 
   // Render the login form
   return (
     <div>
+      <h1>Login</h1>
+      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>} {/* Display success message */}
       <form onSubmit={handleLogin}>
         <input
           type="text"
