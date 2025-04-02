@@ -41,6 +41,7 @@ class BlogPost(db.Model):
             "title": self.title,
             "content": self.content,
             "user_id": self.user_id,
+            "author": self.user.username,
             "created_at": self.created_at.isoformat()
         }
 

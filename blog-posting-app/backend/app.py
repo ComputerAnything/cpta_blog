@@ -24,7 +24,7 @@ jwt = JWTManager(app)
 
 # Import routes
 from routes import *
-app.register_blueprint(routes) # Register the blueprint 
+app.register_blueprint(routes) # Register the blueprint
 
 if __name__ == '__main__':
     app.run(debug=True)

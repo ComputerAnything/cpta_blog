@@ -13,4 +13,5 @@ class Config:
 
     # Secret key for session management
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your_secret_key'
+    JWT_SECRET_KEY = 'super-secret'  # Change this to a random secret key
 

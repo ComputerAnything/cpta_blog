@@ -1,5 +1,6 @@
+from enum import verify
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from app import db
 from models import User, BlogPost
 from flask_sqlalchemy import SQLAlchemy
@@ -50,12 +51,37 @@ def login():
         return jsonify({"msg": "Incorrect password"}), 401
 
     # Generate access token if login is successful
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
+    print(f"User ID: {user.id}")
     return jsonify({"access_token": access_token}), 200
 
 
 # Route to get all blog posts
 @routes.route('/posts', methods=['GET'])
+@jwt_required()
 def get_posts():
     posts = BlogPost.query.all()
+    print(f"JWT Identity: {get_jwt_identity()}")
     return jsonify([post.to_dict() for post in posts]), 200
+
+
+# Route to create a new blog post
+@routes.route('/posts', methods=['POST'])
+# TODO: Uncomment the jwt_required decorator to protect this route
+@jwt_required()
+def create_post():
+    data = request.get_json()
+    title = data.get('title')
+    content = data.get('content')
+    user_id = get_jwt_identity()  # Get the user ID from the JWT token
+
+    # Validate input
+    if not title or not content:
+        return jsonify({"msg": "Title and content are required"}), 400
+
+    # Create a new blog post
+    new_post = BlogPost(title=title, content=content, user_id=user_id)
+    db.session.add(new_post)
+    db.session.commit()
+
+    return jsonify(new_post.to_dict()), 201
