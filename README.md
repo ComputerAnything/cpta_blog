@@ -1,4 +1,4 @@
-# Blog Posting Application
+# Computer Anything Blog
 
 This project is a blog posting application built using FlaskAPI for the backend, React.js for the frontend, and MySQL as the database. It includes full user authentication and allows users to create, read, update, and delete blog posts.
 
