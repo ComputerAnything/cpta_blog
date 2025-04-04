@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import API from '../services/api';
 
 
@@ -24,7 +24,7 @@ const BlogList = () => {
         setPosts([]); // Clear posts if there's an error
       }
     };
-
+    // Call the fetchPosts function to get the posts
     fetchPosts();
   }, []);
 
@@ -49,7 +49,9 @@ const BlogList = () => {
         <ul>
           {posts.map((post) => (
             <li key={post.id}>
-              <h2>{post.title}</h2>
+              <h2>
+                <Link to={`/posts/${post.id}`}>{post.title}</Link>
+              </h2>
               <p>{post.content}</p>
               <p style={{ fontSize: '0.8em' }}>Author: {post.author}</p>
               <p style={{ fontSize: '0.8em' }}>Created At: {new Date(post.created_at).toLocaleString()}</p>

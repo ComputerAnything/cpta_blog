@@ -65,6 +65,16 @@ def get_posts():
     return jsonify([post.to_dict() for post in posts]), 200
 
 
+# Route to get a single blog post by ID
+@routes.route('/posts/<int:post_id>', methods=['GET'])
+@jwt_required()
+def get_post(post_id):
+    post = BlogPost.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+    return jsonify(post.to_dict()), 200
+
+
 # Route to create a new blog post
 @routes.route('/posts', methods=['POST'])
 # TODO: Uncomment the jwt_required decorator to protect this route
