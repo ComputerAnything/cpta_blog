@@ -195,3 +195,23 @@ def update_post(post_id):
     db.session.commit()
 
     return jsonify({"msg": "Post updated successfully", "post": post.to_dict()}), 200
+
+
+# Route to delete a blog post
+@routes.route('/posts/<int:post_id>', methods=['DELETE'])
+@jwt_required()
+def delete_post(post_id):
+    user_id = get_jwt_identity()  # Get the user ID from the JWT token
+    post = BlogPost.query.get(post_id)
+
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    # Ensure the post belongs to the current user
+    if post.user_id != int(user_id):
+        return jsonify({"msg": "You are not authorized to delete this post"}), 403
+
+    db.session.delete(post)
+    db.session.commit()
+
+    return jsonify({"msg": "Post deleted successfully"}), 200

@@ -58,12 +58,33 @@ const PostDetail = () => {
       </p>
       {/* Show the Edit button if the post belongs to the current user */}
       {isCurrentUser && (
-        <button
-          style={{ marginTop: '10px' }}
-          onClick={() => navigate(`/posts/${postId}/edit`)} // Navigate to the EditPost page
-        >
-          Edit Post
-        </button>
+        <>
+          <button
+            style={{ marginTop: '10px', marginRight: '10px' }}
+            onClick={() => navigate(`/posts/${postId}/edit`)} // Navigate to the EditPost page
+          >
+            Edit Post
+          </button>
+          <button
+            style={{ marginTop: '10px', backgroundColor: 'red', color: 'white' }}
+            onClick={async () => {
+              if (window.confirm('Are you sure you want to delete this post?')) {
+                try {
+                  await API.delete(`/posts/${postId}`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                  });
+                  alert('Post deleted successfully!');
+                  navigate('/posts'); // Navigate back to the blog list
+                } catch (err) {
+                  console.error('Error deleting post:', err.response?.data || err.message);
+                  alert('Failed to delete the post. Please try again.');
+                }
+              }
+            }}
+          >
+            Delete Post
+          </button>
+        </>
       )}
     </div>
   );
