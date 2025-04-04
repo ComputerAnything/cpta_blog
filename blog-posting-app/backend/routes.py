@@ -9,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 # Create a blueprint for the routes
 routes = Blueprint('routes', __name__)
 
+# USER ROUTES
 # User registration route
 @routes.route('/register', methods=['POST'])
 def register():
@@ -53,7 +54,7 @@ def login():
     # Generate access token if login is successful
     access_token = create_access_token(identity=str(user.id))
     print(f"User ID: {user.id}")
-    return jsonify({"access_token": access_token}), 200
+    return jsonify({"access_token": access_token, "user_id": user.id}), 200
 
 
 # Route to get the user's profile
@@ -95,6 +96,33 @@ def update_profile():
     db.session.commit()
 
     return jsonify({"msg": "Profile updated successfully"}), 200
+
+
+# Route to get any user's profile by ID
+@routes.route('/users/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_user_profile(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    return jsonify({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "created_at": user.created_at.isoformat()
+    }), 200
+
+
+# Route to get all posts by a specific user
+@routes.route('/users/<int:user_id>/posts', methods=['GET'])
+@jwt_required()
+def get_user_posts(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    posts = BlogPost.query.filter_by(user_id=user_id).all()
+    return jsonify([post.to_dict() for post in posts]), 200
 
 
 # Route to get all blog posts

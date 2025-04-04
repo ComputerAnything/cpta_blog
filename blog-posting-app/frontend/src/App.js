@@ -21,6 +21,7 @@ const App = () => {
         <Route path="/create-post" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
         <Route path="/posts/:postId" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/profile/:userId?" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         {/* Fallback route */}
         <Route path="*" element={<h1>404 Not Found, It's probably your fault though TBH, LOL.</h1>} />
       </Routes>

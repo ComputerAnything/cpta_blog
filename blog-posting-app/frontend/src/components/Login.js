@@ -19,6 +19,7 @@ const Login = () => {
       const response = await API.post('/login', { username, password });
       localStorage.setItem('token', response.data.access_token); // Save the token in localStorage
       localStorage.setItem('username', username); // Save the username in localStorage
+      localStorage.setItem('userId', response.data.user_id); // Save the user ID in localStorage
       navigate('/blog'); // Redirect to the posts page
     } catch (error) {
       setMessage('Login failed. Please check your credentials.');

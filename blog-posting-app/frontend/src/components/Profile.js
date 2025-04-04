@@ -1,31 +1,52 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import API from '../services/api';
 
 
-// This component handles user profile management
+// This component displays the user's profile information and allows them to edit it
 const Profile = () => {
+  const { userId } = useParams(); // Get the userId from the URL (optional)
   const [profile, setProfile] = useState(null);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [posts, setPosts] = useState([]); // State to store the user's posts
+  const [isCurrentUser, setIsCurrentUser] = useState(false); // Track if this is the current user's profile
 
-  // Fetch the user's profile when the component mounts
+  // Fetch the profile and posts when the component mounts or userId changes
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await API.get('/profile', {
+        const response = await API.get(userId ? `/users/${userId}` : '/profile', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         setProfile(response.data);
         setUsername(response.data.username);
         setEmail(response.data.email);
+
+        // Check if the profile belongs to the current user
+        // Store the current user's ID in localStorage during login
+        // We can now use this var to check if the profile, or blog post, belongs to the current user
+        const currentUserId = localStorage.getItem('userId');
+        setIsCurrentUser(currentUserId === String(response.data.id));
+
+        // Debugging logs
+        // console.log('Current User ID:', currentUserId);
+        // console.log('Profile User ID:', response.data.id);
+        // console.log('Is Current User:', currentUserId === String(response.data.id));
+
+        // Fetch the user's posts
+        const postsResponse = await API.get(`/users/${response.data.id}/posts`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+        setPosts(postsResponse.data);
       } catch (error) {
-        console.error('Error fetching profile:', error.response?.data || error.message);
+        console.error('Error fetching profile or posts:', error.response?.data || error.message);
       }
     };
-    // Call the fetchProfile function to get the user's profile
+    // Call the fetchProfile function to get the profile and posts
     fetchProfile();
-  }, []);
+  }, [userId]);
 
   // Function to handle profile update
   const handleUpdate = async (e) => {
@@ -39,8 +60,6 @@ const Profile = () => {
         }
       );
       setMessage(response.data.msg);
-
-      // Update the profile state with the new values
       setProfile((prevProfile) => ({
         ...prevProfile,
         username,
@@ -52,49 +71,62 @@ const Profile = () => {
     }
   };
 
-  // If the profile is not available, show a loading message
+  // Render the profile information and edit form
   if (!profile) {
     return <p>Loading...</p>;
   }
 
-  // Render the profile management form
+  // Render the profile information and edit form
   return (
     <div>
-      <h1>Profile</h1>
-      {/* Back to BlogList button */}
-      <button onClick={() => window.history.back()} style={{ marginBottom: '10px' }}>
-        Back to Blog List
+      <h1>{profile.username}'s Profile</h1>
+      {/* Back to blog */}
+      <button onClick={() => window.history.back()} style={{ marginRight: '10px' }}>
+        Back to Blog
       </button>
-      {/* Profile information */}
-      <h2>Welcome, {profile.username}</h2>
       <p>Email: {profile.email}</p>
-      <h3>Update Profile</h3>
-      <p>Update your username and email address below:</p>
-      <p style={{ fontSize: '0.8em' }}>
-        Note: You can only update your username and email address. To change your password, please contact support.
-      </p>
-      <form onSubmit={handleUpdate}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Update Profile</button>
-      </form>
-      {message && <p>{message}</p>}
+      {/* If the current user is the Profile owner... */}
+      {isCurrentUser && (
+        <>
+          <h3>Edit Profile</h3>
+          <form onSubmit={handleUpdate}>
+            <div>
+              <label>Username:</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label>Email:</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit">Update Profile</button>
+          </form>
+          {message && <p>{message}</p>}
+        </>
+      )}
+      <h3>Recent Posts</h3>
+      {posts.length > 0 ? (
+        <ul>
+          {posts.map((post) => (
+            <li key={post.id}>
+              <h4>{post.title}</h4>
+              <p>{post.content}</p>
+              <p style={{ fontSize: '0.8em' }}>Created At: {new Date(post.created_at).toLocaleString()}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No posts available.</p>
+      )}
     </div>
   );
 };
