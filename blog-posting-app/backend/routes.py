@@ -56,6 +56,47 @@ def login():
     return jsonify({"access_token": access_token}), 200
 
 
+# Route to get the user's profile
+@routes.route('/profile', methods=['GET'])
+@jwt_required()
+def get_profile():
+    user_id = get_jwt_identity()  # Get the user ID from the JWT token
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    return jsonify({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "created_at": user.created_at.isoformat()
+    }), 200
+
+
+# Route to update the user's profile
+@routes.route('/profile', methods=['PUT'])
+@jwt_required()
+def update_profile():
+    user_id = get_jwt_identity()  # Get the user ID from the JWT token
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+
+    # Validate input
+    if not username or not email:
+        return jsonify({"msg": "Username and email are required"}), 400
+
+    # Update user information
+    user.username = username
+    user.email = email
+    db.session.commit()
+
+    return jsonify({"msg": "Profile updated successfully"}), 200
+
+
 # Route to get all blog posts
 @routes.route('/posts', methods=['GET'])
 @jwt_required()

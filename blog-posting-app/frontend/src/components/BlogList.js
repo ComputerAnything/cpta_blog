@@ -39,10 +39,15 @@ const BlogList = () => {
   return (
     <div>
       <h1>Hello {username}, Welcome to the Computer Anything Blog!</h1>
+      <button onClick={() => navigate('/profile')} style={{ marginRight: '10px' }}>
+        Profile
+      </button>
       <button onClick={() => navigate('/create-post')} style={{ marginRight: '10px' }}>
         Create New Post
       </button>
-      <button onClick={handleLogout}>Logout</button>
+      <button onClick={handleLogout}>
+        Logout
+      </button>
       <h1>Blog Posts</h1>
       {message && <p>{message}</p>}
       {posts.length > 0 ? (
