@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import API from '../services/api';
 
 
@@ -8,6 +8,7 @@ const PostDetail = () => {
   const { postId } = useParams(); // Get the post ID from the URL
   const [post, setPost] = useState(null);
   const [error, setError] = useState('');
+  const [isCurrentUser, setIsCurrentUser] = useState(false); // Track if the post belongs to the current user
   const navigate = useNavigate();
 
   // Fetch the post details when the component mounts
@@ -18,6 +19,10 @@ const PostDetail = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         setPost(response.data);
+
+        // Check if the post belongs to the current user
+        const currentUserId = localStorage.getItem('userId'); // Get the current user's ID from localStorage
+        setIsCurrentUser(currentUserId === String(response.data.user_id)); // Compare as strings
       } catch (err) {
         console.error('Error fetching post:', err.response?.data || err.message);
         setError('Failed to load the post. Please try again.');
@@ -45,8 +50,18 @@ const PostDetail = () => {
       </button>
       <h1>{post.title}</h1>
       <p>{post.content}</p>
-      <p style={{ fontSize: '0.8em' }}>Author: {post.author}</p>
-      <p style={{ fontSize: '0.8em' }}>Created At: {new Date(post.created_at).toLocaleString()}</p>
+      <p style={{ fontSize: '0.8em' }}>
+        Author: <Link to={`/profile/${post.user_id}`}>{post.author}</Link>
+      </p>
+      <p style={{ fontSize: '0.8em' }}>
+        Posted On: {new Date(post.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+      </p>
+      {/* Show the Edit button if the post belongs to the current user */}
+      {isCurrentUser && (
+        <button style={{ marginTop: '10px' }} onClick={() => alert('Edit functionality coming soon!')}>
+          Edit Post
+        </button>
+      )}
     </div>
   );
 };

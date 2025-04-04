@@ -61,7 +61,9 @@ const BlogList = () => {
               <p style={{ fontSize: '0.8em' }}>
                 Author: <Link to={`/profile/${post.user_id}`}>{post.author}</Link>
               </p>
-              <p style={{ fontSize: '0.8em' }}>Created At: {new Date(post.created_at).toLocaleString()}</p>
+              <p style={{ fontSize: '0.8em' }}>
+                Posted On: {new Date(post.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+              </p>
             </li>
           ))}
         </ul>
