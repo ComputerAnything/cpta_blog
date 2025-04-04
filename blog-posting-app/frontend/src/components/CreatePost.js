@@ -22,8 +22,9 @@ const CreatePost = () => {
         }
       );
       setMessage('Post created successfully!');
-      setTimeout(() => navigate('/blog'), 2000); // Redirect to blog list after 2 seconds
+      setTimeout(() => navigate('/posts'), 2000); // Redirect to blog list after 2 seconds
     } catch (error) {
+
       console.error('Error creating post:', error.response?.data || error.message);
       setMessage('Failed to create post. Please try again.');
     }

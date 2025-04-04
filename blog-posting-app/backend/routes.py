@@ -113,6 +113,16 @@ def get_user_profile(user_id):
     }), 200
 
 
+# BLOG POST ROUTES
+# Route to get all blog posts
+@routes.route('/posts', methods=['GET'])
+@jwt_required()
+def get_posts():
+    posts = BlogPost.query.all()
+    print(f"JWT Identity: {get_jwt_identity()}")
+    return jsonify([post.to_dict() for post in posts]), 200
+
+
 # Route to get all posts by a specific user
 @routes.route('/users/<int:user_id>/posts', methods=['GET'])
 @jwt_required()
@@ -122,15 +132,6 @@ def get_user_posts(user_id):
         return jsonify({"msg": "User not found"}), 404
 
     posts = BlogPost.query.filter_by(user_id=user_id).all()
-    return jsonify([post.to_dict() for post in posts]), 200
-
-
-# Route to get all blog posts
-@routes.route('/posts', methods=['GET'])
-@jwt_required()
-def get_posts():
-    posts = BlogPost.query.all()
-    print(f"JWT Identity: {get_jwt_identity()}")
     return jsonify([post.to_dict() for post in posts]), 200
 
 
@@ -164,3 +165,33 @@ def create_post():
     db.session.commit()
 
     return jsonify(new_post.to_dict()), 201
+
+
+# Route to update a blog post
+@routes.route('/posts/<int:post_id>', methods=['PUT'])
+@jwt_required()
+def update_post(post_id):
+    user_id = get_jwt_identity()  # Get the user ID from the JWT token
+    post = BlogPost.query.get(post_id)
+
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    # Ensure the post belongs to the current user
+    if post.user_id != int(user_id):
+        return jsonify({"msg": "You are not authorized to edit this post"}), 403
+
+    data = request.get_json()
+    title = data.get('title')
+    content = data.get('content')
+
+    # Validate input
+    if not title or not content:
+        return jsonify({"msg": "Title and content are required"}), 400
+
+    # Update the post
+    post.title = title
+    post.content = content
+    db.session.commit()
+
+    return jsonify({"msg": "Post updated successfully", "post": post.to_dict()}), 200

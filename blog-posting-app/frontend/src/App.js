@@ -6,6 +6,7 @@ import Profile from './components/Profile';
 import BlogList from './components/BlogList';
 import PostDetail from './components/PostDetail';
 import CreatePost from './components/CreatePost';
+import EditPost from './components/EditPost';
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 
 
@@ -17,9 +18,10 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         {/* Protected Routes */}
-        <Route path="/blog" element={<ProtectedRoute><BlogList /></ProtectedRoute>} />
+        <Route path="/posts" element={<ProtectedRoute><BlogList /></ProtectedRoute>} />
         <Route path="/create-post" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
-        <Route path="/posts/:postId" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
+        <Route path="/posts/:postId/edit" element={<ProtectedRoute><EditPost /></ProtectedRoute>} />
+        <Route path="/posts/:postId?" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/profile/:userId?" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         {/* Fallback route */}

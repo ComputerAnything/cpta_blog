@@ -45,7 +45,7 @@ const PostDetail = () => {
   // Render the post details
   return (
     <div>
-      <button onClick={() => navigate('/blog')} style={{ marginBottom: '10px' }}>
+      <button onClick={() => navigate('/posts')} style={{ marginBottom: '10px' }}>
         Back to Blog List
       </button>
       <h1>{post.title}</h1>
@@ -58,7 +58,10 @@ const PostDetail = () => {
       </p>
       {/* Show the Edit button if the post belongs to the current user */}
       {isCurrentUser && (
-        <button style={{ marginTop: '10px' }} onClick={() => alert('Edit functionality coming soon!')}>
+        <button
+          style={{ marginTop: '10px' }}
+          onClick={() => navigate(`/posts/${postId}/edit`)} // Navigate to the EditPost page
+        >
           Edit Post
         </button>
       )}
