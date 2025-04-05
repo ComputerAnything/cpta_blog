@@ -63,10 +63,11 @@ const EditPost = () => {
           />
         </div>
         <div>
-          <label>Content:</label>
+          <label>Content (Markdown Supported):</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            placeholder="Write your post in Markdown format..."
             required
           />
         </div>

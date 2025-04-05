@@ -1,0 +1,168 @@
+/* General styling for the container */
+.bloglist-container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    background-color: #000; /* Black background */
+    color: #00ff00; /* Green text */
+    font-family: Arial, sans-serif;
+}
+
+/* Left panel styling */
+.left-panel {
+    width: 25%;
+    background-color: #111; /* Slightly lighter black for contrast */
+    padding: 20px;
+    border-right: 1px solid #00ff00; /* Green border */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.left-panel h2 {
+    color: #00ff00; /* Green headings */
+    margin-bottom: 10px;
+}
+
+.left-panel p {
+    color: #00ff00; /* Green text */
+}
+
+/* Profile list styling */
+.left-panel ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px; /* Limit the height of the list */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #00ff00; /* Add a green border around the list */
+    border-radius: 5px;
+    background-color: #222; /* Slightly lighter black for contrast */
+    padding: 10px;
+}
+
+/* Right panel styling */
+.right-panel {
+    width: 75%;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.right-panel h1 {
+    color: #00ff00; /* Green headings */
+    margin-bottom: 20px;
+}
+
+/* Buttons styling */
+button {
+    background-color: #00ff00; /* Green background */
+    color: #000; /* Black text */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 5px 0; /* Add vertical spacing between buttons */
+}
+
+button:hover {
+    background-color: #008f00; /* Darker green on hover */
+}
+
+/* Blog post list styling */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #00ff00; /* Green border */
+    border-radius: 5px;
+    background-color: #111; /* Slightly lighter black */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+li h2 {
+    margin: 0 0 10px;
+    color: #00ff00; /* Green headings */
+}
+
+li p {
+    margin: 5px 0;
+    color: #00ff00; /* Green text */
+}
+
+/* Links styling */
+a {
+    color: #00ff00; /* Green links */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Scrollbar styling for the right panel */
+.right-panel::-webkit-scrollbar {
+    width: 10px;
+}
+
+.right-panel::-webkit-scrollbar-thumb {
+    background-color: #00ff00; /* Green scrollbar */
+    border-radius: 5px;
+}
+
+.right-panel::-webkit-scrollbar-track {
+    background-color: #111; /* Slightly lighter black */
+}
+
+/* Tag styling */
+.tags {
+    margin-top: 10px;
+}
+
+.tag {
+    display: inline-block;
+    background-color: #00ff00; /* Green background */
+    color: #000; /* Black text */
+    padding: 5px 10px;
+    margin-right: 5px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.tag:hover {
+    background-color: #008f00; /* Darker green on hover */
+    color: #fff; /* White text on hover */
+}
+
+/* Post info */
+.post-info {
+    font-size: 0.9em;
+    color: #00ff00; /* Green text */
+    margin-top: 25px;
+}
+
+/* Search bar styling */
+.search-bar {
+    width: 90%; /* Adjust the width to fit within the left panel */
+    padding: 8px; /* Reduce padding for a smaller input field */
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #00ff00; /* Green border */
+    border-radius: 5px;
+    background-color: #111; /* Slightly lighter black */
+    color: #00ff00; /* Green text */
+    font-size: 0.9em; /* Slightly smaller font size */
+    display: block; /* Ensure it doesn't overflow */
+}
+
+.search-bar::placeholder {
+    color: #888; /* Gray placeholder text */
+}
+
+.search-bar:focus {
+    outline: none;
+    border-color: #008f00; /* Darker green on focus */
+}

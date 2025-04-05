@@ -3,6 +3,7 @@ import API from '../services/api';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../styles/Auth.css'; // Import the shared CSS file
 
+
 // This component handles user login
 const Login = () => {
   const [username, setUsername] = useState('');
