@@ -1,0 +1,108 @@
+/* General container styling */
+.post-detail-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #000; /* Black background */
+    color: #00ff00; /* Green text */
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+}
+
+/* Post header styling */
+.post-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.post-header h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.post-header .tags {
+    margin-top: 10px;
+}
+
+.post-header .tag {
+    display: inline-block;
+    background-color: #00ff00; /* Green background */
+    color: #000; /* Black text */
+    padding: 5px 10px;
+    margin-right: 5px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.post-header .tag:hover {
+    background-color: #008f00; /* Darker green on hover */
+    color: #fff; /* White text on hover */
+}
+
+/* Post content styling */
+.post-content {
+    width: 100%;
+    max-width: 800px;
+    background-color: #111; /* Slightly lighter black */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+    color: #00ff00; /* Green text */
+    font-size: 1em;
+    line-height: 1.6;
+}
+
+/* Post info styling */
+.post-info {
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #00ff00; /* Green text */
+}
+
+.post-info a {
+    color: #00ff00; /* Green links */
+    text-decoration: none;
+}
+
+.post-info a:hover {
+    text-decoration: underline;
+}
+
+/* Share button styling */
+.share-button {
+    background-color: #00ff00; /* Green background */
+    color: #000; /* Black text */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.share-button:hover {
+    background-color: #008f00; /* Darker green on hover */
+    color: #fff; /* White text on hover */
+}
+
+/* Back button styling */
+.back-button {
+    background-color: #00ff00; /* Green background */
+    color: #000; /* Black text */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #008f00; /* Darker green on hover */
+    color: #fff; /* White text on hover */
+}
