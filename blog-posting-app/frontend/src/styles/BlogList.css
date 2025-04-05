@@ -143,19 +143,29 @@ a:hover {
     color: #00ff00; /* Green text */
     margin-top: 25px;
 }
+/* Search bar container styling */
+.search-bar-container {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #111; /* Slightly lighter black */
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.search-bar-container h2 {
+    margin-bottom: 10px;
+    color: #00ff00; /* Green text */
+}
 
 /* Search bar styling */
 .search-bar {
-    width: 90%; /* Adjust the width to fit within the left panel */
-    padding: 8px; /* Reduce padding for a smaller input field */
-    margin-top: 10px;
-    margin-bottom: 20px;
+    width: 90%;
+    padding: 10px;
     border: 1px solid #00ff00; /* Green border */
     border-radius: 5px;
-    background-color: #111; /* Slightly lighter black */
+    background-color: #222; /* Slightly lighter black */
     color: #00ff00; /* Green text */
-    font-size: 0.9em; /* Slightly smaller font size */
-    display: block; /* Ensure it doesn't overflow */
+    font-size: 1em;
 }
 
 .search-bar::placeholder {
@@ -163,6 +173,30 @@ a:hover {
 }
 
 .search-bar:focus {
+    outline: none;
+    border-color: #008f00; /* Darker green on focus */
+}
+/* Profile search bar container styling */
+.profile-search-bar-container {
+    margin-bottom: 15px;
+    width: 100%; /* Ensure the container stays within the left panel */
+}
+
+.profile-search-bar {
+    width: 90%; /* Reduce the width to prevent overflow */
+    padding: 8px;
+    border: 1px solid #00ff00; /* Green border */
+    border-radius: 5px;
+    background-color: #222; /* Slightly lighter black */
+    color: #00ff00; /* Green text */
+    font-size: 0.9em;
+}
+
+.profile-search-bar::placeholder {
+    color: #888; /* Gray placeholder text */
+}
+
+.profile-search-bar:focus {
     outline: none;
     border-color: #008f00; /* Darker green on focus */
 }

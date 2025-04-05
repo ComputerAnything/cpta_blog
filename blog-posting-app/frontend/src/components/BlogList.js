@@ -6,13 +6,13 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'; //
 import '../styles/BlogList.css'; // Import CSS for styling
 import API from '../services/api';
 
-
-// This component displays a list of blog posts and allows users to search by tags
 const BlogList = () => {
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]); // State for filtered posts
   const [profiles, setProfiles] = useState([]); // State to store profiles
-  const [searchTerm, setSearchTerm] = useState(''); // State for the search term
+  const [filteredProfiles, setFilteredProfiles] = useState([]); // State for filtered profiles
+  const [searchTerm, setSearchTerm] = useState(''); // State for the blog post search term
+  const [profileSearchTerm, setProfileSearchTerm] = useState(''); // State for the profile search term
   const [username] = useState(localStorage.getItem('username'));
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,8 +25,14 @@ const BlogList = () => {
         const response = await API.get('/posts', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        setPosts(response.data);
-        setFilteredPosts(response.data); // Initialize filtered posts
+
+        // Sort posts by created_at in descending order
+        const sortedPosts = response.data.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+
+        setPosts(sortedPosts);
+        setFilteredPosts(sortedPosts); // Initialize filtered posts
       } catch (error) {
         console.error('Error fetching posts:', error.response?.data || error.message);
         setPosts([]); // Clear posts if there's an error
@@ -34,16 +40,17 @@ const BlogList = () => {
       }
     };
 
-    // Fetch profiles
     const fetchProfiles = async () => {
       try {
         const response = await API.get('/users', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         setProfiles(response.data);
+        setFilteredProfiles(response.data); // Initialize filtered profiles
       } catch (error) {
         console.error('Error fetching profiles:', error.response?.data || error.message);
         setProfiles([]); // Clear profiles if there's an error
+        setFilteredProfiles([]);
       }
     };
 
@@ -59,7 +66,7 @@ const BlogList = () => {
     navigate('/');
   };
 
-  // Function to handle search
+  // Function to handle blog post search
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
@@ -77,6 +84,24 @@ const BlogList = () => {
     setFilteredPosts(filtered);
   };
 
+  // Function to handle profile search
+  const handleProfileSearch = (e) => {
+    const term = e.target.value.toLowerCase();
+    setProfileSearchTerm(term);
+
+    // If the search term is empty, reset filteredProfiles to show all profiles
+    if (!term) {
+      setFilteredProfiles(profiles);
+      return;
+    }
+
+    // Filter profiles based on the search term
+    const filtered = profiles.filter((profile) =>
+      profile.username.toLowerCase().includes(term)
+    );
+    setFilteredProfiles(filtered);
+  };
+
   // Render the list of posts and profiles
   return (
     <div className="bloglist-container">
@@ -91,25 +116,36 @@ const BlogList = () => {
         <button onClick={handleLogout}>
           Logout
         </button>
-        <h2>Checkout Other Blogger Profiles</h2>
+        <h2>Blogger Profiles</h2>
+        <div className="profile-search-bar-container">
+          <input
+            type="text"
+            value={profileSearchTerm}
+            onChange={handleProfileSearch}
+            placeholder="Search profiles by username"
+            className="profile-search-bar"
+          />
+        </div>
         <ul>
-          {profiles.map((profile) => (
+          {filteredProfiles.map((profile) => (
             <li key={profile.id}>
               <Link to={`/profile/${profile.id}`}>{profile.username}</Link>
             </li>
           ))}
         </ul>
-        <h2>Search by Tags</h2>
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={handleSearch}
-          placeholder="Enter tags (e.g., #tech)"
-          className="search-bar"
-        />
       </div>
       <div className="right-panel">
         <h1>Computer Anything Tech Blog</h1>
+        <div className="search-bar-container">
+          <h2>Search by Tags</h2>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Enter tags (e.g., #tech)"
+            className="search-bar"
+          />
+        </div>
         {message && <p>{message}</p>}
         {filteredPosts.length > 0 ? (
           <ul>

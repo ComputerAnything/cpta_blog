@@ -34,7 +34,8 @@ const Profile = () => {
         const postsResponse = await API.get(`/users/${response.data.id}/posts`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        setPosts(postsResponse.data);
+        const sortedPosts = postsResponse.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setPosts(sortedPosts);
       } catch (error) {
         console.error('Error fetching profile or posts:', error.response?.data || error.message);
       }
