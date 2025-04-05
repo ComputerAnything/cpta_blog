@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import API from '../services/api';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-
+import '../styles/Auth.css'; // Import the shared CSS file
 
 // This component handles user login
 const Login = () => {
@@ -17,10 +17,10 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await API.post('/login', { username, password });
-      localStorage.setItem('token', response.data.access_token); // Save the token in localStorage
-      localStorage.setItem('username', username); // Save the username in localStorage
-      localStorage.setItem('userId', response.data.user_id); // Save the user ID in localStorage
-      navigate('/posts'); // Redirect to the posts page
+      localStorage.setItem('token', response.data.access_token);
+      localStorage.setItem('username', username);
+      localStorage.setItem('userId', response.data.user_id);
+      navigate('/posts');
     } catch (error) {
       setMessage('Login failed. Please check your credentials.');
     }
@@ -28,28 +28,30 @@ const Login = () => {
 
   // Render the login form
   return (
-    <div>
-      <h1>Login</h1>
-      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>} {/* Display success message */}
-      <form onSubmit={handleLogin}>
+    <div className="auth-container">
+      <form className="auth-form" onSubmit={handleLogin}>
+        <h1>Login</h1>
+        {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
         <input
           type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          required
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
         <button type="submit">Login</button>
+        <p>
+          Don't have an account? <Link to="/register">Register here</Link>
+        </p>
+        {message && <p>{message}</p>}
       </form>
-      {message && <p>{message}</p>}
-      <p>
-        Don't have an account? <Link to="/register">Register here</Link>
-      </p>
     </div>
   );
 };
