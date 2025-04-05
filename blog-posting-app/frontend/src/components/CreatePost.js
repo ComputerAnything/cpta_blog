@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown'; // Import ReactMarkdown for preview
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'; // Import SyntaxHighlighter
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Import a syntax highlighting theme
 import API from '../services/api';
-import '../styles/CreatePost.css'; // Import the CSS file
+import '../styles/CreateEditPost.css'; // Import the CSS file
 
 
 // This component handles the creation of a new blog post
@@ -43,7 +43,7 @@ const CreatePost = () => {
 
   // Render the create post form
   return (
-    <div className="createpost-container">
+    <div className="create-edit-post-container">
       <div className="form-section">
         <h1>Create New Post</h1>
         <button

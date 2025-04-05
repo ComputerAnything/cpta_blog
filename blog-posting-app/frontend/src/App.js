@@ -20,7 +20,7 @@ const App = () => {
         {/* Protected Routes */}
         <Route path="/posts" element={<ProtectedRoute><BlogList /></ProtectedRoute>} />
         <Route path="/create-post" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
-        <Route path="/posts/:postId/edit" element={<ProtectedRoute><EditPost /></ProtectedRoute>} />
+        <Route path="/edit-post/:postId" element={<ProtectedRoute><EditPost /></ProtectedRoute>} />
         <Route path="/posts/:postId?" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/profile/:userId?" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
