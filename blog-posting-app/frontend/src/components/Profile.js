@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Import a syntax highlighting theme
 import API from '../services/api';
+import '../styles/Profile.css'; // Import the CSS file
 
 
-// This component displays the user's profile information and allows them to edit it
+// This component displays the user's profile and allows them to edit their information
 const Profile = () => {
-  const { userId } = useParams(); // Get the userId from the URL (optional)
+  const { userId } = useParams();
   const [profile, setProfile] = useState(null);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
-  const [posts, setPosts] = useState([]); // State to store the user's posts
-  const [isCurrentUser, setIsCurrentUser] = useState(false); // Track if this is the current user's profile
+  const [posts, setPosts] = useState([]);
+  const [isCurrentUser, setIsCurrentUser] = useState(false);
 
-  // Fetch the profile and posts when the component mounts or userId changes
+  // Fetch the user's profile and posts when the component mounts
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -24,18 +28,9 @@ const Profile = () => {
         setUsername(response.data.username);
         setEmail(response.data.email);
 
-        // Check if the profile belongs to the current user
-        // Store the current user's ID in localStorage during login
-        // We can now use this var to check if the profile, or blog post, belongs to the current user
         const currentUserId = localStorage.getItem('userId');
         setIsCurrentUser(currentUserId === String(response.data.id));
 
-        // Debugging logs
-        // console.log('Current User ID:', currentUserId);
-        // console.log('Profile User ID:', response.data.id);
-        // console.log('Is Current User:', currentUserId === String(response.data.id));
-
-        // Fetch the user's posts
         const postsResponse = await API.get(`/users/${response.data.id}/posts`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
@@ -44,11 +39,10 @@ const Profile = () => {
         console.error('Error fetching profile or posts:', error.response?.data || error.message);
       }
     };
-    // Call the fetchProfile function to get the profile and posts
     fetchProfile();
   }, [userId]);
 
-  // Function to handle profile update
+  // Handle form submission to update the profile
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -71,62 +65,97 @@ const Profile = () => {
     }
   };
 
-  // Render the profile information and edit form
+  // Render the profile and posts
   if (!profile) {
     return <p>Loading...</p>;
   }
 
-  // Render the profile information and edit form
   return (
-    <div>
-      <h1>{profile.username}'s Profile</h1>
-      {/* Back to blog */}
-      <button onClick={() => window.history.back()} style={{ marginRight: '10px' }}>
-        Back to Blog
-      </button>
-      <p>Email: {profile.email}</p>
-      {/* If the current user is the Profile owner... */}
+    <div className="profile-container">
+      <div className="profile-header">
+        <h1>{profile.username}'s Profile</h1>
+        <p>Email: {profile.email}</p>
+        <button className="back-to-blog-btn" onClick={() => window.history.back()}>
+          Back to Blog
+        </button>
+      </div>
       {isCurrentUser && (
-        <>
+        <form className="edit-profile-form" onSubmit={handleUpdate}>
           <h3>Edit Profile</h3>
-          <form onSubmit={handleUpdate}>
-            <div>
-              <label>Username:</label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label>Email:</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit">Update Profile</button>
-          </form>
+          <div>
+            <label>Username:</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>Email:</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit">Update Profile</button>
           {message && <p>{message}</p>}
-        </>
+        </form>
       )}
-      <h3>Recent Posts</h3>
-      {posts.length > 0 ? (
-        <ul>
-          {posts.map((post) => (
-            <li key={post.id}>
-              <h4>{post.title}</h4>
-              <p>{post.content}</p>
-              <p style={{ fontSize: '0.8em' }}>Created At: {new Date(post.created_at).toLocaleString()}</p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No posts available.</p>
-      )}
+      <div className="recent-posts">
+        <h3>Recent Posts</h3>
+        {posts.length > 0 ? (
+          <ul>
+            {posts.map((post) => (
+              <li key={post.id}>
+                <h4>{post.title}</h4>
+                <ReactMarkdown
+                  children={post.content}
+                  components={{
+                    code({ node, inline, className, children, ...props }) {
+                      const match = /language-(\w+)/.exec(className || '');
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          style={vscDarkPlus}
+                          language={match[1]}
+                          PreTag="div"
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, '')}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      );
+                    },
+                  }}
+                />
+                {/* Render tags */}
+                {post.topic_tags && (
+                  <div className="tags">
+                    <strong>Topic Tags:</strong>{' '}
+                    {post.topic_tags.split(',').map((tag, index) => (
+                      <span key={index} className="tag">
+                        {tag.trim()}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="post-info">
+                  <p style={{ fontSize: '0.8em' }}>
+                    Posted On: {new Date(post.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No posts available.</p>
+        )}
+      </div>
     </div>
   );
 };
