@@ -45,8 +45,13 @@ const BlogList = () => {
         const response = await API.get('/users', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        setProfiles(response.data);
-        setFilteredProfiles(response.data); // Initialize filtered profiles
+
+        // Sort profiles by username in ascending order
+        const sortedProfiles = response.data.sort((a, b) =>
+          a.username.localeCompare(b.username)
+        );
+        setProfiles(sortedProfiles);
+        setFilteredProfiles(sortedProfiles); // Initialize filtered profiles
       } catch (error) {
         console.error('Error fetching profiles:', error.response?.data || error.message);
         setProfiles([]); // Clear profiles if there's an error
