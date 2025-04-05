@@ -30,6 +30,7 @@ class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
+    topic_tags = db.Column(db.String(255), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -40,6 +41,7 @@ class BlogPost(db.Model):
             "id": self.id,
             "title": self.title,
             "content": self.content,
+            "topic_tags": self.topic_tags,
             "user_id": self.user_id,
             "author": self.user.username,
             "created_at": self.created_at.isoformat()

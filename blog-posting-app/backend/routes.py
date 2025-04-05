@@ -113,6 +113,14 @@ def get_user_profile(user_id):
     }), 200
 
 
+# Route to get all user profiles
+@routes.route('/users', methods=['GET'])
+@jwt_required()
+def get_all_users():
+    users = User.query.all()
+    return jsonify([{"id": user.id, "username": user.username} for user in users]), 200
+
+
 # BLOG POST ROUTES
 # Route to get all blog posts
 @routes.route('/posts', methods=['GET'])
@@ -153,6 +161,7 @@ def create_post():
     data = request.get_json()
     title = data.get('title')
     content = data.get('content')
+    topic_tags = data.get('topic_tags') # Optional field
     user_id = get_jwt_identity()  # Get the user ID from the JWT token
 
     # Validate input
@@ -160,7 +169,7 @@ def create_post():
         return jsonify({"msg": "Title and content are required"}), 400
 
     # Create a new blog post
-    new_post = BlogPost(title=title, content=content, user_id=user_id)
+    new_post = BlogPost(title=title, content=content, topic_tags=topic_tags, user_id=user_id)
     db.session.add(new_post)
     db.session.commit()
 
@@ -184,6 +193,7 @@ def update_post(post_id):
     data = request.get_json()
     title = data.get('title')
     content = data.get('content')
+    topic_tags = data.get('topic_tags') # Optional field
 
     # Validate input
     if not title or not content:
@@ -192,6 +202,7 @@ def update_post(post_id):
     # Update the post
     post.title = title
     post.content = content
+    post.topic_tags = topic_tags
     db.session.commit()
 
     return jsonify({"msg": "Post updated successfully", "post": post.to_dict()}), 200
