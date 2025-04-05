@@ -1,9 +1,8 @@
-from enum import verify
+from datetime import timedelta
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app import db
 from models import User, BlogPost
-from flask_sqlalchemy import SQLAlchemy
 
 
 # Create a blueprint for the routes
@@ -52,7 +51,7 @@ def login():
         return jsonify({"msg": "Incorrect password"}), 401
 
     # Generate access token if login is successful
-    access_token = create_access_token(identity=str(user.id))
+    access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(hours=12))
     print(f"User ID: {user.id}")
     return jsonify({"access_token": access_token, "user_id": user.id}), 200
 
