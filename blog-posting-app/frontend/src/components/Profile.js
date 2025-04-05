@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Import a syntax highlighting theme
@@ -111,7 +111,9 @@ const Profile = () => {
           <ul>
             {posts.map((post) => (
               <li key={post.id}>
-                <h4>{post.title}</h4>
+                <h3>
+                  <Link to={`/posts/${post.id}`}>{post.title}</Link>
+                </h3>
                 <ReactMarkdown
                   children={post.content}
                   components={{
