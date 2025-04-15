@@ -238,36 +238,34 @@ const PostDetail = () => {
         </div>
       </div>
 
-
-
       {/* Comments Section */}
       <div className="comments-section">
         <h3>Comments</h3>
-        <ul>
-        {comments.map((comment) => (
-          <li key={comment.id}>
-            <p><strong>{comment.username}:</strong></p>
-            <div className="comment-content">
-              <ReactMarkdown
-                children={comment.content}
-                components={markdownComponents} // Reuse the same components configuration
-              />
-            </div>
-            <p style={{ fontSize: '0.8em', color: '#888' }}>
-              Posted on: {new Date(comment.created_at).toLocaleString()}
-            </p>
-            {/* Delete button (only visible to the comment owner) */}
-            {comment.user_id === parseInt(currentUserId) && (
-              <button
-                className="delete-comment-button"
-                onClick={() => handleDeleteComment(comment.id)}
-              >
-                Delete
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
+          <ul>
+            {[...comments].reverse().map((comment) => (
+              <li key={comment.id}>
+                <p><strong>{comment.username}:</strong></p>
+                <div className="comment-content">
+                  <ReactMarkdown
+                    children={comment.content}
+                    components={markdownComponents} // Reuse the same components configuration
+                  />
+                </div>
+                <p style={{ fontSize: '0.8em', color: '#888' }}>
+                  Posted on: {new Date(comment.created_at).toLocaleString()}
+                </p>
+                {/* Delete button (only visible to the comment owner) */}
+                {comment.user_id === parseInt(currentUserId) && (
+                  <button
+                    className="delete-comment-button"
+                    onClick={() => handleDeleteComment(comment.id)}
+                  >
+                    Delete
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
         <form onSubmit={handleCommentSubmit}>
           <textarea
             value={commentContent}
