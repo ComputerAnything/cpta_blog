@@ -2,7 +2,7 @@ from datetime import timedelta
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app import db
-from models import User, BlogPost
+from models import User, BlogPost, Vote
 
 
 # Create a blueprint for the routes
@@ -225,3 +225,65 @@ def delete_post(post_id):
     db.session.commit()
 
     return jsonify({"msg": "Post deleted successfully"}), 200
+
+
+# Routes for voting on posts
+# Route to upvote a blog post
+@routes.route('/posts/<int:post_id>/upvote', methods=['POST'])
+@jwt_required()
+def upvote_post(post_id):
+    user_id = get_jwt_identity()
+    post = BlogPost.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    # Check if the user has already voted
+    existing_vote = Vote.query.filter_by(user_id=user_id, post_id=post_id).first()
+    if existing_vote:
+        if existing_vote.vote_type == 'upvote':
+            # Remove the upvote
+            db.session.delete(existing_vote)
+            post.upvotes -= 1
+        else:
+            # Change the vote to upvote
+            existing_vote.vote_type = 'upvote'
+            post.upvotes += 1
+            post.downvotes -= 1
+    else:
+        # Add a new upvote
+        new_vote = Vote(user_id=user_id, post_id=post_id, vote_type='upvote')
+        db.session.add(new_vote)
+        post.upvotes += 1
+
+    db.session.commit()
+    return jsonify({"msg": "Post upvoted successfully", "upvotes": post.upvotes, "downvotes": post.downvotes}), 200
+
+# Route to downvote a blog post
+@routes.route('/posts/<int:post_id>/downvote', methods=['POST'])
+@jwt_required()
+def downvote_post(post_id):
+    user_id = get_jwt_identity()
+    post = BlogPost.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    # Check if the user has already voted
+    existing_vote = Vote.query.filter_by(user_id=user_id, post_id=post_id).first()
+    if existing_vote:
+        if existing_vote.vote_type == 'downvote':
+            # Remove the downvote
+            db.session.delete(existing_vote)
+            post.downvotes -= 1
+        else:
+            # Change the vote to downvote
+            existing_vote.vote_type = 'downvote'
+            post.downvotes += 1
+            post.upvotes -= 1
+    else:
+        # Add a new downvote
+        new_vote = Vote(user_id=user_id, post_id=post_id, vote_type='downvote')
+        db.session.add(new_vote)
+        post.downvotes += 1
+
+    db.session.commit()
+    return jsonify({"msg": "Post downvoted successfully", "upvotes": post.upvotes, "downvotes": post.downvotes}), 200

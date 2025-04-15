@@ -107,6 +107,17 @@ const BlogList = () => {
     setFilteredProfiles(filtered);
   };
 
+  // Calculate dynamic color based on upvotes and downvotes
+  const calculateScaleColor = (upvotes, downvotes) => {
+    const totalVotes = upvotes + downvotes;
+    if (totalVotes === 0) return '#888'; // Neutral gray for no votes
+
+    const ratio = upvotes / totalVotes; // Ratio of upvotes to total votes
+    const red = Math.round(255 * (1 - ratio)); // More downvotes = more red
+    const green = Math.round(255 * ratio); // More upvotes = more green
+    return `rgb(${red}, ${green}, 0)`; // Dynamic color
+  };
+
   // Render the list of posts and profiles
   return (
     <div className="bloglist-container">
@@ -193,6 +204,18 @@ const BlogList = () => {
                   </div>
                 )}
                 <div className="post-info">
+                  {/* Add the voting scale */}
+                  <div className="vote-scale-container">
+                    <div
+                      className="vote-scale"
+                      style={{
+                        backgroundColor: calculateScaleColor(post.upvotes, post.downvotes),
+                      }}
+                    ></div>
+                    <p className="vote-counts">
+                      {post.upvotes} Upvotes / {post.downvotes} Downvotes
+                    </p>
+                  </div>
                   <p style={{ fontSize: '0.8em' }}>
                     Author: <Link to={`/profile/${post.user_id}`}>{post.author}</Link>
                   </p>

@@ -49,10 +49,6 @@ blog-posting-app
   flask db upgrade
   ```
 
-## Switching branches
-
-1. Make sure make all of the migrations on the `main` branch before switching to any other branch.
-2. To edit the 
 ## Frontend Setup
 
 1. Navigate to the `frontend` directory.
@@ -64,6 +60,20 @@ blog-posting-app
   ```
   npm start
   ```
+
+## Running the app
+
+1. First start the backend server:
+   ```
+   cd backend
+   flask run
+   ```
+2. Then start the frontend server:
+   ```
+    cd frontend
+    npm start
+    ```
+3. Open your browser and navigate to `http://localhost:3000` to view the application.
 
 ## Features
 

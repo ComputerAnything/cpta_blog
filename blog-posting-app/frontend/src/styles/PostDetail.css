@@ -106,3 +106,23 @@
     background-color: #008f00; /* Darker green on hover */
     color: #fff; /* White text on hover */
 }
+
+.upvote-button, .downvote-button {
+    background-color: #00ff00; /* Green background */
+    color: #000; /* Black text */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.upvote-button:hover {
+    background-color: #008f00; /* Darker green on hover */
+}
+
+.downvote-button:hover {
+    background-color: #ff0000; /* Red background on hover */
+}

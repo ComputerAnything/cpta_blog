@@ -200,3 +200,41 @@ a:hover {
     outline: none;
     border-color: #008f00; /* Darker green on focus */
 }
+
+/* Blog Post Voting Scale */
+.post-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.post-content {
+    flex: 1;
+    margin-bottom: 10px;
+}
+
+.vote-scale-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.vote-scale {
+    width: 80%; /* Make the scale longer */
+    height: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.vote-counts {
+    font-size: 0.8em;
+    text-align: center;
+    color: #555;
+}
