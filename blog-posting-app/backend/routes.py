@@ -2,7 +2,7 @@ from datetime import timedelta
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app import db
-from models import User, BlogPost, Vote
+from models import User, BlogPost, Vote, Comment
 
 
 # Create a blueprint for the routes
@@ -287,3 +287,60 @@ def downvote_post(post_id):
 
     db.session.commit()
     return jsonify({"msg": "Post downvoted successfully", "upvotes": post.upvotes, "downvotes": post.downvotes}), 200
+
+
+# Routes for comments
+# Add a comment to a blog post
+@routes.route('/posts/<int:post_id>/comments', methods=['POST'])
+@jwt_required()
+def add_comment(post_id):
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    content = data.get('content')
+
+    if not content:
+        return jsonify({"msg": "Content is required"}), 400
+
+    post = BlogPost.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    comment = Comment(content=content, user_id=user_id, post_id=post_id)
+    db.session.add(comment)
+    db.session.commit()
+
+    return jsonify(comment.to_dict()), 201
+
+# Get all comments for a blog post
+@routes.route('/posts/<int:post_id>/comments', methods=['GET'])
+@jwt_required()
+def get_comments(post_id):
+    post = BlogPost.query.get(post_id)
+    if not post:
+        return jsonify({"msg": "Post not found"}), 404
+
+    comments = Comment.query.filter_by(post_id=post_id).all()
+    return jsonify([comment.to_dict() for comment in comments]), 200
+
+# Route to delete a comment
+@routes.route('/posts/<int:post_id>/comments/<int:comment_id>', methods=['DELETE'])
+@jwt_required()
+def delete_comment(post_id, comment_id):
+    user_id = get_jwt_identity()  # Get the user ID from the JWT token
+    comment = Comment.query.get(comment_id)
+
+    if not comment:
+        return jsonify({"msg": "Comment not found"}), 404
+
+    # Ensure the comment belongs to the correct post
+    if comment.post_id != post_id:
+        return jsonify({"msg": "Comment does not belong to this post"}), 400
+
+    # Ensure the comment belongs to the current user
+    if comment.user_id != int(user_id):
+        return jsonify({"msg": "You are not authorized to delete this comment"}), 403
+
+    db.session.delete(comment)
+    db.session.commit()
+
+    return jsonify({"msg": "Comment deleted successfully"}), 200

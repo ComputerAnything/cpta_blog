@@ -212,9 +212,7 @@ const BlogList = () => {
                         backgroundColor: calculateScaleColor(post.upvotes, post.downvotes),
                       }}
                     ></div>
-                    <p className="vote-counts">
-                      {post.upvotes} Upvotes / {post.downvotes} Downvotes
-                    </p>
+                    <p className="vote-count">{post.upvotes - post.downvotes}</p>
                   </div>
                   <p style={{ fontSize: '0.8em' }}>
                     Author: <Link to={`/profile/${post.user_id}`}>{post.author}</Link>
