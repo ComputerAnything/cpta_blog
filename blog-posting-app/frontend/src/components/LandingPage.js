@@ -100,7 +100,7 @@ const LandingPage = () => {
                   <div class="bg-dark rounded-3 py-5 px-4 px-md-5 mb-5">
                       <div class="text-center mb-5">
                           <h1 class="text-white">Contact Us</h1>
-                          <p class="lead fw-normal text-muted mb-0">There's no time like the present to get started on a new project. We're easy to get in touch with and we'll help you figure it out. Just reach out and let's get started! If you can imagine it, we can build it!</p>
+                          <p class="contact-us-pgraph lead fw-normal mb-0">There's no time like the present to get started on a new project. We're easy to get in touch with and we'll help you figure it out. Just reach out and let's get started! If you can imagine it, we can build it!</p>
                       </div>
                   </div>
                   {/* Contact Cards */}

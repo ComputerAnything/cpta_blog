@@ -1,6 +1,7 @@
 :root {
   --computerAnythingPrimary: #02c43c;
   --computerAnythingSecondary: #0250c4;
+  --computerAnythingText: rgba(255, 255, 255, .5);
 }
 
 body {

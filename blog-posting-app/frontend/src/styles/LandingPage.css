@@ -35,6 +35,10 @@
   margin-bottom: 0.5rem;
 }
 
+.contact-us-pgraph {
+  color: var(--computerAnythingText);
+}
+
 .btn.btn-light.btn-xl:hover {
   transform: scale(2);
 }
