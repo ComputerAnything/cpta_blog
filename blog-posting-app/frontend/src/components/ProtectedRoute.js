@@ -1,17 +1,10 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-
-// This component checks if the user is authenticated before rendering the protected route
-// If the user is not authenticated, it redirects them to the login page
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token'); // Check if the token exists
+  const isAuthenticated = !!localStorage.getItem('token'); // Check if the user is logged in
 
-  if (!token) {
-    return <Navigate to="/" />; // Redirect to login if not authenticated
-  }
-
-  return children; // Render the protected component
+  return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
 export default ProtectedRoute;

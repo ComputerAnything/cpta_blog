@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Navbar from './Navbar'; // Import the Navbar component
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -120,115 +121,123 @@ const BlogList = () => {
 
   // Render the list of posts and profiles
   return (
-    <div className="bloglist-container">
-      <div className="left-panel">
-        <h1>Hello {username}</h1>
-        <button onClick={() => navigate('/profile')} style={{ marginRight: '10px' }}>
-          Profile
-        </button>
-        <button onClick={() => navigate('/create-post')} style={{ marginRight: '10px' }}>
-          Create New Post
-        </button>
-        <button onClick={handleLogout}>
-          Logout
-        </button>
-        <h2>Blogger Profiles</h2>
-        <div className="profile-search-bar-container">
-          <input
-            type="text"
-            value={profileSearchTerm}
-            onChange={handleProfileSearch}
-            placeholder="Search profiles by username"
-            className="profile-search-bar"
-          />
-        </div>
-        <ul>
-          {filteredProfiles.map((profile) => (
-            <li key={profile.id}>
-              <Link to={`/profile/${profile.id}`}>{profile.username}</Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="right-panel">
-        <h1>Computer Anything Tech Blog</h1>
-        <div className="search-bar-container">
-          <h2>Search by Tags</h2>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={handleSearch}
-            placeholder="Enter tags (e.g., #tech)"
-            className="search-bar"
-          />
-        </div>
-        {message && <p>{message}</p>}
-        {filteredPosts.length > 0 ? (
-          <ul>
-            {filteredPosts.map((post) => (
-              <li key={post.id}>
-                <h2>
-                  <Link to={`/posts/${post.id}`}>{post.title}</Link>
-                </h2>
-                <ReactMarkdown
-                  children={post.content}
-                  components={{
-                    code({ node, inline, className, children, ...props }) {
-                      const match = /language-(\w+)/.exec(className || '');
-                      return !inline && match ? (
-                        <SyntaxHighlighter
-                          style={vscDarkPlus}
-                          language={match[1]}
-                          PreTag="div"
-                          {...props}
-                        >
-                          {String(children).replace(/\n$/, '')}
-                        </SyntaxHighlighter>
-                      ) : (
-                        <code className={className} {...props}>
-                          {children}
-                        </code>
-                      );
-                    },
-                  }}
-                />
-                {/* Render tags */}
-                {post.topic_tags && (
-                  <div className="tags">
-                    <strong>Topic Tags:</strong>{' '}
-                    {post.topic_tags.split(',').map((tag, index) => (
-                      <span key={index} className="tag">
-                        {tag.trim()}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <div className="post-info">
-                  {/* Add the voting scale */}
-                  <div className="vote-scale-container">
-                    <div
-                      className="vote-scale"
-                      style={{
-                        backgroundColor: calculateScaleColor(post.upvotes, post.downvotes),
-                      }}
-                    ></div>
-                    <p className="vote-count">{post.upvotes - post.downvotes}</p>
-                  </div>
-                  <p style={{ fontSize: '0.8em' }}>
-                    Author: <Link to={`/profile/${post.user_id}`}>{post.author}</Link>
-                  </p>
-                  <p style={{ fontSize: '0.8em' }}>
-                    Posted On: {new Date(post.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
-                  </p>
-                </div>
+    <>
+      <Navbar />
+      <div className="bloglist-container">
+        <div className="left-panel">
+          <h1 style={{ textAlign: 'center' }}>Hello {username}</h1>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
+            <button onClick={() => navigate('/profile')} className="styled-button">
+              Profile
+            </button>
+            <button onClick={() => navigate('/create-post')} className="styled-button">
+              Create New Post
+            </button>
+            <button onClick={handleLogout} className="styled-button">
+              Logout
+            </button>
+          </div>
+          <h2 style={{ textAlign: 'center' }}>Blogger Profiles</h2>
+          <div className="profile-search-bar-container" style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <input
+              type="text"
+              value={profileSearchTerm}
+              onChange={handleProfileSearch}
+              placeholder="Search profiles by username"
+              className="profile-search-bar"
+            />
+          </div>
+          <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center' }}>
+            {filteredProfiles.map((profile) => (
+              <li key={profile.id} style={{ marginBottom: '10px' }}>
+                <Link to={`/profile/${profile.id}`} className="profile-link">
+                  {profile.username}
+                </Link>
               </li>
             ))}
           </ul>
-        ) : (
-          <p>No posts available or no matching posts found.</p>
-        )}
+        </div>
+        <div className="right-panel">
+          <h1 style={{ textAlign: 'center' }}>Computer Anything Tech Blog</h1>
+          <div className="search-bar-container" style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <h2>Search by Tags</h2>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearch}
+              placeholder="Enter tags (e.g., #tech)"
+              className="search-bar"
+            />
+          </div>
+          {message && <p>{message}</p>}
+          {filteredPosts.length > 0 ? (
+            <ul>
+              {filteredPosts.map((post) => (
+                <li key={post.id}>
+                  <h2>
+                    <Link to={`/posts/${post.id}`}>{post.title}</Link>
+                  </h2>
+                  <ReactMarkdown
+                    children={post.content}
+                    components={{
+                      code({ node, inline, className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || '');
+                        return !inline && match ? (
+                          <SyntaxHighlighter
+                            style={vscDarkPlus}
+                            language={match[1]}
+                            PreTag="div"
+                            {...props}
+                          >
+                            {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
+                        ) : (
+                          <code className={className} {...props}>
+                            {children}
+                          </code>
+                        );
+                      },
+                    }}
+                  />
+                  {/* Render tags */}
+                  {post.topic_tags && (
+                    <div className="tags">
+                      <strong>Topic Tags:</strong>{' '}
+                      {post.topic_tags.split(',').map((tag, index) => (
+                        <span key={index} className="tag">
+                          {tag.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="post-info">
+                    {/* Add the voting scale */}
+                    <div className="vote-scale-container">
+                      <div
+                        className="vote-scale"
+                        style={{
+                          backgroundColor: calculateScaleColor(post.upvotes, post.downvotes),
+                        }}
+                      ></div>
+                      <p className="vote-count">{post.upvotes - post.downvotes}</p>
+                    </div>
+                    <p style={{ fontSize: '0.8em' }}>
+                      Author: <Link to={`/profile/${post.user_id}`}>{post.author}</Link>
+                    </p>
+                    <p style={{ fontSize: '0.8em' }}>
+                      Posted On: {new Date(post.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No posts available or no matching posts found.</p>
+          )}
+        </div>
       </div>
-    </div>
+
+    </>
   );
 };
 

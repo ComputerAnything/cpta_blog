@@ -8,14 +8,17 @@ import PostDetail from './components/PostDetail';
 import CreatePost from './components/CreatePost';
 import EditPost from './components/EditPost';
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
-
+import LandingPage from './components/LandingPage'; // Import LandingPage
 
 // Main App component that sets up the routing for the application
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
+        {/* Landing Page */}
+        <Route path="/" element={<LandingPage />} />
+        {/* Authentication Routes */}
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         {/* Protected Routes */}
         <Route path="/posts" element={<ProtectedRoute><BlogList /></ProtectedRoute>} />
