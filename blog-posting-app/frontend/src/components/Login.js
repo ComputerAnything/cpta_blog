@@ -29,34 +29,49 @@ const Login = () => {
 
   // Render the login form
   return (
-    <div className="auth-container">
-      <form className="auth-form" onSubmit={handleLogin}>
-        <h1>Login</h1>
-        {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Login</button>
-        <p>
-          Don't have an account? <Link to="/register">Register here</Link>
-        </p>
-        <p>
-          <a href="/">Back to Computer Anything</a>
-        </p>
-        {message && <p>{message}</p>}
-      </form>
-    </div>
+    <>
+      <div className="auth-container">
+        <form className="auth-form" onSubmit={handleLogin}>
+          <h1>Login</h1>
+          {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">Login</button>
+          <p>
+            Don't have an account? <Link to="/register">Register here</Link>
+          </p>
+          <p>
+            <a href="/">Back to Computer Anything</a>
+          </p>
+          {message && <p>{message}</p>}
+        </form>
+      </div>
+      <footer className="footer">
+        <div className="footer-content">
+          <p>© 2025 Computer Anything Tech Blog. All rights reserved.</p>
+          <div className="footer-logo-container">
+            <p>Created by:</p>
+            <img
+              src="/img/cpt_anything_box_thumb.jpg"
+              alt="CPT Anything"
+              className="footer-logo"
+            />
+          </div>
+        </div>
+      </footer>
+    </>
   );
 };
 

@@ -1,201 +1,203 @@
 :root {
-    --computerAnythingPrimary: #02c43c; /* Green */
-    --computerAnythingSecondary: #0250c4; /* Blue */
-  }
+  --computerAnythingPrimary: #02c43c; /* Green */
+  --computerAnythingSecondary: #0250c4; /* Blue */
+}
 
-  /* Bloglist container */
-  .bloglist-container {
-    display: flex;
-    height: 100vh;
-    background-color: #000; /* Black background */
-    color: white; /* White text for contrast */
-    font-family: Arial, sans-serif;
-    gap: 20px; /* Add spacing between panels */
-    padding: 20px;
-  }
+/* Ensure the entire page takes up the full height */
+html, body {
+  height: 100%; /* Full height of the viewport */
+  margin: 0; /* Remove default margin */
+  display: flex;
+  flex-direction: column; /* Enable flexbox layout */
+}
+
+/* Bloglist container */
+.bloglist-container {
+  flex: 1; /* Allow the container to grow and fill the space between the header and footer */
+  display: flex;
+  gap: 20px; /* Add spacing between panels */
+  padding: 20px;
+  background-color: #000; /* Black background */
+  color: white; /* White text for contrast */
+  font-family: Arial, sans-serif;
+}
 
 /* Left panel */
 .bloglist-container .left-panel {
-    width: 25%;
-    background-color: var(--computerAnythingSecondary); /* Blue background */
-    color: white; /* White text for contrast */
-    padding: 20px;
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Subtle shadow */
-    position: sticky; /* Make the panel sticky */
-    top: 20px; /* Stick to 20px from the top of the viewport */
-    height: fit-content; /* Ensure the panel height adjusts to its content */
+  width: 25%;
+  background-color: var(--computerAnythingSecondary); /* Blue background */
+  color: white; /* White text for contrast */
+  padding: 20px;
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+  position: sticky; /* Make the panel sticky */
+  top: 20px; /* Stick to 20px from the top of the viewport */
+  height: fit-content; /* Ensure the panel height adjusts to its content */
 }
 
 .bloglist-container .left-panel h1 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    text-align: center;
-    color: var(--computerAnythingPrimary); /* Green text */
-  }
-
-  .bloglist-container .left-panel button {
-    background-color: var(--computerAnythingPrimary); /* Green buttons */
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: background-color 0.3s ease;
-  }
-
-  .bloglist-container .left-panel button:hover {
-    background-color: #018f2a; /* Darker green on hover */
-  }
-
-  .bloglist-container .left-panel h2 {
-    font-size: 1.2rem;
-    margin-bottom: 15px;
-    color: white; /* White text */
-  }
-
-  .bloglist-container .left-panel ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    max-height: 200px; /* Limit the height of the list */
-    overflow-y: auto; /* Enable vertical scrolling */
-    border: 1px solid var(--computerAnythingPrimary); /* Green border */
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent white */
-    padding: 10px;
-  }
-
-  .bloglist-container .left-panel li {
-    margin-bottom: 10px;
-  }
-
-  .bloglist-container .left-panel li a {
-    color: var(--computerAnythingPrimary); /* Green links */
-    text-decoration: none;
-  }
-
-  .bloglist-container .left-panel li a:hover {
-    text-decoration: underline;
-  }
-
-  /* Right panel */
-/* Right panel */
-.bloglist-container .right-panel {
-    flex: 1; /* Take up remaining space */
-    background-color: var(--computerAnythingSecondary); /* Blue background */
-    color: white; /* White text for contrast */
-    padding: 20px;
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Subtle shadow */
-    overflow-y: auto; /* Enable vertical scrolling for the right panel */
-    height: calc(100vh - 40px); /* Full viewport height minus padding */
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--computerAnythingPrimary); /* Green text */
 }
 
-  .bloglist-container .right-panel h1 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    text-align: center;
-    color: var(--computerAnythingPrimary); /* Green text */
-  }
+.bloglist-container .left-panel button {
+  background-color: var(--computerAnythingPrimary); /* Green buttons */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}
 
-  .bloglist-container .right-panel .search-bar-container {
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent white */
-    border-radius: 5px;
-  }
+.bloglist-container .left-panel button:hover {
+  background-color: #018f2a; /* Darker green on hover */
+}
 
-  .bloglist-container .right-panel .search-bar-container h2 {
-    margin-bottom: 10px;
-    color: white; /* White text */
-  }
+.bloglist-container .left-panel h2 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: white; /* White text */
+}
 
-  .bloglist-container .right-panel .search-bar {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid var(--computerAnythingPrimary); /* Green border */
-    border-radius: 5px;
-    background-color: #111; /* Slightly lighter black */
-    color: white; /* White text */
-    font-size: 1rem;
-  }
+.bloglist-container .left-panel ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px; /* Limit the height of the list */
+  overflow-y: auto; /* Enable vertical scrolling */
+  border: 1px solid var(--computerAnythingPrimary); /* Green border */
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent white */
+  padding: 10px;
+}
 
-  .bloglist-container .right-panel .search-bar::placeholder {
-    color: #888; /* Gray placeholder text */
-  }
+.bloglist-container .left-panel li {
+  margin-bottom: 10px;
+}
 
-  .bloglist-container .right-panel .search-bar:focus {
-    outline: none;
-    border-color: var(--computerAnythingSecondary); /* Blue border on focus */
-    box-shadow: 0 0 5px var(--computerAnythingSecondary); /* Blue glow */
-  }
+.bloglist-container .left-panel li a {
+  color: var(--computerAnythingPrimary); /* Green links */
+  text-decoration: none;
+}
 
-  .bloglist-container ul {
-    list-style-type: none;
-    padding: 0;
-  }
+.bloglist-container .left-panel li a:hover {
+  text-decoration: underline;
+}
 
-  .bloglist-container li {
-    margin-bottom: 20px;
-    padding: 15px;
-    border: 1px solid var(--computerAnythingPrimary); /* Green border */
-    border-radius: 5px;
-    background-color: #111; /* Slightly lighter black */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-  }
+/* Right panel */
+.bloglist-container .right-panel {
+  flex: 1; /* Take up remaining space */
+  background-color: var(--computerAnythingSecondary); /* Blue background */
+  color: white; /* White text for contrast */
+  padding: 20px;
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+  overflow-y: auto; /* Enable vertical scrolling for the right panel */
+}
 
-  .bloglist-container li h2 {
-    margin: 0 0 10px;
-    color: var(--computerAnythingPrimary); /* Green headings */
-  }
+.bloglist-container .right-panel h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--computerAnythingPrimary); /* Green text */
+}
 
-  .bloglist-container li p {
-    margin: 5px 0;
-    color: white; /* White text */
-  }
+.bloglist-container .right-panel .search-bar-container {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent white */
+  border-radius: 5px;
+}
 
-  .bloglist-container a {
-    color: var(--computerAnythingPrimary); /* Green links */
-    text-decoration: none;
-  }
+.bloglist-container .right-panel .search-bar-container h2 {
+  margin-bottom: 10px;
+  color: white; /* White text */
+}
 
-  .bloglist-container a:hover {
-    text-decoration: underline;
-  }
+.bloglist-container .right-panel .search-bar {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid var(--computerAnythingPrimary); /* Green border */
+  border-radius: 5px;
+  background-color: #111; /* Slightly lighter black */
+  color: white; /* White text */
+  font-size: 1rem;
+}
 
-  /* Tags */
-  .tags {
-    margin-top: 10px;
-  }
+.bloglist-container .right-panel .search-bar::placeholder {
+  color: #888; /* Gray placeholder text */
+}
 
-  .tag {
-    display: inline-block;
-    background-color: var(--computerAnythingPrimary); /* Green background */
-    color: white; /* White text */
-    padding: 5px 10px;
-    margin-right: 5px;
-    border-radius: 5px;
-    font-size: 0.8em;
-    font-weight: bold;
-  }
+.bloglist-container .right-panel .search-bar:focus {
+  outline: none;
+  border-color: var(--computerAnythingSecondary); /* Blue border on focus */
+  box-shadow: 0 0 5px var(--computerAnythingSecondary); /* Blue glow */
+}
 
-  .tag:hover {
-    background-color: #018f2a; /* Darker green on hover */
-  }
+.bloglist-container ul {
+  list-style-type: none;
+  padding: 0;
+}
 
-  /* Scrollbar styling */
-  .right-panel::-webkit-scrollbar {
-    width: 10px;
-  }
+.bloglist-container li {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid var(--computerAnythingPrimary); /* Green border */
+  border-radius: 5px;
+  background-color: #111; /* Slightly lighter black */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
 
-  .right-panel::-webkit-scrollbar-thumb {
-    background-color: var(--computerAnythingPrimary); /* Green scrollbar */
-    border-radius: 5px;
-  }
+.bloglist-container li h2 {
+  margin: 0 0 10px;
+  color: var(--computerAnythingPrimary); /* Green headings */
+}
 
-  .right-panel::-webkit-scrollbar-track {
-    background-color: #111; /* Slightly lighter black */
-  }
+.bloglist-container li p {
+  margin: 5px 0;
+  color: white; /* White text */
+}
+
+.bloglist-container a {
+  color: var(--computerAnythingPrimary); /* Green links */
+  text-decoration: none;
+}
+
+.bloglist-container a:hover {
+  text-decoration: underline;
+}
+
+/* Footer styling */
+.footer {
+  background-color: #000; /* Black background */
+  color: white; /* White text */
+  text-align: center;
+  padding: 20px;
+  border-top: 2px solid var(--computerAnythingPrimary); /* Green border on top */
+  margin-top: auto; /* Push the footer to the bottom */
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Add spacing between text and image */
+}
+
+.footer-logo {
+  width: 40px; /* Set the width of the thumbnail */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 5px; /* Optional: Add rounded corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Add a subtle shadow */
+}

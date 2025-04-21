@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Navbar from './Navbar'; // Import the Navbar component
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -16,6 +17,8 @@ const Profile = () => {
   const [message, setMessage] = useState('');
   const [posts, setPosts] = useState([]);
   const [isCurrentUser, setIsCurrentUser] = useState(false);
+
+  const currentUserName = localStorage.getItem('username');
 
   // Fetch the user's profile and posts when the component mounts
   useEffect(() => {
@@ -66,100 +69,125 @@ const Profile = () => {
     }
   };
 
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
+    window.location.href = '/'; // Redirect to the homepage or login page
+  };
+
+
   // Render the profile and posts
   if (!profile) {
     return <p>Loading...</p>;
   }
 
   return (
-    <div className="profile-container">
-      <div className="profile-header">
-        <h1>{profile.username}'s Profile</h1>
-        <p>Email: {profile.email}</p>
-        <button className="back-to-blog-btn" onClick={() => window.history.back()}>
-          Back to Blog
-        </button>
-      </div>
-      {isCurrentUser && (
-        <form className="edit-profile-form" onSubmit={handleUpdate}>
-          <h3>Edit Profile</h3>
-          <div>
-            <label>Username:</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Email:</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit">Update Profile</button>
-          {message && <p>{message}</p>}
-        </form>
-      )}
-      <div className="recent-posts">
-        <h3>Recent Posts</h3>
-        {posts.length > 0 ? (
-          <ul>
-            {posts.map((post) => (
-              <li key={post.id}>
-                <h3>
-                  <Link to={`/posts/${post.id}`}>{post.title}</Link>
-                </h3>
-                <ReactMarkdown
-                  children={post.content}
-                  components={{
-                    code({ node, inline, className, children, ...props }) {
-                      const match = /language-(\w+)/.exec(className || '');
-                      return !inline && match ? (
-                        <SyntaxHighlighter
-                          style={vscDarkPlus}
-                          language={match[1]}
-                          PreTag="div"
-                          {...props}
-                        >
-                          {String(children).replace(/\n$/, '')}
-                        </SyntaxHighlighter>
-                      ) : (
-                        <code className={className} {...props}>
-                          {children}
-                        </code>
-                      );
-                    },
-                  }}
-                />
-                {/* Render tags */}
-                {post.topic_tags && (
-                  <div className="tags">
-                    <strong>Topic Tags:</strong>{' '}
-                    {post.topic_tags.split(',').map((tag, index) => (
-                      <span key={index} className="tag">
-                        {tag.trim()}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <div className="post-info">
-                  <p style={{ fontSize: '0.8em' }}>
-                    Posted On: {new Date(post.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No posts available.</p>
+    <>
+      <Navbar user={{ username: currentUserName }} onLogout={handleLogout}  />
+      <div className="profile-container">
+        <div className="profile-header">
+          <h1>{profile.username}'s Profile</h1>
+          <p>Email: {profile.email}</p>
+          <button className="back-to-blog-btn" onClick={() => window.history.back()}>
+            Back to Blog
+          </button>
+        </div>
+        {isCurrentUser && (
+          <form className="edit-profile-form" onSubmit={handleUpdate}>
+            <h3>Edit Profile</h3>
+            <div>
+              <label>Username:</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label>Email:</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit">Update Profile</button>
+            {message && <p>{message}</p>}
+          </form>
         )}
+        <div className="recent-posts">
+          <h3>Recent Posts</h3>
+          {posts.length > 0 ? (
+            <ul>
+              {posts.map((post) => (
+                <li key={post.id}>
+                  <h3>
+                    <Link to={`/posts/${post.id}`}>{post.title}</Link>
+                  </h3>
+                  <ReactMarkdown
+                    children={post.content}
+                    components={{
+                      code({ node, inline, className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || '');
+                        return !inline && match ? (
+                          <SyntaxHighlighter
+                            style={vscDarkPlus}
+                            language={match[1]}
+                            PreTag="div"
+                            {...props}
+                          >
+                            {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
+                        ) : (
+                          <code className={className} {...props}>
+                            {children}
+                          </code>
+                        );
+                      },
+                    }}
+                  />
+                  {/* Render tags */}
+                  {post.topic_tags && (
+                    <div className="tags">
+                      <strong>Topic Tags:</strong>{' '}
+                      {post.topic_tags.split(',').map((tag, index) => (
+                        <span key={index} className="tag">
+                          {tag.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="post-info">
+                    <p style={{ fontSize: '0.8em' }}>
+                      Posted On: {new Date(post.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No posts available.</p>
+          )}
+        </div>
       </div>
-    </div>
+      <footer className="footer">
+        <div className="footer-content">
+          <p>© 2025 Computer Anything Tech Blog. All rights reserved.</p>
+          <div className="footer-logo-container">
+            <p>Created by:</p>
+            <img
+              src="/img/cpt_anything_box_thumb.jpg"
+              alt="CPT Anything"
+              className="footer-logo"
+            />
+          </div>
+        </div>
+      </footer>
+    </>
   );
 };
 

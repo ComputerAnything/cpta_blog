@@ -1,48 +1,44 @@
-// filepath: /home/shlacker2020/Batcave/CPT_ANYTHING/cpt_anything_blog/blog-posting-app/frontend/src/components/Navbar.js
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const Navbar = () => {
+const Navbar = ({ user, onLogout }) => {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-      <div className="container px-5">
-        <button id="theme-toggle" className="theme-toggle-btn" aria-label="Toggle Dark Theme"></button>
-        <a
-          className="navbar-brand"
-          href="https://dmurchison.github.io/portfolio_site/#page-top"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          About the Developer
-        </a>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top px-4">
+      <div className="container-fluid">
 
+        {/* Navbar links */}
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0"> {/* Changed ms-auto to me-auto */}
             <li className="nav-item">
-              <a className="nav-link" href="#home">Home</a>
+              <a className="nav-link navbar-brand" href="/#home">Home</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/posts">Blog</a>
+              <a className="nav-link navbar-brand" href="/#features">Features</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#features">Features</a>
+              <a className="nav-link navbar-brand" href="/#contact">Contact</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#contact">Contact</a>
+              <a className="nav-link navbar-brand" href="/posts">Blog</a>
             </li>
           </ul>
         </div>
+
+        {/* Right side: Signed in message and logout button */}
+        {user && user.username && (
+          <div className="d-flex align-items-center">
+            <span className="navbar-text text-white me-3">
+              Signed in as: <strong>{user.username}</strong>
+            </span>
+            <button
+              className="btn btn-outline-light btn-sm"
+              onClick={onLogout}
+            >
+              Logout
+            </button>
+          </div>
+        )}
+
       </div>
     </nav>
   );

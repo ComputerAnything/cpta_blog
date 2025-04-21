@@ -3,20 +3,13 @@
   --computerAnythingSecondary: #0250c4;
 }
 
-
 /* Button adjustments for dark theme */
 .dark-theme .btn-primary {
   background-color: var(--computerAnythingPrimary);
   border-color: var(--computerAnythingPrimary);
 }
 
-.navbar-brand {
-  font-family: monospace;
-  color: var(--computerAnythingPrimary);
-}
-.navbar-brand:hover {
-  color: var(--computerAnythingPrimary);
-}
+
 
 .contact-info-container {
   display: flex;
@@ -24,11 +17,14 @@
   text-align: center;
 }
 
-.contact-info-link, .contact-info-div {
+.contact-info-link,
+.contact-info-div {
   color: var(--computerAnythingPrimary);
   transition: 325ms;
 }
-.contact-info-div:hover, .contact-info-link:hover {
+
+.contact-info-div:hover,
+.contact-info-link:hover {
   transform: scale(1.25);
   color: var(--bsInfo);
 }
@@ -36,9 +32,10 @@
 .contact-info-resume {
   font-size: x-large;
   margin-top: 5rem;
-  margin-bottom: .5rem;
+  margin-bottom: 0.5rem;
 }
-.btn btn-light btn-xl:hover {
+
+.btn.btn-light.btn-xl:hover {
   transform: scale(2);
 }
 
@@ -64,33 +61,6 @@
   transform: scale(1.1);
 }
 
-.navbar-toggler {
-  width: 40px;
-  height: 30px;
-  background-color: var(--computerAnythingPrimary);
-  color: var(--computerAnythingPrimary);
-  border: 2px solid white;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  padding: 5px;
-  cursor: pointer;
-}
-.navbar-toggler:hover {
-  text-decoration: none;
-  background-color: #000;
-  color: var(--computerAnythingPrimary);
-  border: 2px solid var(--computerAnythingPrimary);
-}
-.navbar-toggler-icon {
-  width: 30px;
-  height: 3px;
-  background-color: #6c757d; /* Gray lines */
-  border-radius: 2px;
-  transition: background-color 0.3s ease;
-}
-
 .custom-btn {
   background-color: var(--computerAnythingPrimary);
   color: black;
@@ -101,7 +71,7 @@
   background-color: rgb(99, 99, 99);
   color: var(--computerAnythingPrimary);
   border: 2px solid var(--computerAnythingPrimary);
-  }
+}
 
 #testimonials {
   color: lightgray;
@@ -124,22 +94,23 @@
 
 @media (max-width: 1200px) {
   .row.gx-5.align-items-center.justify-content-center {
-    flex-direction: column;
+      flex-direction: column;
   }
+
   .col-xl-5.col-xxl-6.d-none.d-xl-block.text-center {
-    display: block !important;
-    width: 100%;
-    order: -1;
+      display: block !important;
+      width: 100%;
+      order: -1;
   }
 }
 
 /* Center icons and text in contact cards */
 .row-cols-2 .col,
 .row-cols-lg-4 .col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 /* Override Bootstrap's bg-dark class to make it black */

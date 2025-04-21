@@ -1,3 +1,8 @@
+:root {
+  --computerAnythingPrimary: #02c43c;
+  --computerAnythingSecondary: #0250c4;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -11,3 +16,40 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+/* Ensure the entire page takes up the full height */
+html, body {
+  height: 100%; /* Full height of the viewport */
+  margin: 0; /* Remove default margin */
+  display: flex;
+  flex-direction: column; /* Enable flexbox layout */
+}
+
+/* Main content area should grow to fill available space */
+#root, .app-container {
+  flex: 1; /* Allow the main content to grow and fill the space between the header and footer */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar / Footer should always be at the bottom */
+.navbar {
+  border-bottom: 2px solid var(--computerAnythingPrimary); /* Add green border at the bottom */
+  background-color: #000; /* Ensure the navbar background is black */
+  color: white; /* White text for contrast */
+}
+.navbar-brand {
+  font-family: monospace;
+  color: var(--computerAnythingPrimary);
+}
+.navbar-brand:hover {
+  color: var(--computerAnythingSecondary);
+}
+.footer {
+  background-color: #000; /* Black background */
+  color: white; /* White text */
+  text-align: center;
+  padding: 10px 20px;
+  border-top: 2px solid var(--computerAnythingPrimary); /* Green border on top */
+  margin-top: auto; /* Push the footer to the bottom */
+}
+

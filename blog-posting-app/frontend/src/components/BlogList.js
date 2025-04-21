@@ -7,6 +7,8 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'; //
 import '../styles/BlogList.css'; // Import CSS for styling
 import API from '../services/api';
 
+
+// BlogList component to display blog posts and profiles
 const BlogList = () => {
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]); // State for filtered posts
@@ -41,6 +43,7 @@ const BlogList = () => {
       }
     };
 
+    // Fetch profiles
     const fetchProfiles = async () => {
       try {
         const response = await API.get('/users', {
@@ -119,11 +122,13 @@ const BlogList = () => {
     return `rgb(${red}, ${green}, 0)`; // Dynamic color
   };
 
+
   // Render the list of posts and profiles
   return (
     <>
-      <Navbar />
+      <Navbar user={{ username }} onLogout={handleLogout} />
       <div className="bloglist-container">
+        {/* Left Panel */}
         <div className="left-panel">
           <h1 style={{ textAlign: 'center' }}>Hello {username}</h1>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
@@ -157,6 +162,8 @@ const BlogList = () => {
             ))}
           </ul>
         </div>
+
+        {/* Right Panel */}
         <div className="right-panel">
           <h1 style={{ textAlign: 'center' }}>Computer Anything Tech Blog</h1>
           <div className="search-bar-container" style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -236,7 +243,19 @@ const BlogList = () => {
           )}
         </div>
       </div>
-
+      <footer className="footer">
+        <div className="footer-content">
+          <p>© 2025 Computer Anything Tech Blog. All rights reserved.</p>
+          <div className="footer-logo-container">
+            <p>Created by:</p>
+            <img
+              src="/img/cpt_anything_box_thumb.jpg"
+              alt="CPT Anything"
+              className="footer-logo"
+            />
+          </div>
+        </div>
+      </footer>
     </>
   );
 };

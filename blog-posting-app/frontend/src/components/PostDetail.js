@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Navbar from './Navbar'; // Import the Navbar component
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -15,6 +16,7 @@ const PostDetail = () => {
   const navigate = useNavigate();
   const currentUserId = localStorage.getItem('userId'); // Get the current user's ID from localStorage
   const [comments, setComments] = useState([]);
+  const [username] = useState(localStorage.getItem('username'));
   const [commentContent, setCommentContent] = useState('');
 
   // Fetch the post details when the component mounts
@@ -160,123 +162,148 @@ const PostDetail = () => {
     }
   };
 
+  // Function to handle logout
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
+    window.location.href = '/'; // Redirect to the homepage or login page
+  };
 
+
+  // Render the post details
   return (
-    <div className="post-detail-container">
-      {/* Post Header */}
-      <div className="post-header">
-        <button className="back-button" onClick={() => navigate('/posts')}>
-          Back to Blog List
-        </button>
-        {post.user_id === parseInt(currentUserId) && (
-          <button
-            className="edit-button"
-            onClick={() => navigate(`/edit-post/${postId}`)}
-          >
-            Edit Post
+    <>
+      <Navbar user={{ username }} onLogout={handleLogout} />
+      <div className="post-detail-container">
+        {/* Post Header */}
+        <div className="post-header">
+          <button className="back-button" onClick={() => navigate('/posts')}>
+            Back to Blog List
           </button>
-        )}
-      </div>
-        {/* Post Actions */}
-        <div className="post-actions">
-          <button className="comment-button" onClick={() => document.querySelector('.comments-section textarea').focus()}>
-            Comment
-          </button>
-          <button className="share-button" onClick={handleShare}>
-            Share Post
-          </button>
-        </div>
-
-      {/* Post Content Section */}
-      <div className="post-main-container">
-        {/* Voting Buttons */}
-        <div className="vote-buttons">
-          <button className="upvote-button" onClick={handleUpvote}>
-            ▲
-          </button>
-          <p className="vote-count">{post.upvotes - post.downvotes}</p>
-          <button className="downvote-button" onClick={handleDownvote}>
-            ▼
-          </button>
-        </div>
-
-        {/* Post Content */}
-        <div className="post-content">
-          <h1 className="post-title">{post.title}</h1>
-          {post.topic_tags && (
-            <div className="tags">
-              {post.topic_tags.split(',').map((tag, index) => (
-                <span key={index} className="tag">
-                  {tag.trim()}
-                </span>
-              ))}
-            </div>
+          {post.user_id === parseInt(currentUserId) && (
+            <button
+              className="edit-button"
+              onClick={() => navigate(`/edit-post/${postId}`)}
+            >
+              Edit Post
+            </button>
           )}
-          <ReactMarkdown
-            children={post.content}
-            components={markdownComponents} // Reuse the components configuration
-          />
-          <div className="post-info">
-            <p>
-              Author: <Link to={`/profile/${post.user_id}`}>{post.author}</Link>
-            </p>
-            <p>
-              Posted On: {new Date(post.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
-            </p>
+        </div>
+          {/* Post Actions */}
+          <div className="post-actions">
+            <button className="comment-button" onClick={() => document.querySelector('.comments-section textarea').focus()}>
+              Comment
+            </button>
+            <button className="share-button" onClick={handleShare}>
+              Share Post
+            </button>
           </div>
 
-          {/* Add the voting scale */}
-          <div className="vote-scale-container">
-            <div
-              className="vote-scale"
-              style={{
-                backgroundColor: calculateScaleColor(post.upvotes, post.downvotes),
-              }}
-            ></div>
+        {/* Post Content Section */}
+        <div className="post-main-container">
+          {/* Voting Buttons */}
+          <div className="vote-buttons">
+            <button className="upvote-button" onClick={handleUpvote}>
+              ▲
+            </button>
             <p className="vote-count">{post.upvotes - post.downvotes}</p>
+            <button className="downvote-button" onClick={handleDownvote}>
+              ▼
+            </button>
+          </div>
+
+          {/* Post Content */}
+          <div className="post-content">
+            <h1 className="post-title">{post.title}</h1>
+            {post.topic_tags && (
+              <div className="tags">
+                {post.topic_tags.split(',').map((tag, index) => (
+                  <span key={index} className="tag">
+                    {tag.trim()}
+                  </span>
+                ))}
+              </div>
+            )}
+            <ReactMarkdown
+              children={post.content}
+              components={markdownComponents} // Reuse the components configuration
+            />
+            <div className="post-info">
+              <p>
+                Author: <Link to={`/profile/${post.user_id}`}>{post.author}</Link>
+              </p>
+              <p>
+                Posted On: {new Date(post.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+              </p>
+            </div>
+
+            {/* Add the voting scale */}
+            <div className="vote-scale-container">
+              <div
+                className="vote-scale"
+                style={{
+                  backgroundColor: calculateScaleColor(post.upvotes, post.downvotes),
+                }}
+              ></div>
+              <p className="vote-count">{post.upvotes - post.downvotes}</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Comments Section */}
-      <div className="comments-section">
-        <h3>Comments</h3>
-          <ul>
-            {[...comments].reverse().map((comment) => (
-              <li key={comment.id}>
-                <p><strong>{comment.username}:</strong></p>
-                <div className="comment-content">
-                  <ReactMarkdown
-                    children={comment.content}
-                    components={markdownComponents} // Reuse the same components configuration
-                  />
-                </div>
-                <p style={{ fontSize: '0.8em', color: '#888' }}>
-                  Posted on: {new Date(comment.created_at).toLocaleString()}
-                </p>
-                {/* Delete button (only visible to the comment owner) */}
-                {comment.user_id === parseInt(currentUserId) && (
-                  <button
-                    className="delete-comment-button"
-                    onClick={() => handleDeleteComment(comment.id)}
-                  >
-                    Delete
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        <form onSubmit={handleCommentSubmit}>
-          <textarea
-            value={commentContent}
-            onChange={(e) => setCommentContent(e.target.value)}
-            placeholder="Write your comment (Markdown supported)..."
-            required
-          />
-          <button type="submit">Submit Comment</button>
-        </form>
+        {/* Comments Section */}
+        <div className="comments-section">
+          <h3>Comments</h3>
+            <ul>
+              {[...comments].reverse().map((comment) => (
+                <li key={comment.id}>
+                  <p><strong>{comment.username}:</strong></p>
+                  <div className="comment-content">
+                    <ReactMarkdown
+                      children={comment.content}
+                      components={markdownComponents} // Reuse the same components configuration
+                    />
+                  </div>
+                  <p style={{ fontSize: '0.8em', color: '#888' }}>
+                    Posted on: {new Date(comment.created_at).toLocaleString()}
+                  </p>
+                  {/* Delete button (only visible to the comment owner) */}
+                  {comment.user_id === parseInt(currentUserId) && (
+                    <button
+                      className="delete-comment-button"
+                      onClick={() => handleDeleteComment(comment.id)}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          <form onSubmit={handleCommentSubmit}>
+            <textarea
+              value={commentContent}
+              onChange={(e) => setCommentContent(e.target.value)}
+              placeholder="Write your comment (Markdown supported)..."
+              required
+            />
+            <button type="submit">Submit Comment</button>
+          </form>
+        </div>
       </div>
-    </div>
+      <footer className="footer">
+        <div className="footer-content">
+          <p>© 2025 Computer Anything Tech Blog. All rights reserved.</p>
+          <div className="footer-logo-container">
+            <p>Created by:</p>
+            <img
+              src="/img/cpt_anything_box_thumb.jpg"
+              alt="CPT Anything"
+              className="footer-logo"
+            />
+          </div>
+        </div>
+      </footer>
+    </>
   );
 };
 
