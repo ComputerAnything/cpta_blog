@@ -90,7 +90,7 @@ html, body {
 }
 
 /* Right panel */
-.bloglist-container .right-panel {
+.bloglist-container .blog-panel {
   flex: 1; /* Take up remaining space */
   background-color: var(--computerAnythingSecondary); /* Blue background */
   color: white; /* White text for contrast */
@@ -100,26 +100,26 @@ html, body {
   overflow-y: auto; /* Enable vertical scrolling for the right panel */
 }
 
-.bloglist-container .right-panel h1 {
+.bloglist-container .blog-panel h1 {
   font-size: 2rem;
   margin-bottom: 20px;
   text-align: center;
   color: var(--computerAnythingPrimary); /* Green text */
 }
 
-.bloglist-container .right-panel .search-bar-container {
+.bloglist-container .blog-panel .search-bar-container {
   margin-bottom: 20px;
   padding: 10px;
   background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent white */
   border-radius: 5px;
 }
 
-.bloglist-container .right-panel .search-bar-container h2 {
+.bloglist-container .blog-panel .search-bar-container h2 {
   margin-bottom: 10px;
   color: white; /* White text */
 }
 
-.bloglist-container .right-panel .search-bar {
+.bloglist-container .blog-panel .search-bar {
   width: 100%;
   padding: 10px;
   border: 2px solid var(--computerAnythingPrimary); /* Green border */
@@ -129,11 +129,11 @@ html, body {
   font-size: 1rem;
 }
 
-.bloglist-container .right-panel .search-bar::placeholder {
+.bloglist-container .blog-panel .search-bar::placeholder {
   color: #888; /* Gray placeholder text */
 }
 
-.bloglist-container .right-panel .search-bar:focus {
+.bloglist-container .blog-panel .search-bar:focus {
   outline: none;
   border-color: var(--computerAnythingSecondary); /* Blue border on focus */
   box-shadow: 0 0 5px var(--computerAnythingSecondary); /* Blue glow */
@@ -200,4 +200,98 @@ html, body {
   height: auto; /* Maintain aspect ratio */
   border-radius: 5px; /* Optional: Add rounded corners */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Add a subtle shadow */
+}
+
+/* Profile search bar container */
+.profile-search-bar-container {
+  max-width: 450px; /* Slightly wider than before */
+  margin: 0 auto; /* Center the container */
+}
+
+/* Profile search bar */
+.profile-search-bar {
+  width: 100%; /* Ensure it fills the container */
+  padding: 10px;
+  border: 2px solid var(--computerAnythingPrimary); /* Green border */
+  border-radius: 5px;
+  background-color: #111; /* Slightly lighter black */
+  color: white; /* White text */
+  font-size: 1rem;
+}
+
+.profile-search-bar::placeholder {
+  color: #888; /* Gray placeholder text */
+}
+
+.profile-search-bar:focus {
+  outline: none;
+  border-color: var(--computerAnythingSecondary); /* Blue border on focus */
+  box-shadow: 0 0 5px var(--computerAnythingSecondary); /* Blue glow */
+}
+
+/* Profile display area */
+.profile-display-area {
+  max-width: 400px; /* Match the width of the search bar */
+  margin: 10px auto 0; /* Center the display area */
+  max-height: 150px; /* Limit the height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  padding: 10px;
+  border: 1px solid var(--computerAnythingPrimary); /* Green border */
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent white */
+}
+
+/* Profile display area list */
+.profile-display-area ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-display-area li {
+  margin-bottom: 10px;
+}
+
+.profile-display-area .profile-link {
+  display: block; /* Make the link fill the entire <li> */
+  padding: 10px 15px;
+  background-color: var(--computerAnythingPrimary); /* Green background */
+  color: #000; /* Black text */
+  text-decoration: none; /* Remove underline */
+  border-radius: 5px; /* Rounded corners */
+  font-weight: bold;
+  text-align: center;
+}
+
+.profile-display-area .profile-link:hover {
+  background-color: #018f2a; /* Darker green on hover */
+  color: #fff; /* White text on hover */
+}
+
+/* Tag container */
+.tags {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap; /* Allow tags to wrap to the next line */
+  gap: 10px; /* Add spacing between tags */
+}
+
+/* Individual tag styling */
+.tags .tag {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: var(--computerAnythingPrimary); /* Green background */
+  color: #000; /* Black text */
+  border-radius: 20px; /* Rounded corners for pill-like appearance */
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-transform: capitalize; /* Capitalize the first letter of each tag */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: pointer; /* Indicate interactivity */
+}
+
+/* Hover effect for tags */
+.tags .tag:hover {
+  background-color: #018f2a; /* Darker green on hover */
+  color: #fff; /* White text on hover */
 }

@@ -246,8 +246,11 @@ const PostDetail = () => {
                   backgroundColor: calculateScaleColor(post.upvotes, post.downvotes),
                 }}
               ></div>
-              <p className="vote-count">{post.upvotes - post.downvotes}</p>
+              <p className="vote-count">
+                {post.upvotes - post.downvotes} (total votes {post.upvotes + post.downvotes})
+              </p>
             </div>
+
           </div>
         </div>
 

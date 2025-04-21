@@ -39,7 +39,7 @@ const Navbar = ({ user, onLogout }) => {
           </ul>
 
           {/* Right side: Signed in message and logout button */}
-          {user && (
+          {user && user.username && (
             <div className="d-flex align-items-center">
               <span className="navbar-text text-white me-3">
                 Signed in as: <strong>{user.username}</strong>

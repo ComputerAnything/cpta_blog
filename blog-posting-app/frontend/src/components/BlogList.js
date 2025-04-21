@@ -128,9 +128,8 @@ const BlogList = () => {
     <>
       <Navbar user={{ username }} onLogout={handleLogout} />
       <div className="bloglist-container">
-        {/* Left Panel */}
-        <div className="left-panel">
-          <h1 style={{ textAlign: 'center' }}>Hello {username}</h1>
+        <div className="blog-panel">
+          <h1 style={{ textAlign: 'center' }}>Computer Anything Tech Blog</h1>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
             <button onClick={() => navigate('/profile')} className="styled-button">
               Profile
@@ -151,23 +150,24 @@ const BlogList = () => {
               placeholder="Search profiles by username"
               className="profile-search-bar"
             />
+            <div className="profile-display-area">
+              {filteredProfiles.length > 0 ? (
+                <ul>
+                  {filteredProfiles.map((profile) => (
+                    <li key={profile.id}>
+                      <Link to={`/profile/${profile.id}`} className="profile-link">
+                        {profile.username}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No profiles found.</p>
+              )}
+            </div>
           </div>
-          <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center' }}>
-            {filteredProfiles.map((profile) => (
-              <li key={profile.id} style={{ marginBottom: '10px' }}>
-                <Link to={`/profile/${profile.id}`} className="profile-link">
-                  {profile.username}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Right Panel */}
-        <div className="right-panel">
-          <h1 style={{ textAlign: 'center' }}>Computer Anything Tech Blog</h1>
           <div className="search-bar-container" style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <h2>Search by Tags</h2>
+            <h2>Search Blog Posts by Tags</h2>
             <input
               type="text"
               value={searchTerm}
@@ -226,7 +226,9 @@ const BlogList = () => {
                           backgroundColor: calculateScaleColor(post.upvotes, post.downvotes),
                         }}
                       ></div>
-                      <p className="vote-count">{post.upvotes - post.downvotes}</p>
+                      <p className="vote-count">
+                        {post.upvotes - post.downvotes} (total votes {post.upvotes + post.downvotes})
+                      </p>
                     </div>
                     <p style={{ fontSize: '0.8em' }}>
                       Author: <Link to={`/profile/${post.user_id}`}>{post.author}</Link>
