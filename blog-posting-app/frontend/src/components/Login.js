@@ -3,6 +3,7 @@ import API from '../services/api';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/Auth.css';
 
+
 const Login = ({ onSwitchToRegister }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

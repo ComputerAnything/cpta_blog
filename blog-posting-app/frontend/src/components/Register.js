@@ -3,6 +3,9 @@ import API from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Auth.css';
 
+
+// TODO: When a user registers, the user should be redirected to the login page with a success message, there is no redirection.
+// Also, the color of the success message is red instead of green.
 const Register = ({ onSwitchToLogin }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');

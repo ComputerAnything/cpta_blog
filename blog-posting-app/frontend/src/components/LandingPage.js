@@ -8,6 +8,8 @@ import Register from './Register';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/LandingPage.css';
 
+
+// TODO: Turn contact card emblems into buttons.
 const LandingPage = () => {
   const [isValidToken, setIsValidToken] = useState(false);
   const [username] = useState(localStorage.getItem('username'));

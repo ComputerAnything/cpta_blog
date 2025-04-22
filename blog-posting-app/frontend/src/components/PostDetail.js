@@ -7,7 +7,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import API from '../services/api';
 import '../styles/PostDetail.css'; // Import the CSS file
 
-
+// TODO: When there is a code block in the post, the code block doesnt shrink to fit the screen.
 // This component displays the details of a blog post, including the title, content, author, and tags.
 const PostDetail = () => {
   const { postId } = useParams();
