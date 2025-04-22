@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from './Navbar'; // Import the Navbar component
+import Navbar from './Navbar';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Import a syntax highlighting theme
-import '../styles/BlogList.css'; // Import CSS for styling
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import '../styles/BlogList.css';
 import API from '../services/api';
 
 
-// BlogList component to display blog posts and profiles
+// BlogList component
 const BlogList = () => {
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]); // State for filtered posts
@@ -23,6 +23,32 @@ const BlogList = () => {
 
   // Fetch posts and profiles when the component mounts
   useEffect(() => {
+    const validateTokenAndFetchData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/'); // Redirect to login if no token is found
+        return;
+      }
+
+      try {
+        // Validate the token by making a test request to the backend
+        await API.get('/profile', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // If the token is valid, fetch posts and profiles
+        await fetchPosts();
+        await fetchProfiles();
+      } catch (error) {
+        console.error('Invalid or expired token:', error.response?.data || error.message);
+        localStorage.removeItem('token'); // Clear invalid token
+        localStorage.removeItem('username');
+        navigate('/'); // Redirect to login
+      }
+    };
+    validateTokenAndFetchData();
+  }, [navigate]);
+
     const fetchPosts = async () => {
       try {
         const response = await API.get('/posts', {
@@ -63,16 +89,12 @@ const BlogList = () => {
       }
     };
 
-    // Fetch posts and profiles
-    fetchPosts();
-    fetchProfiles();
-  }, []);
-
   // Function to handle logout
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    navigate('/');
+    localStorage.removeItem('userId');
+    navigate('/'); // Redirect to login page
   };
 
   // Function to handle blog post search
