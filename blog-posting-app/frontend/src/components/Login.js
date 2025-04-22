@@ -8,9 +8,10 @@ const Login = ({ onSwitchToRegister }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
   const location = useLocation();
+  const [showPassword, setShowPassword] = useState(false);
   const successMessage = location.state?.message;
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,7 +29,7 @@ const Login = ({ onSwitchToRegister }) => {
   return (
     <form className="auth-form" onSubmit={handleLogin}>
       <h1>Login</h1>
-      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+      {successMessage && <p className="success-message">{successMessage}</p>}
       <input
         type="text"
         placeholder="Username"
@@ -36,13 +37,21 @@ const Login = ({ onSwitchToRegister }) => {
         onChange={(e) => setUsername(e.target.value)}
         required
       />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
+      <div className="input-container">
+        <input
+          type={showPassword ? 'text' : 'password'}
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? '👁️' : '🙈'}
+        </button>
+      </div>
       <button type="submit">Login</button>
       {message && <p className="error-message">{message}</p>}
       <p className="switch-auth">

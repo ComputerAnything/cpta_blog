@@ -147,94 +147,48 @@ const LandingPage = () => {
             {/* Contact Cards */}
             <div className="row gx-5 row-cols-2 row-cols-lg-4 py-5">
               <div className="col">
-                <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
-                  <i className="bi bi-envelope"></i>
-                </div>
-                <div className="h5">Email us</div>
-                <p className="text-muted mb-0">
-                  Send an email to cpt.anything@gmail.com by filling out the form above!
-                </p>
+                <a href="mailto:cpt.anything@gmail.com" className="text-decoration-none">
+                  <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
+                    <i className="bi bi-envelope"></i>
+                  </div>
+                </a>
+                  <div className="h5">Email us</div>
+                  <p className="text-muted mb-0">
+                    Send an email to cpt.anything@gmail.com
+                  </p>
               </div>
               <div className="col">
-                <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
-                  <i className="bi bi-discord"></i>
-                </div>
-                <div className="h5 mb-2">Chat with us</div>
-                <p className="text-muted mb-0">
-                  Join our <a href="https://discord.gg/QXs6p75pcS">Discord</a> channel and chat with us live.
-                </p>
+                <a href="https://discord.gg/QXs6p75pcS" className="text-decoration-none">
+                  <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
+                    <i className="bi bi-discord"></i>
+                  </div>
+                </a>
+                  <div className="h5 mb-2">Chat with us</div>
+                  <p className="text-muted mb-0">
+                    Join our <span>Discord</span> channel and chat with us live.
+                  </p>
               </div>
               <div className="col">
-                <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
-                  <i className="bi bi-facebook"></i>
-                </div>
-                <div className="h5">Ask the community</div>
-                <p className="text-muted mb-0">
-                  Follow us on <a href="https://www.facebook.com/people/Computer-Anything/61567372806344/">Facebook</a> and find out more about us.
-                </p>
+                <a href="https://www.facebook.com/people/Computer-Anything/61567372806344/" className="text-decoration-none">
+                  <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
+                    <i className="bi bi-facebook"></i>
+                  </div>
+                </a>
+                  <div className="h5">Ask the community</div>
+                  <p className="text-muted mb-0">
+                    Follow us on <span>Facebook</span> and find out more about us.
+                  </p>
               </div>
               <div className="col">
-                <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
-                  <i className="bi bi-youtube"></i>
-                </div>
-                <div className="h5">Checkout our videos</div>
-                <p className="text-muted mb-0">
-                  Visit our <a href="https://www.youtube.com/@cpt_anything">YouTube channel</a> for coding tutorials and more!
-                </p>
-              </div>
-            </div>
-
-            {/* Contact Form */}
-            <div className="row gx-5 justify-content-center">
-              <div className="col-lg-8">
-                <form method="post">
-                  <div className="mb-3">
-                    <label htmlFor="name" className="form-label">Full Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name="name"
-                      id="name"
-                      placeholder="Enter your name"
-                      required
-                    />
+                <a href="https://www.youtube.com/@cpt_anything" className="text-decoration-none">
+                  <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
+                    <i className="bi bi-youtube"></i>
                   </div>
-                  <div className="mb-3">
-                    <label htmlFor="email" className="form-label">Email Address</label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      name="email"
-                      id="email"
-                      placeholder="Enter your email"
-                      required
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="attachment" className="form-label">Attachment</label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      name="attachment"
-                      id="attachment"
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="message" className="form-label">Message</label>
-                    <textarea
-                      className="form-control"
-                      name="message"
-                      id="message"
-                      rows="5"
-                      placeholder="Enter your message"
-                      required
-                    ></textarea>
-                  </div>
-                  <div className="g-recaptcha" data-sitekey="6LccOBYrAAAAABkg2TE_N7bccmpBXAFK4ZKZa3xg"></div>
-                  <div className="d-grid">
-                    <button type="submit" className="btn btn-primary btn-lg">Send Message</button>
-                  </div>
-                </form>
+                </a>
+                  <div className="h5">Checkout our videos</div>
+                  <p className="text-muted mb-0">
+                    Visit our <span>YouTube channel</span> for coding tutorials and more!
+                  </p>
               </div>
             </div>
           </div>

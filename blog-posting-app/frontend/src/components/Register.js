@@ -1,26 +1,32 @@
 import React, { useState } from 'react';
 import API from '../services/api';
-import { useNavigate } from 'react-router-dom';
 import '../styles/Auth.css';
 
-
-// TODO: When a user registers, the user should be redirected to the login page with a success message, there is no redirection.
-// Also, the color of the success message is red instead of green.
 const Register = ({ onSwitchToLogin }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      setMessage({ text: 'Passwords do not match.', type: 'error' });
+      return;
+    }
+
     try {
       await API.post('/register', { username, email, password });
-      setMessage('Registration successful! Redirecting to login...');
-      navigate('/', { state: { message: 'Account creation successful, now login!' } });
+      setMessage({ text: 'Registration successful! Redirecting to login...', type: 'success' });
+      setTimeout(() => {
+        onSwitchToLogin(); // Switch to the login modal
+      }, 1500); // Optional delay to show the success message
     } catch (error) {
-      setMessage('Registration failed. Please try again.');
+      setMessage({ text: 'Registration failed. Please try again.', type: 'error' });
     }
   };
 
@@ -41,15 +47,43 @@ const Register = ({ onSwitchToLogin }) => {
         onChange={(e) => setEmail(e.target.value)}
         required
       />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
+      <div className="input-container">
+        <input
+          type={showPassword ? 'text' : 'password'}
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? '👁️' : '🙈'}
+        </button>
+      </div>
+      <div className="input-container">
+        <input
+          type={showPassword ? 'text' : 'password'}
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
+        <button
+          className="show-password-btn"
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? '👁️' : '🙈'}
+        </button>
+      </div>
       <button type="submit">Register</button>
-      {message && <p className="error-message">{message}</p>}
+      {message && (
+        <p className={message.type === 'success' ? 'success-message' : 'error-message'}>
+          {message.text}
+        </p>
+      )}
       <p className="switch-auth">
         Already have an account?{' '}
         <button type="button" onClick={onSwitchToLogin}>

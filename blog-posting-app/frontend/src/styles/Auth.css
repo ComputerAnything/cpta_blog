@@ -1,110 +1,94 @@
-/* General container styling */
-.auth-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #000; /* Black background */
-  color: #00ff00; /* Green text */
-  font-family: Arial, sans-serif;
-}
-
-/* Form styling */
+/* General styles for the auth form */
 .auth-form {
-  background-color: #111; /* Slightly lighter black for contrast */
-  padding: 20px 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  width: 100%;
   max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background: var(--computerAnythingPrimary);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .auth-form h1 {
-  text-align: center;
+  font-size: 1.5rem;
   margin-bottom: 20px;
-  color: #00ff00; /* Green heading */
+  text-align: center;
 }
 
 .auth-form input {
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
-  border: 1px solid #00ff00; /* Green border */
-  border-radius: 5px;
-  background-color: #222; /* Slightly lighter black */
-  color: #00ff00; /* Green text */
-  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
 }
 
-.auth-form input::placeholder {
-  color: #888; /* Gray placeholder text */
-}
-
-.auth-form input:focus {
-  outline: none;
-  border-color: #008f00; /* Darker green on focus */
-}
-
-/* Button styling */
-.auth-form button {
+.auth-form button[type="submit"] {
   width: 100%;
   padding: 10px;
-  background-color: #00ff00; /* Green background */
-  color: #000; /* Black text */
+  background: #007bff;
+  color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 1em;
-  font-weight: bold;
+  border-radius: 4px;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.auth-form button:hover {
-  background-color: #008f00; /* Darker green on hover */
-  color: #fff; /* White text on hover */
+.auth-form button[type="submit"]:hover {
+  background: #0056b3;
 }
 
-/* Link styling */
-.auth-form p {
-  text-align: center;
-  margin-top: 15px;
-  font-size: 0.9em;
+/* Container for input fields with toggle buttons */
+.input-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 15px; /* Add spacing between input fields */
 }
 
-.auth-form a {
-  color: #00ff00; /* Green links */
-  text-decoration: none;
-  font-weight: bold;
+/* Input fields */
+.input-container input {
+  flex: 1; /* Take up all available space */
+  padding-right: 10px; /* Add some space between the input and the emoji */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
 }
 
-.auth-form a:hover {
-  text-decoration: underline;
+/* Toggle button for password visibility */
+.input-container button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #555;
+  margin-left: 5px; /* Add spacing between the input and the button */
 }
 
-/* Responsive design */
-@media (max-width: 600px) {
-  .auth-form {
-    padding: 15px 20px;
-  }
-
-  .auth-form h1 {
-    font-size: 1.5em;
-  }
-
-  .auth-form input {
-    font-size: 0.9em;
-  }
-
-  .auth-form button {
-    font-size: 0.9em;
-  }
+.input-container button:hover {
+  color: #000;
 }
 
+/* Style for success messages */
+.auth-form .success-message {
+  color: green;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* Style for error messages */
+.auth-form .error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* Switch auth link */
 .switch-auth {
   margin-top: 10px;
   font-size: 0.9rem;
   color: #555;
+  text-align: center;
 }
 
 .switch-auth button {
@@ -120,9 +104,13 @@
   color: #0056b3;
 }
 
-/* Style for error messages */
-.auth-form .error-message {
-  color: red;
-  font-size: 0.9rem;
-  margin-top: 5px;
+/* Responsive styles */
+@media (max-width: 600px) {
+  .auth-form {
+    padding: 15px;
+  }
+
+  .auth-form button {
+    font-size: 0.9em;
+  }
 }
