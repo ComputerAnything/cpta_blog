@@ -241,6 +241,23 @@ const BlogList = () => {
                       ))}
                     </div>
                   )}
+                  {/* Votes Section */}
+                  <div className="blog-post-votes">
+                    <p
+                      className="blog-post-vote-count"
+                      style={{
+                        color: calculateScaleColor(post.upvotes, post.downvotes), // Dynamically set the color
+                      }}
+                    >
+                      {post.upvotes - post.downvotes > 0 ? '+' : ''}{post.upvotes - post.downvotes} (total votes: {post.upvotes + post.downvotes})
+                    </p>
+                  </div>
+                  <p className="blog-post-meta">
+                    Posted on {new Date(post.created_at).toLocaleDateString()} by{' '}
+                    <Link to={`/profile/${post.user_id}`} className="blog-post-author">
+                      {post.author}
+                    </Link>
+                  </p>
                 </li>
               ))}
             </ul>
