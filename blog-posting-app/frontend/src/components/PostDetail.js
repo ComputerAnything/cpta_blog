@@ -177,15 +177,18 @@ const PostDetail = () => {
       <div className="post-detail-container">
         {/* Post Header */}
         <div className="post-header">
-          <p className="post-meta">
-            Posted by <Link to={`/profile/${post.user_id}`}>{post.author}</Link> on{' '}
-            {new Date(post.created_at).toLocaleDateString()}
+          <p className="post-header-meta">
+            Posted by{' '}
+            <Link to={`/profile/${post.user_id}`} className="post-header-meta-link">
+              {post.author}
+            </Link>{' '}
+            on {new Date(post.created_at).toLocaleDateString()}
           </p>
-          <h1>{post.title}</h1>
+          <h1 className="post-header-title">{post.title}</h1>
           {post.topic_tags && (
-            <div className="post-tags">
+            <div className="post-header-tags">
               {post.topic_tags.split(',').map((tag, index) => (
-                <span key={index} className="tag">
+                <span key={index} className="post-header-tag">
                   {tag.trim()}
                 </span>
               ))}
@@ -221,30 +224,25 @@ const PostDetail = () => {
 
         {/* Voting Section */}
         <div className="vote-section">
-          <button className="upvote-button" onClick={handleUpvote}>
+          <button className="vote-button" onClick={handleUpvote}>
             ▲
           </button>
-          <p
-            className="vote-count"
-            style={{
-              color: calculateScaleColor(post.upvotes, post.downvotes), // Dynamically set the color
-            }}
-          >
+          <p className="vote-count">
             {post.upvotes - post.downvotes} (total votes: {post.upvotes + post.downvotes})
           </p>
-          <button className="downvote-button" onClick={handleDownvote}>
+          <button className="vote-button" onClick={handleDownvote}>
             ▼
           </button>
-          <div className="post-activity-buttons">
-            <button className="back-button" onClick={() => navigate('/posts')}>
+          <div className="post-action-buttons">
+            <button className="post-action-button" onClick={() => navigate('/posts')}>
               Back to Blog List
             </button>
-            <button className="share-button" onClick={handleShare}>
+            <button className="post-action-button" onClick={handleShare}>
               Share Post
             </button>
             {post.user_id === parseInt(currentUserId) && (
               <button
-                className="edit-button"
+                className="post-action-button"
                 onClick={() => navigate(`/edit-post/${postId}`)}
               >
                 Edit Post
@@ -255,18 +253,17 @@ const PostDetail = () => {
 
         {/* Comments Section */}
         <div className="comments-section">
-          <h2>Comments</h2>
+          <h2 className="comments-section-title">Comments</h2>
           <ul>
             {comments.map((comment) => (
-              <li key={comment.id} className="comment">
-                <p>
+              <li key={comment.id} className="comment-item">
+                <p className="comment-text">
                   <strong>{comment.username}</strong> commented:
                 </p>
                 <ReactMarkdown
                   children={comment.content}
-                  components={markdownComponents} // Use the same components configuration
+                  components={markdownComponents}
                 />
-                {/* Show Delete Button if the comment belongs to the current user */}
                 {comment.user_id === parseInt(currentUserId) && (
                   <button
                     className="delete-comment-button"
@@ -284,8 +281,11 @@ const PostDetail = () => {
               onChange={(e) => setCommentContent(e.target.value)}
               placeholder="Write a comment..."
               required
+              className="comment-textarea"
             />
-            <button type="submit">Submit</button>
+            <button type="submit" className="comment-submit-button">
+              Submit
+            </button>
           </form>
         </div>
       </div>
