@@ -297,3 +297,20 @@ html, body {
   border-radius: 5px; /* Optional: Add rounded corners */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Add a subtle shadow */
 }
+
+/* Delete Comment Button */
+.delete-comment-button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.delete-comment-button:hover {
+  background-color: darkred;
+}

@@ -162,10 +162,18 @@ const PostDetail = () => {
     }
   };
 
+  // Function to handle logout
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
+    window.location.href = '/'; // Redirect to the homepage or login page
+  };
+
   // Render the post details
   return (
     <>
-      <Navbar />
+      <Navbar user={{ username }} onLogout={handleLogout} />
       <div className="post-detail-container">
         {/* Post Header */}
         <div className="post-header">
@@ -239,6 +247,15 @@ const PostDetail = () => {
                   children={comment.content}
                   components={markdownComponents} // Use the same components configuration
                 />
+                {/* Show Delete Button if the comment belongs to the current user */}
+                {comment.user_id === parseInt(currentUserId) && (
+                  <button
+                    className="delete-comment-button"
+                    onClick={() => handleDeleteComment(comment.id)}
+                  >
+                    Delete
+                  </button>
+                )}
               </li>
             ))}
           </ul>
