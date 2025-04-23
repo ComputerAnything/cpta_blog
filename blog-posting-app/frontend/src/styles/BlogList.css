@@ -245,3 +245,18 @@
 .action-buttons .left-panel-button:hover {
   background-color: #018f2a; /* Darker green on hover */
 }
+
+.profile-display-area {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.profile-display-area ul {
+  max-height: 200px; /* Set the actual height of the list */
+  overflow-y: auto;
+}
+
+.profile-display-area.show {
+  max-height: 200px; /* Expand the list when visible */
+}

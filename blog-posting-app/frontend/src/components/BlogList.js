@@ -172,8 +172,8 @@ const BlogList = () => {
               placeholder="Search profiles by username"
               className="search-bar"
             />
-            <div className="profile-display-area">
-              {profileSearchTerm ? ( // Only show the list if the search term is not empty
+            <div className={`profile-display-area ${profileSearchTerm ? 'show' : ''}`}>
+              {profileSearchTerm ? (
                 filteredProfiles.length > 0 ? (
                   <ul className="left-panel-list">
                     {filteredProfiles.map((profile) => (
