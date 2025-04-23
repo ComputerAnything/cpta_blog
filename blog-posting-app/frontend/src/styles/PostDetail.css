@@ -24,6 +24,44 @@ html, body {
   align-items: center;
   margin-bottom: 20px;
 }
+/* Post Header */
+.post-header {
+  margin-bottom: 20px;
+}
+
+.post-header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.post-meta {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+/* Buttons in the Post Header */
+.post-header-buttons {
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically */
+  gap: 5px; /* Add spacing between buttons */
+  margin-top: 5px;
+}
+
+.post-header-buttons button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px; /* Smaller padding for smaller buttons */
+  font-size: 0.8rem; /* Smaller font size */
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.post-header-buttons button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
 
 .post-header .back-button,
 .post-header .edit-button {

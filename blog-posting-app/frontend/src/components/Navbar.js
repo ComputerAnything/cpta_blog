@@ -5,6 +5,7 @@ import Login from './Login';
 import Register from './Register';
 import Modal from './Modal';
 
+// TODO: The Login and Register buttons are showing on the top, even when someone is logged in.
 const Navbar = ({ user, onLogout }) => {
   const [isValidToken, setIsValidToken] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
