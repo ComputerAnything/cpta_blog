@@ -180,7 +180,7 @@ const LandingPage = () => {
                   </p>
               </div>
               <div className="col">
-                <a href="https://www.youtube.com/@cpt_anything" className="text-decoration-none">
+                <a href="https://www.youtube.com/@computer_anything" className="text-decoration-none">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                     <i className="bi bi-youtube"></i>
                   </div>
