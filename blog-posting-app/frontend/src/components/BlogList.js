@@ -151,45 +151,47 @@ const BlogList = () => {
       <Navbar user={{ username }} onLogout={handleLogout} />
       <div className="bloglist-container">
         <div className="blog-panel">
-          <h1 style={{ textAlign: 'center' }}>Computer Anything Tech Blog</h1>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
-            <button onClick={() => navigate('/profile')} className="styled-button">
+          <h1 className="blog-panel-title">Computer Anything Tech Blog</h1>
+          <div className="action-buttons">
+            <button onClick={() => navigate('/profile')} className="left-panel-button">
               Profile
             </button>
-            <button onClick={() => navigate('/create-post')} className="styled-button">
+            <button onClick={() => navigate('/create-post')} className="left-panel-button">
               Create New Post
             </button>
-            <button onClick={handleLogout} className="styled-button">
+            <button onClick={handleLogout} className="left-panel-button">
               Logout
             </button>
           </div>
-          <h2 style={{ textAlign: 'center' }}>Blogger Profiles</h2>
-          <div className="profile-search-bar-container" style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h2 className="search-bar-title">Blogger Profiles</h2>
+          <div className="profile-search-bar-container">
             <input
               type="text"
               value={profileSearchTerm}
               onChange={handleProfileSearch}
               placeholder="Search profiles by username"
-              className="profile-search-bar"
+              className="search-bar"
             />
             <div className="profile-display-area">
-              {filteredProfiles.length > 0 ? (
-                <ul>
-                  {filteredProfiles.map((profile) => (
-                    <li key={profile.id}>
-                      <Link to={`/profile/${profile.id}`} className="profile-link">
-                        {profile.username}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No profiles found.</p>
-              )}
+              {profileSearchTerm ? ( // Only show the list if the search term is not empty
+                filteredProfiles.length > 0 ? (
+                  <ul className="left-panel-list">
+                    {filteredProfiles.map((profile) => (
+                      <li key={profile.id} className="left-panel-list-item">
+                        <Link to={`/profile/${profile.id}`} className="left-panel-link">
+                          {profile.username}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No profiles found.</p>
+                )
+              ) : null}
             </div>
           </div>
-          <div className="search-bar-container" style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <h2>Search Blog Posts by Tags</h2>
+          <div className="search-bar-container">
+            <h2 className="search-bar-title">Search Blog Posts by Tags</h2>
             <input
               type="text"
               value={searchTerm}
@@ -200,11 +202,13 @@ const BlogList = () => {
           </div>
           {message && <p>{message}</p>}
           {filteredPosts.length > 0 ? (
-            <ul>
+            <ul className="blog-post-list">
               {filteredPosts.map((post) => (
-                <li key={post.id}>
-                  <h2>
-                    <Link to={`/posts/${post.id}`}>{post.title}</Link>
+                <li key={post.id} className="blog-post-item">
+                  <h2 className="blog-post-title">
+                    <Link to={`/posts/${post.id}`} className="blog-post-link">
+                      {post.title}
+                    </Link>
                   </h2>
                   <ReactMarkdown
                     children={post.content}
@@ -228,37 +232,15 @@ const BlogList = () => {
                       },
                     }}
                   />
-                  {/* Render tags */}
                   {post.topic_tags && (
-                    <div className="post-tags">
-                      <strong>Topic Tags:</strong>{' '}
+                    <div className="blog-post-tags">
                       {post.topic_tags.split(',').map((tag, index) => (
-                        <span key={index} className="tag">
+                        <span key={index} className="blog-post-tag">
                           {tag.trim()}
                         </span>
                       ))}
                     </div>
                   )}
-                  <div className="post-info">
-                    {/* Add the voting scale */}
-                    <div className="vote-scale-container">
-                      <div
-                        className="vote-scale"
-                        style={{
-                          backgroundColor: calculateScaleColor(post.upvotes, post.downvotes),
-                        }}
-                      ></div>
-                      <p className="vote-count">
-                        {post.upvotes - post.downvotes} (total votes {post.upvotes + post.downvotes})
-                      </p>
-                    </div>
-                    <p style={{ fontSize: '0.8em' }}>
-                      Author: <Link to={`/profile/${post.user_id}`}>{post.author}</Link>
-                    </p>
-                    <p style={{ fontSize: '0.8em' }}>
-                      Posted On: {new Date(post.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
-                    </p>
-                  </div>
                 </li>
               ))}
             </ul>

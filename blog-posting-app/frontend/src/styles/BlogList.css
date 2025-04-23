@@ -1,49 +1,43 @@
-:root {
-  --computerAnythingPrimary: #02c43c; /* Green */
-  --computerAnythingSecondary: #0250c4; /* Blue */
-}
-
-/* Ensure the entire page takes up the full height */
-html, body {
-  height: 100%; /* Full height of the viewport */
-  margin: 0; /* Remove default margin */
+/* General Page Layout */
+.page-container {
+  height: 100%;
+  margin: 0;
   display: flex;
-  flex-direction: column; /* Enable flexbox layout */
+  flex-direction: column;
 }
 
-/* Bloglist container */
 .bloglist-container {
-  flex: 1; /* Allow the container to grow and fill the space between the header and footer */
+  flex: 1;
   display: flex;
-  gap: 20px; /* Add spacing between panels */
+  gap: 20px;
   padding: 20px;
   background-color: #000; /* Black background */
-  color: white; /* White text for contrast */
+  color: white;
   font-family: Arial, sans-serif;
 }
 
-/* Left panel */
-.bloglist-container .left-panel {
+/* Left Panel */
+.left-panel {
   width: 25%;
-  background-color: var(--computerAnythingSecondary); /* Blue background */
-  color: white; /* White text for contrast */
+  background-color: var(--computerAnythingSecondary);
+  color: white;
   padding: 20px;
-  border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Subtle shadow */
-  position: sticky; /* Make the panel sticky */
-  top: 20px; /* Stick to 20px from the top of the viewport */
-  height: fit-content; /* Ensure the panel height adjusts to its content */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  position: sticky;
+  top: 20px;
+  height: fit-content;
 }
 
-.bloglist-container .left-panel h1 {
+.left-panel-title {
   font-size: 1.5rem;
   margin-bottom: 20px;
   text-align: center;
-  color: var(--computerAnythingPrimary); /* Green text */
+  color: var(--computerAnythingPrimary);
 }
 
-.bloglist-container .left-panel button {
-  background-color: var(--computerAnythingPrimary); /* Green buttons */
+.left-panel-button {
+  background-color: var(--computerAnythingPrimary);
   color: white;
   border: none;
   padding: 10px 15px;
@@ -54,132 +48,158 @@ html, body {
   transition: background-color 0.3s ease;
 }
 
-.bloglist-container .left-panel button:hover {
-  background-color: #018f2a; /* Darker green on hover */
+.left-panel-button:hover {
+  background-color: #018f2a;
 }
 
-.bloglist-container .left-panel h2 {
+.left-panel-subtitle {
   font-size: 1.2rem;
   margin-bottom: 15px;
-  color: white; /* White text */
+  color: white;
 }
 
-.bloglist-container .left-panel ul {
+.left-panel-list {
   list-style-type: none;
   padding: 0;
   margin: 0;
-  max-height: 200px; /* Limit the height of the list */
-  overflow-y: auto; /* Enable vertical scrolling */
-  border: 1px solid var(--computerAnythingPrimary); /* Green border */
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--computerAnythingPrimary);
   border-radius: 5px;
-  background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent white */
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 10px;
 }
 
-.bloglist-container .left-panel li {
+.left-panel-list-item {
   margin-bottom: 10px;
 }
 
-.bloglist-container .left-panel li a {
-  color: var(--computerAnythingPrimary); /* Green links */
+.left-panel-link {
+  color: var(--computerAnythingPrimary);
   text-decoration: none;
 }
 
-.bloglist-container .left-panel li a:hover {
+.left-panel-link:hover {
   text-decoration: underline;
 }
 
-/* Right panel */
-.bloglist-container .blog-panel {
-  flex: 1; /* Take up remaining space */
-  background-color: var(--computerAnythingSecondary); /* Blue background */
-  color: white; /* White text for contrast */
+/* Right Panel */
+.blog-panel {
+  flex: 1;
+  background-color: var(--computerAnythingSecondary);
+  color: white;
   padding: 20px;
-  border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Subtle shadow */
-  overflow-y: auto; /* Enable vertical scrolling for the right panel */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
 }
 
-.bloglist-container .blog-panel h1 {
+.blog-panel-title {
   font-size: 2rem;
   margin-bottom: 20px;
   text-align: center;
-  color: var(--computerAnythingPrimary); /* Green text */
+  color: var(--computerAnythingPrimary);
 }
 
-.bloglist-container .blog-panel .search-bar-container {
+.search-bar-container {
   margin-bottom: 20px;
   padding: 10px;
-  background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent white */
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 5px;
 }
 
-.bloglist-container .blog-panel .search-bar-container h2 {
+.search-bar-title {
   margin-bottom: 10px;
-  color: white; /* White text */
+  color: white;
 }
 
-.bloglist-container .blog-panel .search-bar {
+.search-bar {
   width: 100%;
   padding: 10px;
-  border: 2px solid var(--computerAnythingPrimary); /* Green border */
+  border: 2px solid var(--computerAnythingPrimary);
   border-radius: 5px;
-  background-color: #111; /* Slightly lighter black */
-  color: white; /* White text */
+  background-color: #111;
+  color: white;
   font-size: 1rem;
 }
 
-.bloglist-container .blog-panel .search-bar::placeholder {
-  color: #888; /* Gray placeholder text */
+.search-bar::placeholder {
+  color: #888;
 }
 
-.bloglist-container .blog-panel .search-bar:focus {
+.search-bar:focus {
   outline: none;
-  border-color: var(--computerAnythingSecondary); /* Blue border on focus */
-  box-shadow: 0 0 5px var(--computerAnythingSecondary); /* Blue glow */
+  border-color: var(--computerAnythingSecondary);
+  box-shadow: 0 0 5px var(--computerAnythingSecondary);
 }
 
-.bloglist-container ul {
+/* Blog Post List */
+.blog-post-list {
   list-style-type: none;
   padding: 0;
 }
 
-.bloglist-container li {
+.blog-post-item {
   margin-bottom: 20px;
   padding: 15px;
-  border: 1px solid var(--computerAnythingPrimary); /* Green border */
+  border: 1px solid var(--computerAnythingPrimary);
   border-radius: 5px;
-  background-color: #111; /* Slightly lighter black */
+  background-color: #111;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.bloglist-container li h2 {
+.blog-post-title {
   margin: 0 0 10px;
-  color: var(--computerAnythingPrimary); /* Green headings */
+  color: var(--computerAnythingPrimary);
 }
 
-.bloglist-container li p {
+.blog-post-content {
   margin: 5px 0;
-  color: white; /* White text */
+  color: white;
 }
 
-.bloglist-container a {
-  color: var(--computerAnythingPrimary); /* Green links */
+.blog-post-link {
+  color: var(--computerAnythingPrimary);
   text-decoration: none;
 }
 
-.bloglist-container a:hover {
+.blog-post-link:hover {
   text-decoration: underline;
 }
 
-/* Footer styling */
+.blog-post-tags {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.blog-post-tag {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: var(--computerAnythingPrimary);
+  color: #000;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-transform: capitalize;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+}
+
+.blog-post-tag:hover {
+  background-color: #018f2a;
+  color: #fff;
+}
+
+/* Footer */
 .footer {
-  background-color: #000; /* Black background */
-  color: white; /* White text */
+  background-color: #000;
+  color: white;
   text-align: center;
   padding: 20px;
-  border-top: 2px solid var(--computerAnythingPrimary); /* Green border on top */
-  margin-top: auto; /* Push the footer to the bottom */
+  border-top: 2px solid var(--computerAnythingPrimary);
+  margin-top: auto;
 }
 
 .footer-content {
@@ -192,106 +212,36 @@ html, body {
 .footer-logo-container {
   display: flex;
   align-items: center;
-  gap: 10px; /* Add spacing between text and image */
+  gap: 10px;
 }
 
 .footer-logo {
-  width: 40px; /* Set the width of the thumbnail */
-  height: auto; /* Maintain aspect ratio */
-  border-radius: 5px; /* Optional: Add rounded corners */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Add a subtle shadow */
-}
-
-/* Profile search bar container */
-.profile-search-bar-container {
-  max-width: 450px; /* Slightly wider than before */
-  margin: 0 auto; /* Center the container */
-}
-
-/* Profile search bar */
-.profile-search-bar {
-  width: 100%; /* Ensure it fills the container */
-  padding: 10px;
-  border: 2px solid var(--computerAnythingPrimary); /* Green border */
+  width: 40px;
+  height: auto;
   border-radius: 5px;
-  background-color: #111; /* Slightly lighter black */
-  color: white; /* White text */
-  font-size: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.profile-search-bar::placeholder {
-  color: #888; /* Gray placeholder text */
-}
-
-.profile-search-bar:focus {
-  outline: none;
-  border-color: var(--computerAnythingSecondary); /* Blue border on focus */
-  box-shadow: 0 0 5px var(--computerAnythingSecondary); /* Blue glow */
-}
-
-/* Profile display area */
-.profile-display-area {
-  max-width: 400px; /* Match the width of the search bar */
-  margin: 10px auto 0; /* Center the display area */
-  max-height: 150px; /* Limit the height */
-  overflow-y: auto; /* Enable vertical scrolling */
-  padding: 10px;
-  border: 1px solid var(--computerAnythingPrimary); /* Green border */
-  border-radius: 5px;
-  background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent white */
-}
-
-/* Profile display area list */
-.profile-display-area ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.profile-display-area li {
-  margin-bottom: 10px;
-}
-
-.profile-display-area .profile-link {
-  display: block; /* Make the link fill the entire <li> */
-  padding: 10px 15px;
-  background-color: var(--computerAnythingPrimary); /* Green background */
-  color: #000; /* Black text */
-  text-decoration: none; /* Remove underline */
-  border-radius: 5px; /* Rounded corners */
-  font-weight: bold;
-  text-align: center;
-}
-
-.profile-display-area .profile-link:hover {
-  background-color: #018f2a; /* Darker green on hover */
-  color: #fff; /* White text on hover */
-}
-
-/* Tag container */
-.tags {
-  margin-top: 10px;
+/* Action Buttons */
+.action-buttons {
   display: flex;
-  flex-wrap: wrap; /* Allow tags to wrap to the next line */
-  gap: 10px; /* Add spacing between tags */
+  flex-wrap: wrap; /* Allow buttons to wrap if needed */
+  gap: 10px; /* Add spacing between buttons */
+  justify-content: center; /* Center the buttons horizontally */
+  margin-bottom: 20px; /* Add spacing below the buttons */
 }
 
-/* Individual tag styling */
-.tags .tag {
-  display: inline-block;
-  padding: 5px 10px;
-  background-color: var(--computerAnythingPrimary); /* Green background */
-  color: #000; /* Black text */
-  border-radius: 20px; /* Rounded corners for pill-like appearance */
-  font-size: 0.9rem;
-  font-weight: bold;
-  text-transform: capitalize; /* Capitalize the first letter of each tag */
-  transition: background-color 0.3s ease, color 0.3s ease;
-  cursor: pointer; /* Indicate interactivity */
+.action-buttons .left-panel-button {
+  background-color: var(--computerAnythingPrimary);
+  color: white;
+  border: none;
+  padding: 8px 12px; /* Smaller padding for smaller buttons */
+  font-size: 0.9rem; /* Slightly smaller font size */
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-/* Hover effect for tags */
-.tags .tag:hover {
+.action-buttons .left-panel-button:hover {
   background-color: #018f2a; /* Darker green on hover */
-  color: #fff; /* White text on hover */
 }
