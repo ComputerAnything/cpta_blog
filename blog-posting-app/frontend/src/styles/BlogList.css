@@ -163,33 +163,22 @@
   text-decoration: none;
 }
 
-.blog-post-link:hover {
-  text-decoration: underline;
-}
-
 .blog-post-tags {
   margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
 }
 
 .blog-post-tag {
   display: inline-block;
+  background-color: #007bff;
+  color: white;
   padding: 5px 10px;
-  background-color: var(--computerAnythingPrimary);
-  color: #000;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  text-transform: capitalize;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  cursor: pointer;
+  margin-right: 5px;
+  border-radius: 4px;
+  font-size: 0.8rem;
 }
 
 .blog-post-tag:hover {
-  background-color: #018f2a;
-  color: #fff;
+  background-color: #0056b3; /* Darker blue on hover */
 }
 
 /* Footer */
@@ -259,4 +248,31 @@
 
 .profile-display-area.show {
   max-height: 200px; /* Expand the list when visible */
+}
+
+.blog-post-votes {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.blog-post-vote-count {
+  font-weight: bold;
+  transition: color 0.3s ease; /* Smooth transition for color changes */
+}
+
+.blog-post-meta {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-bottom: 10px;
+}
+
+.blog-post-author {
+  color: var(--computerAnythingPrimary);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.blog-post-author:hover {
+  text-decoration: underline;
 }
