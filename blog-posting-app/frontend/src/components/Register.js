@@ -1,63 +1,96 @@
 import React, { useState } from 'react';
 import API from '../services/api';
-import { useNavigate } from 'react-router-dom';
-import '../styles/Auth.css'; // Import the shared CSS file
+import '../styles/Auth.css';
 
-
-// This component handles user registration
-const Register = () => {
+const Register = ({ onSwitchToLogin }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
 
-  // Function to handle form submission
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      setMessage({ text: 'Passwords do not match.', type: 'error' });
+      return;
+    }
+
     try {
-      const response = await API.post('/register', { username, email, password });
-      setMessage('Registration successful! Redirecting to login...');
-      navigate('/', { state: { message: 'Account creation successful, now login!' } });
+      await API.post('/register', { username, email, password });
+      setMessage({ text: 'Registration successful! Redirecting to login...', type: 'success' });
+      setTimeout(() => {
+        onSwitchToLogin(); // Switch to the login modal
+      }, 1500); // Optional delay to show the success message
     } catch (error) {
-      console.error('Error during registration:', error.response?.data || error.message);
-      setMessage('Registration failed. Please try again.');
+      setMessage({ text: 'Registration failed. Please try again.', type: 'error' });
     }
   };
 
-  // Render the registration form
   return (
-    <div className="auth-container">
-      <form className="auth-form" onSubmit={handleRegister}>
-        <h1>Register</h1>
+    <form className="auth-form" onSubmit={handleRegister}>
+      <h1>Register</h1>
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+      />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <div className="input-container">
         <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Register</button>
-        <p>
-          Already a member? <a href="/">Login</a>
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? '👁️' : '🙈'}
+        </button>
+      </div>
+      <div className="input-container">
+        <input
+          type={showPassword ? 'text' : 'password'}
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
+        <button
+          className="show-password-btn"
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? '👁️' : '🙈'}
+        </button>
+      </div>
+      <button type="submit">Register</button>
+      {message && (
+        <p className={message.type === 'success' ? 'success-message' : 'error-message'}>
+          {message.text}
         </p>
-        {message && <p>{message}</p>}
-      </form>
-    </div>
+      )}
+      <p className="switch-auth">
+        Already have an account?{' '}
+        <button type="button" onClick={onSwitchToLogin}>
+          Login here
+        </button>
+      </p>
+    </form>
   );
 };
 

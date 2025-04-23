@@ -1,141 +1,183 @@
-/* Container for the create post page */
+:root {
+  --computerAnythingPrimary: #02c43c; /* Green */
+  --computerAnythingSecondary: #0250c4; /* Blue */
+}
+
+/* Ensure the entire page takes up the full height */
+html, body {
+  height: 100%; /* Full height of the viewport */
+  margin: 0; /* Remove default margin */
+  display: flex;
+  flex-direction: column; /* Enable flexbox layout */
+}
+
+/* Container for the create/edit post page */
 .create-edit-post-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 20px;
-    background-color: #000; /* Black background */
-    color: #00ff00; /* Green text */
-    font-family: Arial, sans-serif;
-    height: 100vh;
-    overflow-y: auto;
-    gap: 20px; /* Add spacing between the form and preview sections */
+  flex: 1; /* Allow the container to grow and fill the space between the header and footer */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 20px;
+  background-color: var(--computerAnythingSecondary); /* Blue background */
+  color: var(--computerAnythingPrimary); /* Green text */
+  font-family: Arial, sans-serif;
+  gap: 20px; /* Add spacing between the form and preview sections */
 }
 
 /* Form section styling */
 .form-section {
-    width: 45%; /* Reduce width to prevent overlap */
-    background-color: #111; /* Slightly lighter black */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  width: 45%; /* Reduce width to prevent overlap */
+  background-color: #111; /* Slightly lighter black */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
 .form-section h1 {
-    text-align: center;
-    margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .form-section label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
 .form-section input,
 .form-section textarea {
-    width: 95%; /* Ensure proper width */
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #00ff00; /* Green border */
-    border-radius: 5px;
-    background-color: #222; /* Slightly lighter black */
-    color: #00ff00; /* Green text */
-    font-size: 1em;
-    resize: vertical; /* Allow resizing only vertically */
+  width: 95%; /* Ensure proper width */
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid var(--computerAnythingPrimary); /* Green border */
+  border-radius: 5px;
+  background-color: #222; /* Slightly lighter black */
+  color: var(--computerAnythingPrimary); /* Green text */
+  font-size: 1em;
+  resize: vertical; /* Allow resizing only vertically */
 }
 
 .form-section input::placeholder,
 .form-section textarea::placeholder {
-    color: #888; /* Gray placeholder text */
+  color: #888; /* Gray placeholder text */
 }
 
 .form-section input:focus,
 .form-section textarea:focus {
-    outline: none;
-    border-color: #008f00; /* Darker green on focus */
+  outline: none;
+  border-color: #008f00; /* Darker green on focus */
 }
 
 .form-section button {
-    width: 100%;
-    padding: 10px;
-    background-color: #00ff00; /* Green background */
-    color: #000; /* Black text */
-    border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  width: 100%;
+  padding: 10px;
+  background-color: var(--computerAnythingPrimary); /* Green background */
+  color: #000; /* Black text */
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .form-section button:hover {
-    background-color: #008f00; /* Darker green on hover */
-    color: #fff; /* White text on hover */
+  background-color: #008f00; /* Darker green on hover */
+  color: #fff; /* White text on hover */
 }
 
 /* Preview section styling */
 .preview-section {
-    width: 50%; /* Adjust width to balance with the form section */
-    background-color: #111; /* Slightly lighter black */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  width: 50%; /* Adjust width to balance with the form section */
+  background-color: #111; /* Slightly lighter black */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
 .preview-section h2 {
-    text-align: center;
-    margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .preview-content h1 {
-    color: #00ff00; /* Green text for the title */
-    margin-bottom: 20px;
+  color: var(--computerAnythingPrimary); /* Green text for the title */
+  margin-bottom: 20px;
 }
 
 .preview-content {
-    background-color: #222; /* Slightly lighter black */
-    padding: 15px;
-    border-radius: 5px;
-    border: 1px solid #00ff00; /* Green border */
-    color: #00ff00; /* Green text */
+  background-color: #222; /* Slightly lighter black */
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid var(--computerAnythingPrimary); /* Green border */
+  color: var(--computerAnythingPrimary); /* Green text */
 }
 
 .preview-content .tags {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 
 .preview-content .tag {
-    display: inline-block;
-    background-color: #00ff00; /* Green background */
-    color: #000; /* Black text */
-    padding: 5px 10px;
-    margin-right: 5px;
-    border-radius: 5px;
-    font-size: 0.8em;
-    font-weight: bold;
+  display: inline-block;
+  background-color: var(--computerAnythingPrimary); /* Green background */
+  color: #000; /* Black text */
+  padding: 5px 10px;
+  margin-right: 5px;
+  border-radius: 5px;
+  font-size: 0.8em;
+  font-weight: bold;
 }
 
 .preview-content .tag:hover {
-    background-color: #008f00; /* Darker green on hover */
-    color: #fff; /* White text on hover */
+  background-color: #008f00; /* Darker green on hover */
+  color: #fff; /* White text on hover */
 }
 
 /* Back to Blog button styling */
 .back-to-blog-btn {
-    width: 100%;
-    padding: 10px;
-    background-color: #00ff00; /* Green background */
-    color: #000; /* Black text */
-    border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  width: 100%;
+  padding: 10px;
+  background-color: var(--computerAnythingPrimary); /* Green background */
+  color: #000; /* Black text */
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .back-to-blog-btn:hover {
-    background-color: #008f00; /* Darker green on hover */
-    color: #fff; /* White text on hover */
+  background-color: #008f00; /* Darker green on hover */
+  color: #fff; /* White text on hover */
+}
+
+/* Footer styling */
+.footer {
+  background-color: #000; /* Black background */
+  color: white; /* White text */
+  text-align: center;
+  padding: 20px;
+  border-top: 2px solid var(--computerAnythingPrimary); /* Green border on top */
+  margin-top: auto; /* Push the footer to the bottom */
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Add spacing between text and image */
+}
+
+.footer-logo {
+  width: 40px; /* Set the width of the thumbnail */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 5px; /* Optional: Add rounded corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Add a subtle shadow */
 }

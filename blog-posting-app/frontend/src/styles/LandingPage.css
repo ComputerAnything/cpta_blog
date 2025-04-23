@@ -1,0 +1,192 @@
+:root {
+  --computerAnythingPrimary: #02c43c;
+  --computerAnythingSecondary: #0250c4;
+}
+
+/* Button adjustments for dark theme */
+.dark-theme .btn-primary {
+  background-color: var(--computerAnythingPrimary);
+  border-color: var(--computerAnythingPrimary);
+}
+
+
+
+.contact-info-container {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.contact-info-link,
+.contact-info-div {
+  color: var(--computerAnythingPrimary);
+  transition: 325ms;
+}
+
+.contact-info-div:hover,
+.contact-info-link:hover {
+  transform: scale(1.25);
+  color: var(--bsInfo);
+}
+
+.contact-info-resume {
+  font-size: x-large;
+  margin-top: 5rem;
+  margin-bottom: 0.5rem;
+}
+
+.contact-us-pgraph {
+  color: var(--computerAnythingText);
+}
+
+.btn.btn-light.btn-xl:hover {
+  transform: scale(2);
+}
+
+.contact-info-phone-number {
+  margin-top: 2.5rem;
+}
+
+.theme-toggle-btn {
+  width: 25px;
+  height: 25px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #cfcfcf 50%, #5f5f5f 50%);
+  position: absolute;
+  top: 10px;
+  left: 10px; /* Changed from right to left */
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.1);
+}
+
+.custom-btn {
+  background-color: var(--computerAnythingPrimary);
+  color: black;
+  border: 2px solid rgb(99, 99, 99);
+}
+
+.custom-btn:hover {
+  background-color: rgb(99, 99, 99);
+  color: var(--computerAnythingPrimary);
+  border: 2px solid var(--computerAnythingPrimary);
+}
+
+#testimonials {
+  color: lightgray;
+  background-color: black;
+}
+
+#testimonials .fst-italic {
+  color: lightgray;
+  background-color: black;
+}
+
+#testimonials .fw-bold {
+  background-color: black;
+}
+
+#contact .cpt-anything-changes h1,
+#contact .cpt-anything-changes {
+  color: white !important;
+}
+
+@media (max-width: 1200px) {
+  .row.gx-5.align-items-center.justify-content-center {
+      flex-direction: column;
+  }
+
+  .col-xl-5.col-xxl-6.d-none.d-xl-block.text-center {
+      display: block !important;
+      width: 100%;
+      order: -1;
+  }
+}
+
+/* Center icons and text in contact cards */
+.row-cols-2 .col,
+.row-cols-lg-4 .col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Override Bootstrap's bg-dark class to make it black */
+.bg-dark {
+  background-color: #000 !important; /* Set to black and use !important to override Bootstrap */
+}
+
+/* Style for the contact card icons */
+.feature {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px; /* Adjust size */
+  height: 60px; /* Adjust size */
+  margin: 0 auto 10px; /* Center and add spacing */
+  background-color: transparent; /* Remove blue background */
+  border: 2px solid var(--computerAnythingPrimary); /* Add a green border for consistency */
+  border-radius: 50%; /* Make the icons circular */
+}
+
+.feature i {
+  font-size: 1.5rem; /* Adjust icon size */
+  color: var(--computerAnythingPrimary); /* Use the green color for icons */
+}
+
+.feature:hover {
+  background-color: var(--computerAnythingPrimary); /* Add hover effect */
+  color: #fff; /* Change icon color on hover */
+}
+
+.feature:hover i {
+  color: #fff; /* Ensure icon color changes on hover */
+}
+
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal content */
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Close button */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.close-btn:hover {
+  color: #000;
+}

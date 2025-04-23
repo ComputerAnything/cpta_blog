@@ -1,240 +1,262 @@
-/* General styling for the container */
+/* General Page Layout */
+.page-container {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .bloglist-container {
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-    background-color: #000; /* Black background */
-    color: #00ff00; /* Green text */
-    font-family: Arial, sans-serif;
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background-color: #000; /* Black background */
+  color: white;
+  font-family: Arial, sans-serif;
 }
 
-/* Left panel styling */
+/* Left Panel */
 .left-panel {
-    width: 25%;
-    background-color: #111; /* Slightly lighter black for contrast */
-    padding: 20px;
-    border-right: 1px solid #00ff00; /* Green border */
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  width: 25%;
+  background-color: var(--computerAnythingSecondary);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  position: sticky;
+  top: 20px;
+  height: fit-content;
 }
 
-.left-panel h2 {
-    color: #00ff00; /* Green headings */
-    margin-bottom: 10px;
+.left-panel-title {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--computerAnythingPrimary);
 }
 
-.left-panel p {
-    color: #00ff00; /* Green text */
+.left-panel-button {
+  background-color: var(--computerAnythingPrimary);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
 }
 
-/* Profile list styling */
-.left-panel ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    max-height: 200px; /* Limit the height of the list */
-    overflow-y: auto; /* Enable vertical scrolling */
-    border: 1px solid #00ff00; /* Add a green border around the list */
-    border-radius: 5px;
-    background-color: #222; /* Slightly lighter black for contrast */
-    padding: 10px;
+.left-panel-button:hover {
+  background-color: #018f2a;
 }
 
-/* Right panel styling */
-.right-panel {
-    width: 75%;
-    padding: 20px;
-    overflow-y: auto;
+.left-panel-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: white;
 }
 
-.right-panel h1 {
-    color: #00ff00; /* Green headings */
-    margin-bottom: 20px;
+.left-panel-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--computerAnythingPrimary);
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px;
 }
 
-/* Buttons styling */
-button {
-    background-color: #00ff00; /* Green background */
-    color: #000; /* Black text */
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    margin: 5px 0; /* Add vertical spacing between buttons */
+.left-panel-list-item {
+  margin-bottom: 10px;
 }
 
-button:hover {
-    background-color: #008f00; /* Darker green on hover */
+.left-panel-link {
+  color: var(--computerAnythingPrimary);
+  text-decoration: none;
 }
 
-/* Blog post list styling */
-ul {
-    list-style-type: none;
-    padding: 0;
+.left-panel-link:hover {
+  text-decoration: underline;
 }
 
-li {
-    margin-bottom: 20px;
-    padding: 15px;
-    border: 1px solid #00ff00; /* Green border */
-    border-radius: 5px;
-    background-color: #111; /* Slightly lighter black */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+/* Right Panel */
+.blog-panel {
+  flex: 1;
+  background-color: var(--computerAnythingSecondary);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
 }
 
-li h2 {
-    margin: 0 0 10px;
-    color: #00ff00; /* Green headings */
+.blog-panel-title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--computerAnythingPrimary);
 }
 
-li p {
-    margin: 5px 0;
-    color: #00ff00; /* Green text */
-}
-
-/* Links styling */
-a {
-    color: #00ff00; /* Green links */
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* Scrollbar styling for the right panel */
-.right-panel::-webkit-scrollbar {
-    width: 10px;
-}
-
-.right-panel::-webkit-scrollbar-thumb {
-    background-color: #00ff00; /* Green scrollbar */
-    border-radius: 5px;
-}
-
-.right-panel::-webkit-scrollbar-track {
-    background-color: #111; /* Slightly lighter black */
-}
-
-/* Tag styling */
-.tags {
-    margin-top: 10px;
-}
-
-.tag {
-    display: inline-block;
-    background-color: #00ff00; /* Green background */
-    color: #000; /* Black text */
-    padding: 5px 10px;
-    margin-right: 5px;
-    border-radius: 5px;
-    font-size: 0.8em;
-    font-weight: bold;
-}
-
-.tag:hover {
-    background-color: #008f00; /* Darker green on hover */
-    color: #fff; /* White text on hover */
-}
-
-/* Post info */
-.post-info {
-    font-size: 0.9em;
-    color: #00ff00; /* Green text */
-    margin-top: 25px;
-}
-/* Search bar container styling */
 .search-bar-container {
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: #111; /* Slightly lighter black */
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
 }
 
-.search-bar-container h2 {
-    margin-bottom: 10px;
-    color: #00ff00; /* Green text */
+.search-bar-title {
+  margin-bottom: 10px;
+  color: white;
 }
 
-/* Search bar styling */
 .search-bar {
-    width: 90%;
-    padding: 10px;
-    border: 1px solid #00ff00; /* Green border */
-    border-radius: 5px;
-    background-color: #222; /* Slightly lighter black */
-    color: #00ff00; /* Green text */
-    font-size: 1em;
+  width: 100%;
+  padding: 10px;
+  border: 2px solid var(--computerAnythingPrimary);
+  border-radius: 5px;
+  background-color: #111;
+  color: white;
+  font-size: 1rem;
 }
 
 .search-bar::placeholder {
-    color: #888; /* Gray placeholder text */
+  color: #888;
 }
 
 .search-bar:focus {
-    outline: none;
-    border-color: #008f00; /* Darker green on focus */
-}
-/* Profile search bar container styling */
-.profile-search-bar-container {
-    margin-bottom: 15px;
-    width: 100%; /* Ensure the container stays within the left panel */
+  outline: none;
+  border-color: var(--computerAnythingSecondary);
+  box-shadow: 0 0 5px var(--computerAnythingSecondary);
 }
 
-.profile-search-bar {
-    width: 90%; /* Reduce the width to prevent overflow */
-    padding: 8px;
-    border: 1px solid #00ff00; /* Green border */
-    border-radius: 5px;
-    background-color: #222; /* Slightly lighter black */
-    color: #00ff00; /* Green text */
-    font-size: 0.9em;
+/* Blog Post List */
+.blog-post-list {
+  list-style-type: none;
+  padding: 0;
 }
 
-.profile-search-bar::placeholder {
-    color: #888; /* Gray placeholder text */
+.blog-post-item {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid var(--computerAnythingPrimary);
+  border-radius: 5px;
+  background-color: #111;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.profile-search-bar:focus {
-    outline: none;
-    border-color: #008f00; /* Darker green on focus */
+.blog-post-title {
+  margin: 0 0 10px;
+  color: var(--computerAnythingPrimary);
 }
 
-/* Blog Post Voting Scale */
-.post-item {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+.blog-post-content {
+  margin: 5px 0;
+  color: white;
 }
 
-.post-content {
-    flex: 1;
-    margin-bottom: 10px;
+.blog-post-link {
+  color: var(--computerAnythingPrimary);
+  text-decoration: none;
 }
 
-.vote-scale-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
+.blog-post-link:hover {
+  text-decoration: underline;
 }
 
-.vote-scale {
-    width: 80%; /* Make the scale longer */
-    height: 10px;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    transition: background-color 0.3s ease;
+.blog-post-tags {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.vote-counts {
-    font-size: 0.8em;
-    text-align: center;
-    color: #555;
+.blog-post-tag {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: var(--computerAnythingPrimary);
+  color: #000;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-transform: capitalize;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+}
+
+.blog-post-tag:hover {
+  background-color: #018f2a;
+  color: #fff;
+}
+
+/* Footer */
+.footer {
+  background-color: #000;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  border-top: 2px solid var(--computerAnythingPrimary);
+  margin-top: auto;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-logo {
+  width: 40px;
+  height: auto;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap; /* Allow buttons to wrap if needed */
+  gap: 10px; /* Add spacing between buttons */
+  justify-content: center; /* Center the buttons horizontally */
+  margin-bottom: 20px; /* Add spacing below the buttons */
+}
+
+.action-buttons .left-panel-button {
+  background-color: var(--computerAnythingPrimary);
+  color: white;
+  border: none;
+  padding: 8px 12px; /* Smaller padding for smaller buttons */
+  font-size: 0.9rem; /* Slightly smaller font size */
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.action-buttons .left-panel-button:hover {
+  background-color: #018f2a; /* Darker green on hover */
+}
+
+.profile-display-area {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.profile-display-area ul {
+  max-height: 200px; /* Set the actual height of the list */
+  overflow-y: auto;
+}
+
+.profile-display-area.show {
+  max-height: 200px; /* Expand the list when visible */
 }

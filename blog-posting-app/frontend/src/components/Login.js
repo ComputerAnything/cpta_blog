@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import API from '../services/api';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import '../styles/Auth.css'; // Import the shared CSS file
+import { useNavigate, useLocation } from 'react-router-dom';
+import '../styles/Auth.css';
 
 
-// This component handles user login
-const Login = () => {
+const Login = ({ onSwitchToRegister }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
   const location = useLocation();
+  const [showPassword, setShowPassword] = useState(false);
   const successMessage = location.state?.message;
+  const navigate = useNavigate();
 
-  // Function to handle form submission
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -27,33 +26,41 @@ const Login = () => {
     }
   };
 
-  // Render the login form
   return (
-    <div className="auth-container">
-      <form className="auth-form" onSubmit={handleLogin}>
-        <h1>Login</h1>
-        {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+    <form className="auth-form" onSubmit={handleLogin}>
+      <h1>Login</h1>
+      {successMessage && <p className="success-message">{successMessage}</p>}
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+      />
+      <div className="input-container">
         <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <input
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Login</button>
-        <p>
-          Don't have an account? <Link to="/register">Register here</Link>
-        </p>
-        {message && <p>{message}</p>}
-      </form>
-    </div>
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? '👁️' : '🙈'}
+        </button>
+      </div>
+      <button type="submit">Login</button>
+      {message && <p className="error-message">{message}</p>}
+      <p className="switch-auth">
+        Don't have an account?{' '}
+        <button type="button" onClick={onSwitchToRegister}>
+          Register here
+        </button>
+      </p>
+    </form>
   );
 };
 
