@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Navbar from './Navbar'; // Import the Navbar component
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -13,11 +13,12 @@ const PostDetail = () => {
   const { postId } = useParams();
   const [post, setPost] = useState(null);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
-  const currentUserId = localStorage.getItem('userId'); // Get the current user's ID from localStorage
   const [comments, setComments] = useState([]);
   const [username] = useState(localStorage.getItem('username'));
   const [commentContent, setCommentContent] = useState('');
+  const currentUserId = localStorage.getItem('userId'); // Get the current user's ID from localStorage
+  const navigate = useNavigate();
+  const commentTextareaRef = useRef(null); // Create a ref for the textarea
 
   // Fetch the post details when the component mounts
   useEffect(() => {
@@ -170,6 +171,13 @@ const PostDetail = () => {
     window.location.href = '/'; // Redirect to the homepage or login page
   };
 
+  // Function to focus on the comment textarea
+  const focusCommentTextarea = () => {
+    if (commentTextareaRef.current) {
+      commentTextareaRef.current.focus();
+    }
+  };
+
   // Render the post details
   return (
     <>
@@ -222,30 +230,38 @@ const PostDetail = () => {
           />
         </div>
 
-        {/* Voting Section */}
+        {/* Voting/Action Section */}
         <div className="vote-section">
           <button className="vote-button" onClick={handleUpvote}>
             ▲
           </button>
-          <p className="vote-count">
-            {post.upvotes - post.downvotes} (total votes: {post.upvotes + post.downvotes})
+          <p
+            className="vote-count"
+            style={{
+              color: calculateScaleColor(post.upvotes, post.downvotes), // Dynamically set the color
+            }}
+          >
+            {post.upvotes - post.downvotes > 0 ? '+' : ''}{post.upvotes - post.downvotes} (total votes: {post.upvotes + post.downvotes})
           </p>
           <button className="vote-button" onClick={handleDownvote}>
             ▼
           </button>
           <div className="post-action-buttons">
-            <button className="post-action-button" onClick={() => navigate('/posts')}>
-              Back to Blog List
+            <button className="post-action-button" onClick={focusCommentTextarea}>
+              Leave Comment
             </button>
             <button className="post-action-button" onClick={handleShare}>
               Share Post
+            </button>
+            <button className="post-action-button" onClick={() => navigate('/posts')}>
+              Back to Blog
             </button>
             {post.user_id === parseInt(currentUserId) && (
               <button
                 className="post-action-button"
                 onClick={() => navigate(`/edit-post/${postId}`)}
               >
-                Edit Post
+                Edit Original Post
               </button>
             )}
           </div>
@@ -277,6 +293,7 @@ const PostDetail = () => {
           </ul>
           <form onSubmit={handleCommentSubmit} className="comment-form">
             <textarea
+              ref={commentTextareaRef}
               value={commentContent}
               onChange={(e) => setCommentContent(e.target.value)}
               placeholder="Write a comment..."
