@@ -177,24 +177,20 @@ const PostDetail = () => {
       <div className="post-detail-container">
         {/* Post Header */}
         <div className="post-header">
-          <h1>{post.title}</h1>
           <p className="post-meta">
             Posted by <Link to={`/profile/${post.user_id}`}>{post.author}</Link> on{' '}
             {new Date(post.created_at).toLocaleDateString()}
           </p>
-          <div className="post-header-buttons">
-            <button className="back-button" onClick={() => navigate('/posts')}>
-              Back to Blog List
-            </button>
-            {post.user_id === parseInt(currentUserId) && (
-              <button
-                className="edit-button"
-                onClick={() => navigate(`/edit-post/${postId}`)}
-              >
-                Edit Post
-              </button>
-            )}
-          </div>
+          <h1>{post.title}</h1>
+          {post.topic_tags && (
+            <div className="post-tags">
+              {post.topic_tags.split(',').map((tag, index) => (
+                <span key={index} className="tag">
+                  {tag.trim()}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Post Content */}
@@ -228,10 +224,33 @@ const PostDetail = () => {
           <button className="upvote-button" onClick={handleUpvote}>
             ▲
           </button>
-          <p className="vote-count">{post.upvotes - post.downvotes}</p>
+          <p
+            className="vote-count"
+            style={{
+              color: calculateScaleColor(post.upvotes, post.downvotes), // Dynamically set the color
+            }}
+          >
+            {post.upvotes - post.downvotes} (total votes: {post.upvotes + post.downvotes})
+          </p>
           <button className="downvote-button" onClick={handleDownvote}>
             ▼
           </button>
+          <div className="post-activity-buttons">
+            <button className="back-button" onClick={() => navigate('/posts')}>
+              Back to Blog List
+            </button>
+            <button className="share-button" onClick={handleShare}>
+              Share Post
+            </button>
+            {post.user_id === parseInt(currentUserId) && (
+              <button
+                className="edit-button"
+                onClick={() => navigate(`/edit-post/${postId}`)}
+              >
+                Edit Post
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Comments Section */}

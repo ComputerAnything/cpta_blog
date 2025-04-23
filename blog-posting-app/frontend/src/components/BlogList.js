@@ -230,7 +230,7 @@ const BlogList = () => {
                   />
                   {/* Render tags */}
                   {post.topic_tags && (
-                    <div className="tags">
+                    <div className="post-tags">
                       <strong>Topic Tags:</strong>{' '}
                       {post.topic_tags.split(',').map((tag, index) => (
                         <span key={index} className="tag">
