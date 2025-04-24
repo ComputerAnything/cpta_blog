@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import '../styles/Modal.css';
 
+
 const Modal = ({ isOpen, onClose, children }) => {
   useEffect(() => {
     if (isOpen) {

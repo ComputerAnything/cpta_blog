@@ -1,14 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
-import Navbar from './Navbar'; // Import the Navbar component
+import Navbar from './Navbar';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import API from '../services/api';
-import '../styles/PostDetail.css'; // Import the CSS file
+import '../styles/PostDetail.css';
 
-// TODO: When there is a code block in the post, the code block doesnt shrink to fit the screen.
-// This component displays the details of a blog post, including the title, content, author, and tags.
+
 const PostDetail = () => {
   const { postId } = useParams();
   const [post, setPost] = useState(null);

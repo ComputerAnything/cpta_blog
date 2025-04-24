@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
-import Navbar from './Navbar'; // Import the Navbar component
+import Navbar from './Navbar';
 import { useNavigate } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown'; // Import ReactMarkdown for preview
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'; // Import SyntaxHighlighter
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Import a syntax highlighting theme
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import API from '../services/api';
-import '../styles/CreateEditPost.css'; // Import the CSS file
+import '../styles/CreateEditPost.css';
 
 
-// This component handles the creation of a new blog post
 const CreatePost = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [tags, setTags] = useState(''); // State for tags
+  const [tags, setTags] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
   const username = localStorage.getItem('username');
@@ -28,7 +27,7 @@ const CreatePost = () => {
       .join(', ');
     // Check if the title and content are not empty
     try {
-      const response = await API.post(
+      await API.post(
         '/posts',
         { title, content, topic_tags: formattedTags }, // Include formatted tags
         {

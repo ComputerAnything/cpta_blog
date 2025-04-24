@@ -5,10 +5,10 @@ import BlogList from './components/BlogList';
 import PostDetail from './components/PostDetail';
 import CreatePost from './components/CreatePost';
 import EditPost from './components/EditPost';
-import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
-import LandingPage from './components/LandingPage'; // Import LandingPage
+import ProtectedRoute from './components/ProtectedRoute';
+import LandingPage from './components/LandingPage';
 
-// Main App component that sets up the routing for the application
+
 const App = () => {
   return (
     <Router>

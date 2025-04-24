@@ -8,7 +8,6 @@ import '../styles/BlogList.css';
 import API from '../services/api';
 
 
-// BlogList component
 const BlogList = () => {
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]); // State for filtered posts

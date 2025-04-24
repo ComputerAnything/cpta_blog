@@ -1,35 +1,33 @@
 import React, { useState } from 'react';
 import API from '../services/api';
-import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/Auth.css';
 
 
-const Login = ({ onSwitchToRegister }) => {
+const Login = ({ onSwitchToRegister, setLoading }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const location = useLocation();
-  const [showPassword, setShowPassword] = useState(false);
-  const successMessage = location.state?.message;
-  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    setLoading(true); // Show loading screen
     try {
       const response = await API.post('/login', { username, password });
       localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('username', username);
       localStorage.setItem('userId', response.data.user_id);
-      navigate('/posts');
+      window.location.href = '/posts'; // Redirect to posts page
     } catch (error) {
       setMessage('Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false); // Hide loading screen
     }
   };
 
   return (
     <form className="auth-form" onSubmit={handleLogin}>
       <h1>Login</h1>
-      {successMessage && <p className="success-message">{successMessage}</p>}
       <input
         type="text"
         placeholder="Username"
@@ -37,21 +35,13 @@ const Login = ({ onSwitchToRegister }) => {
         onChange={(e) => setUsername(e.target.value)}
         required
       />
-      <div className="input-container">
-        <input
-          type={showPassword ? 'text' : 'password'}
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-        >
-          {showPassword ? '👁️' : '🙈'}
-        </button>
-      </div>
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
       <button type="submit">Login</button>
       {message && <p className="error-message">{message}</p>}
       <p className="switch-auth">

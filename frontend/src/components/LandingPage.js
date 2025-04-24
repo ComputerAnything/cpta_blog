@@ -5,19 +5,19 @@ import Modal from './Modal';
 import Navbar from './Navbar.js';
 import Login from './Login';
 import Register from './Register';
+import Loading from './Loading'; // Import the Loading component
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/LandingPage.css';
 
 
-// TODO: Turn contact card emblems into buttons.
 const LandingPage = () => {
   const [isValidToken, setIsValidToken] = useState(false);
   const [username] = useState(localStorage.getItem('username'));
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
 
-  // Check if the token is valid when the component mounts
   useEffect(() => {
     const validateToken = async () => {
       const token = localStorage.getItem('token');
@@ -27,7 +27,6 @@ const LandingPage = () => {
       }
 
       try {
-        // Validate the token by making a test request to the backend
         await API.get('/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -63,8 +62,9 @@ const LandingPage = () => {
   // Render the landing page
   return (
     <>
+      {loading && <Loading />} {/* Render Loading when loading is true */}
       {/* Navigation */}
-      <Navbar user={{ username }} onLogout={handleLogout} />
+      <Navbar user={{ username }} onLogout={handleLogout} setLoading={setLoading} />
       <div className="d-flex flex-column h-100">
         {/* Header */}
         <section id="home">
@@ -240,18 +240,24 @@ const LandingPage = () => {
         {/* Login/Reg Modals */}
         {/* Login Modal */}
         <Modal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)}>
-          <Login onSwitchToRegister={() => {
-            setShowLoginModal(false);
-            setShowRegisterModal(true);
-          }} />
+          <Login
+            onSwitchToRegister={() => {
+              setShowLoginModal(false);
+              setShowRegisterModal(true);
+            }}
+            setLoading={setLoading} // Pass setLoading function
+          />
         </Modal>
 
         {/* Register Modal */}
         <Modal isOpen={showRegisterModal} onClose={() => setShowRegisterModal(false)}>
-          <Register onSwitchToLogin={() => {
-            setShowRegisterModal(false);
-            setShowLoginModal(true);
-          }} />
+          <Register
+            onSwitchToLogin={() => {
+              setShowRegisterModal(false);
+              setShowLoginModal(true);
+            }}
+            setLoading={setLoading} // Pass setLoading function
+          />
         </Modal>
 
       </div>

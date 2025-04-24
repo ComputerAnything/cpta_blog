@@ -6,7 +6,7 @@ import Register from './Register';
 import Modal from './Modal';
 
 
-const Navbar = ({ user, onLogout }) => {
+const Navbar = ({ user, onLogout, setLoading }) => {
   const [isValidToken, setIsValidToken] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -196,20 +196,24 @@ const Navbar = ({ user, onLogout }) => {
         </div>
       </nav>
 
-      {/* Login Modal */}
       <Modal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)}>
-        <Login onSwitchToRegister={() => {
-          setShowLoginModal(false);
-          setShowRegisterModal(true);
-        }} />
+        <Login
+          onSwitchToRegister={() => {
+            setShowLoginModal(false);
+            setShowRegisterModal(true);
+          }}
+          setLoading={setLoading}
+        />
       </Modal>
 
-      {/* Register Modal */}
       <Modal isOpen={showRegisterModal} onClose={() => setShowRegisterModal(false)}>
-        <Register onSwitchToLogin={() => {
-          setShowRegisterModal(false);
-          setShowLoginModal(true);
-        }} />
+        <Register
+          onSwitchToLogin={() => {
+            setShowRegisterModal(false);
+            setShowLoginModal(true);
+          }}
+          setLoading={setLoading}
+        />
       </Modal>
     </>
   );
