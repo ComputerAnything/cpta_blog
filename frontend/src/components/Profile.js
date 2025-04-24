@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from './Navbar'; // Import the Navbar component
+import Navbar from './Navbar';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Import a syntax highlighting theme
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import API from '../services/api';
-import '../styles/Profile.css'; // Import the CSS file
+import '../styles/Profile.css';
 
 
-// This component displays the user's profile and allows them to edit their information
 const Profile = () => {
   const { userId } = useParams();
   const [profile, setProfile] = useState(null);
@@ -17,7 +16,6 @@ const Profile = () => {
   const [message, setMessage] = useState('');
   const [posts, setPosts] = useState([]);
   const [isCurrentUser, setIsCurrentUser] = useState(false);
-
   const currentUserName = localStorage.getItem('username');
 
   // Fetch the user's profile and posts when the component mounts

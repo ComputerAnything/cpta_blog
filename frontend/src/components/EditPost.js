@@ -5,10 +5,11 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import API from '../services/api';
-import '../styles/CreateEditPost.css'; // Reuse the CreatePost styles
+import '../styles/CreateEditPost.css';
+
 
 const EditPost = () => {
-  const { postId } = useParams(); // Get the post ID from the URL
+  const { postId } = useParams();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
@@ -45,7 +46,7 @@ const EditPost = () => {
       .join(', ');
 
     try {
-      const response = await API.put(
+      await API.put(
         `/posts/${postId}`,
         { title, content, topic_tags: formattedTags },
         {
