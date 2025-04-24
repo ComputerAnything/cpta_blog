@@ -2,31 +2,32 @@ import React, { useState } from 'react';
 import API from '../services/api';
 import '../styles/Auth.css';
 
-const Register = ({ onSwitchToLogin }) => {
+const Register = ({ onSwitchToLogin, setLoading }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    // Check if passwords match
     if (password !== confirmPassword) {
       setMessage({ text: 'Passwords do not match.', type: 'error' });
       return;
     }
 
+    setLoading(true); // Show loading screen
     try {
       await API.post('/register', { username, email, password });
       setMessage({ text: 'Registration successful! Redirecting to login...', type: 'success' });
       setTimeout(() => {
-        onSwitchToLogin(); // Switch to the login modal
-      }, 1500); // Optional delay to show the success message
+        onSwitchToLogin();
+      }, 1500);
     } catch (error) {
       setMessage({ text: 'Registration failed. Please try again.', type: 'error' });
+    } finally {
+      setLoading(false); // Hide loading screen
     }
   };
 
@@ -49,34 +50,21 @@ const Register = ({ onSwitchToLogin }) => {
       />
       <div className="input-container">
         <input
-          type={showPassword ? 'text' : 'password'}
+          type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-        >
-          {showPassword ? '👁️' : '🙈'}
-        </button>
       </div>
       <div className="input-container">
         <input
-          type={showPassword ? 'text' : 'password'}
+          type="password"
           placeholder="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
-        <button
-          className="show-password-btn"
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-        >
-          {showPassword ? '👁️' : '🙈'}
-        </button>
       </div>
       <button type="submit">Register</button>
       {message && (
