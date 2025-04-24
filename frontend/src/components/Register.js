@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import '../styles/Auth.css';
 
@@ -7,6 +8,7 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
 
@@ -28,7 +30,7 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
     } catch (error) {
       setMessage({ text: 'Registration failed. Please try again.', type: 'error' });
     } finally {
-      setLoading(false); // Hide loading screen
+      setLoading(false);
     }
   };
 
@@ -51,21 +53,34 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
       />
       <div className="input-container">
         <input
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? '👁️' : '🙈'}
+        </button>
       </div>
       <div className="input-container">
         <input
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           placeholder="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
+        <button
+          className="show-password-btn"
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? '👁️' : '🙈'}
+        </button>
       </div>
       <button type="submit">Register</button>
       {message && (

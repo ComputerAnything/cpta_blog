@@ -10,7 +10,7 @@
   justify-content: center;
   align-items: center;
   pointer-events: all;
-  z-index: 9999; /* Make sure it's higher than any modal */
+  z-index: 9999;
   color: white;
   font-size: 1.2rem;
 }
