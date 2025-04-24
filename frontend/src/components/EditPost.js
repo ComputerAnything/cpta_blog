@@ -26,7 +26,7 @@ const EditPost = () => {
         });
         setTitle(response.data.title);
         setContent(response.data.content);
-        setTags(response.data.topic_tags || ''); // Set tags if available
+        setTags((response.data.topic_tags || '').replace(/#/g, '')); // <-- Remove all #
       } catch (error) {
         console.error('Error fetching post:', error.response?.data || error.message);
         setMessage('Failed to load the post. Please try again.');
@@ -58,6 +58,23 @@ const EditPost = () => {
     } catch (error) {
       console.error('Error updating post:', error.response?.data || error.message);
       setMessage('Failed to update the post. Please try again.');
+    }
+  };
+
+  // Handle post deletion
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+      return;
+    }
+    try {
+      await API.delete(`/posts/${postId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setMessage('Post deleted successfully!');
+      setTimeout(() => navigate('/posts'), 1500); // Redirect to blog list after 1.5s
+    } catch (error) {
+      console.error('Error deleting post:', error.response?.data || error.message);
+      setMessage('Failed to delete the post. Please try again.');
     }
   };
 
@@ -108,11 +125,21 @@ const EditPost = () => {
               <input
                 type="text"
                 value={tags}
-                onChange={(e) => setTags(e.target.value)}
+                onChange={e => {
+                  // Remove all '#' characters as the user types
+                  setTags(e.target.value.replace(/#/g, ""));
+                }}
                 placeholder="e.g., tech, programming, AI"
               />
             </div>
             <button type="submit">Update Post</button>
+            <button
+              type="button"
+              className="delete-post-btn"
+              onClick={handleDelete}
+            >
+              Delete Post
+            </button>
           </form>
           {message && <p>{message}</p>}
         </div>

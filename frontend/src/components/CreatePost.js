@@ -89,7 +89,10 @@ const CreatePost = () => {
               <input
                 type="text"
                 value={tags}
-                onChange={(e) => setTags(e.target.value)}
+                onChange={e => {
+                  // Remove all '#' characters as the user types
+                  setTags(e.target.value.replace(/#/g, ""));
+                }}
                 placeholder="e.g., tech, programming, AI"
               />
             </div>

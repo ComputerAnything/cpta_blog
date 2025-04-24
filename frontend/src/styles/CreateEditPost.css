@@ -181,3 +181,23 @@ html, body {
   border-radius: 5px; /* Optional: Add rounded corners */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Add a subtle shadow */
 }
+
+.form-section .delete-post-btn,
+.delete-post-btn {
+  margin-top: 10px;
+  background-color: #ff0000 !important; /* Red background */
+  color: #fff !important; /* White text */
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.form-section .delete-post-btn:hover,
+.delete-post-btn:hover {
+  background-color: #cc0000 !important; /* Darker red on hover */
+  color: #fff !important; /* White text on hover */
+}

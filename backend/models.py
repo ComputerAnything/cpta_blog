@@ -2,7 +2,6 @@ from app import db
 from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
 # User model
 class User(db.Model):
     __tablename__ = 'users'
@@ -18,12 +17,8 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
-    def __repr__(self): # This is a special method that defines how the object is represented
-        # when printed or logged. It returns a string representation of the object.
-        # In this case, it returns the username of the user.
-        # This is useful for debugging and logging purposes.
+    def __repr__(self):
         return f'<User {self.username}>'
-
 
 # BlogPost model
 class BlogPost(db.Model):
@@ -37,6 +32,8 @@ class BlogPost(db.Model):
     upvotes = db.Column(db.Integer, default=0, nullable=False)
     downvotes = db.Column(db.Integer, default=0, nullable=False)
 
+    votes = db.relationship('Vote', backref='post', cascade='all, delete-orphan', lazy=True)
+    comments = db.relationship('Comment', backref='post', cascade='all, delete-orphan', lazy=True)
     user = db.relationship('User', backref=db.backref('posts', lazy=True))
 
     def to_dict(self):
@@ -55,21 +52,18 @@ class BlogPost(db.Model):
     def __repr__(self):
         return f'<BlogPost {self.title}>'
 
-
 # Vote model
 class Vote(db.Model):
     __tablename__ = 'votes'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('blog_posts.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('blog_posts.id', ondelete='CASCADE'), nullable=False)
     vote_type = db.Column(db.String(10), nullable=False)  # 'upvote' or 'downvote'
 
     user = db.relationship('User', backref=db.backref('votes', lazy=True))
-    post = db.relationship('BlogPost', backref=db.backref('votes', lazy=True))
 
     def __repr__(self):
         return f'<Vote user_id={self.user_id} post_id={self.post_id} vote_type={self.vote_type}>'
-
 
 # Comment model
 class Comment(db.Model):
@@ -77,11 +71,10 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('blog_posts.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('blog_posts.id', ondelete='CASCADE'), nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
-    user = db.relationship('User', backref=db.backref('comments', lazy=True))  # Updated backref
-    post = db.relationship('BlogPost', backref=db.backref('comments', lazy=True))  # Updated backref
+    user = db.relationship('User', backref=db.backref('comments', lazy=True))
 
     def to_dict(self):
         return {
