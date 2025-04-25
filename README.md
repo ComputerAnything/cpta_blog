@@ -1,38 +1,48 @@
 # 📝 Computer Anything Blog
 
-This project is a blog posting application built using FlaskAPI for the backend, React.js for the frontend, and MySQL as the database. It includes full user authentication and allows users to create, read, update, and delete blog posts.
+A full-featured tech blog platform built with Flask (backend), React.js (frontend), and PostgreSQL.
+Features include user authentication, post creation/editing, voting, comments, and more.
 
 ---
 
 ## 📂 Project Structure
 
 ```bash
-blog-posting-app
-├── backend
+cpt_anything_blog/
+├── backend/
 │   ├── app.py
 │   ├── models.py
 │   ├── routes.py
 │   ├── config.py
 │   ├── requirements.txt
-│   └── migrations
-├── frontend
-│   ├── public
+│   ├── .env
+│   └── migrations/
+├── frontend/
+│   ├── public/
 │   │   └── index.html
-│   ├── src
+│   ├── src/
 │   │   ├── App.js
-│   │   ├── components
+│   │   ├── components/
 │   │   │   ├── Login.js
 │   │   │   ├── Register.js
 │   │   │   ├── BlogList.js
-│   │   │   └── BlogPost.js
-│   │   ├── context
+│   │   │   ├── BlogPost.js
+│   │   │   ├── EditPost.js
+│   │   │   ├── CreatePost.js
+│   │   │   ├── CommentSection.js
+│   │   │   └── Modal.js
+│   │   ├── context/
 │   │   │   └── AuthContext.js
-│   │   ├── services
+│   │   ├── services/
 │   │   │   └── api.js
 │   │   └── index.js
+│   ├── styles/
+│   │   ├── CreateEditPost.css
+│   │   ├── Loading.css
+│   │   └── Modal.css
 │   ├── package.json
 │   └── .env
-├── README.md
+├── [README.md](http://_vscodecontentref_/0)
 └── docker-compose.yml
 ```
 
@@ -67,7 +77,6 @@ flask db upgrade
 ### 2. Install the required dependencies (Frontend)
 
 ```bash
-cd frontend
 npm install
 ```
 
@@ -79,39 +88,27 @@ npm start
 
 ---
 
-## ▶️ Running the App
-
-### 1. First, start the backend server
-
-```bash
-cd backend
-flask run
-```
-
-### 2. Then, start the frontend server
-
-```bash
-cd frontend
-npm start
-```
-
-### 3. 🌍 Open your browser and navigate to `http://localhost:3000` to view the application
-
----
-
 ## ✨ Features
 
-- ✅ User registration and login
-- 📝 Create, read, update, and delete blog posts
-- 🔒 User authentication using JWT
-- 📱 Responsive design for mobile and desktop
+- ✅ User registration, login, and JWT authentication
+- 📝 Create, edit, and delete blog posts
+- 🗳️ Upvote/downvote posts
+- 💬 Comment on posts (with delete support)
+- 🔍 Search and filter posts by tags
+- 🏷️ Tag support (with automatic formatting)
+- 👤 User profile and post history
+- 🖼️ Responsive, modern UI with modals and loading overlays
+- 🛡️ Secure API endpoints
 
 ---
 
 ## 🔧 Environment Variables
 
-- Make sure to set the following environment variables in the `.env` file in the `frontend` directory:
-  - `REACT_APP_API_URL`: The base URL for the backend API.
+Frontend (`frontend/.env`):
+
+```bash
+REACT_APP_API_URL=http://localhost:5000/api
+```
 
 ---
 
