@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from config import Config
+from flask_mail import Mail
 
 
 # Initialize Flask app
@@ -21,6 +22,9 @@ CORS(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 jwt = JWTManager(app)
+
+# SMTP configuration
+mail = Mail(app)
 
 # Import routes
 from routes import *

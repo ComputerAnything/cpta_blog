@@ -13,6 +13,7 @@ executing==2.1.0
 Flask==3.1.0
 flask-cors==5.0.1
 Flask-JWT-Extended==4.7.1
+Flask-Mail
 Flask-Migrate==4.1.0
 Flask-SQLAlchemy==3.1.1
 fonttools==4.53.1

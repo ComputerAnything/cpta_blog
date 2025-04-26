@@ -17,11 +17,37 @@ const Login = ({ onSwitchToRegister, setLoading }) => {
     try {
       const response = await API.post('/login', { identifier, password });
       localStorage.setItem('token', response.data.access_token);
-      localStorage.setItem('username', identifier);
+      localStorage.setItem('username', response.data.username);
       localStorage.setItem('userId', response.data.user_id);
       navigate('/posts');
     } catch (error) {
-      setMessage('Login failed. Please check your credentials.');
+      const backendMsg = error.response?.data?.msg;
+      if (backendMsg === "Please verify your email before logging in.") {
+        setMessage(
+          <>
+            Please verify your email before logging in.
+            <br />
+            <button
+              type="button"
+              className="resend-verification-btn"
+              onClick={async () => {
+                try {
+                  await API.post('/resend-verification', { identifier });
+                  setMessage("Verification email sent! Please check your inbox.");
+                } catch {
+                  setMessage("Failed to resend verification email. Please try again later.");
+                }
+              }}
+            >
+              Resend Verification Email
+            </button>
+          </>
+        );
+      } else if (backendMsg) {
+        setMessage(backendMsg);
+      } else {
+        setMessage('Login failed. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
     }

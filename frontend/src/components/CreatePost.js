@@ -139,19 +139,6 @@ const CreatePost = () => {
           </div>
         </div>
       </div>
-      <footer className="footer">
-        <div className="footer-content">
-          <p>© 2025 Computer Anything Tech Blog. All rights reserved.</p>
-          <div className="footer-logo-container">
-            <p>Created by:</p>
-            <img
-              src="/img/cpt_anything_box_thumb.jpg"
-              alt="CPT Anything"
-              className="footer-logo"
-            />
-          </div>
-        </div>
-      </footer>
     </>
   );
 };

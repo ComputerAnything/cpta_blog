@@ -13,6 +13,7 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState('');
+  const [registered, setRegistered] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -27,19 +28,30 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
       return;
     }
 
-    setLoading(true); // Show loading screen
+    setLoading(true);
     try {
       await API.post('/register', { username, email, password, recaptchaToken });
-      setMessage({ text: 'Registration successful! Redirecting to login...', type: 'success' });
-      setTimeout(() => {
-        onSwitchToLogin();
-      }, 1500);
+      setRegistered(true);
+      setMessage({
+        text: 'Registration successful! Please check your email to verify your account before logging in.',
+        type: 'success'
+      });
     } catch (error) {
       setMessage({ text: 'Registration failed. Please try again.', type: 'error' });
     } finally {
       setLoading(false);
     }
   };
+
+  if (registered) {
+    return (
+      <div className="auth-form">
+        <h1>Registration Complete</h1>
+        <p className="success-message">{message.text}</p>
+        <button onClick={onSwitchToLogin}>Go to Login</button>
+      </div>
+    );
+  }
 
   return (
     <form className="auth-form" onSubmit={handleRegister}>
