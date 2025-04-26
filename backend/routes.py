@@ -3,19 +3,38 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app import db
 from models import User, BlogPost, Vote, Comment
+import requests
+import os
 
 
 # Create a blueprint for the routes
 routes = Blueprint('routes', __name__)
 
 # USER ROUTES
-# User registration route
+# User registration route with reCAPTCHA
 @routes.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
     username = data.get('username')
-    email = data.get('email')  # Add email field
+    email = data.get('email')
     password = data.get('password')
+    recaptcha_token = data.get('recaptchaToken')
+
+    # reCAPTCHA verification
+    RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY')
+    if not recaptcha_token:
+        return jsonify({"msg": "reCAPTCHA token is missing"}), 400
+
+    recaptcha_response = requests.post(
+        'https://www.google.com/recaptcha/api/siteverify',
+        data={
+            'secret': RECAPTCHA_SECRET_KEY,
+            'response': recaptcha_token
+        }
+    )
+    result = recaptcha_response.json()
+    if not result.get('success'):
+        return jsonify({"msg": "reCAPTCHA verification failed"}), 400
 
     # Validate input
     if not username or not email or not password:
@@ -27,7 +46,7 @@ def register():
 
     # Create a new user
     new_user = User(username=username, email=email)
-    new_user.set_password(password)  # Hash the password
+    new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
 
@@ -38,19 +57,23 @@ def register():
 @routes.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    username = data.get('username')
+    identifier = data.get('identifier')  # Can be username or email
     password = data.get('password')
 
-    # Check if the user exists
-    user = User.query.filter_by(username=username).first()
+    if not identifier or not password:
+        return jsonify({"msg": "Username/email and password are required"}), 400
+
+    # Try to find user by username or email
+    user = User.query.filter(
+        (User.username == identifier) | (User.email == identifier)
+    ).first()
+
     if not user:
         return jsonify({"msg": "User does not exist"}), 404
 
-    # Check if the password is correct
     if not user.check_password(password):
         return jsonify({"msg": "Incorrect password"}), 401
 
-    # Generate access token if login is successful
     access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(hours=12))
     print(f"User ID: {user.id}")
     return jsonify({"access_token": access_token, "user_id": user.id}), 200

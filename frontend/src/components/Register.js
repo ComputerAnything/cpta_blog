@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import API from '../services/api';
 import '../styles/Auth.css';
 
+const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
 const Register = ({ onSwitchToLogin, setLoading }) => {
   const [username, setUsername] = useState('');
@@ -10,6 +12,7 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState('');
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -19,9 +22,14 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
       return;
     }
 
+    if (!recaptchaToken) {
+      setMessage({ text: 'Please complete the reCAPTCHA.', type: 'error' });
+      return;
+    }
+
     setLoading(true); // Show loading screen
     try {
-      await API.post('/register', { username, email, password });
+      await API.post('/register', { username, email, password, recaptchaToken });
       setMessage({ text: 'Registration successful! Redirecting to login...', type: 'success' });
       setTimeout(() => {
         onSwitchToLogin();
@@ -80,6 +88,12 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
         >
           {showPassword ? '👁️' : '🙈'}
         </button>
+      </div>
+      <div style={{ margin: '16px 0' }}>
+        <ReCAPTCHA
+          sitekey={RECAPTCHA_SITE_KEY}
+          onChange={token => setRecaptchaToken(token)}
+        />
       </div>
       <button type="submit">Register</button>
       {message && (
