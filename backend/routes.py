@@ -1,21 +1,126 @@
 from datetime import timedelta
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template_string
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app import db
 from models import User, BlogPost, Vote, Comment
+import requests
+import os
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 
+# SMTP configuration
+mail = Mail()
+secret_key = os.environ.get('SECRET_KEY')
+if not secret_key:
+    raise RuntimeError("SECRET_KEY environment variable is not set")
+
+serializer = URLSafeTimedSerializer(secret_key)
+
+# function to send verification email
+def send_verification_email(user_email):
+    token = serializer.dumps(user_email, salt='email-confirm')
+    confirm_url = f"{request.url_root}verify-email/{token}"
+    msg = Message(
+        subject='Confirm Your Email',
+        recipients=[user_email],
+        body=f'Click the link to verify your email: {confirm_url}'
+    )
+    mail.send(msg)
 
 # Create a blueprint for the routes
 routes = Blueprint('routes', __name__)
 
-# USER ROUTES
-# User registration route
+# EMAIL VERIFICATION
+@routes.route('/verify-email/<token>', methods=['GET'])
+def verify_email(token):
+    try:
+        email = serializer.loads(token, salt='email-confirm', max_age=3600)
+    except SignatureExpired:
+        return render_template_string("""
+            <html>
+            <head><title>Email Verification</title></head>
+            <body style="background:#111;color:#00ff00;font-family:sans-serif;text-align:center;padding:2em;">
+                <h1>Email Verification Failed</h1>
+                <p>The verification link has expired.</p>
+                <a href="https://www.computeranything.dev/" style="color:#00ff00;text-decoration:underline;">Back to Computer Anything</a>
+            </body>
+            </html>
+        """), 400
+    except BadSignature:
+        return render_template_string("""
+            <html>
+            <head><title>Email Verification</title></head>
+            <body style="background:#111;color:#00ff00;font-family:sans-serif;text-align:center;padding:2em;">
+                <h1>Email Verification Failed</h1>
+                <p>Invalid verification token.</p>
+                <a href="https://www.computeranything.dev/" style="color:#00ff00;text-decoration:underline;">Back to Computer Anything</a>
+            </body>
+            </html>
+        """), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return render_template_string("""
+            <html>
+            <head><title>Email Verification</title></head>
+            <body style="background:#111;color:#00ff00;font-family:sans-serif;text-align:center;padding:2em;">
+                <h1>Email Verification Failed</h1>
+                <p>User not found.</p>
+                <a href="https://www.computeranything.dev/" style="color:#00ff00;text-decoration:underline;">Back to Computer Anything</a>
+            </body>
+            </html>
+        """), 404
+    user.is_verified = True
+    db.session.commit()
+    return render_template_string("""
+        <html>
+        <head><title>Email Verified</title></head>
+        <body style="background:#111;color:#00ff00;font-family:sans-serif;text-align:center;padding:2em;">
+            <h1>Email Verified!</h1>
+            <p>Your email has been successfully verified.</p>
+            <a href="https://www.computeranything.dev/" style="color:#00ff00;text-decoration:underline;">Click Here, and login with your verified email address</a>
+        </body>
+        </html>
+    """), 200
+
+# RETRY EMAIL VERIFICATION
+@routes.route('/resend-verification', methods=['POST'])
+def resend_verification():
+    data = request.get_json()
+    identifier = data.get('identifier')
+    user = User.query.filter((User.username == identifier) | (User.email == identifier)).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    if user.is_verified:
+        return jsonify({"msg": "Email already verified."}), 400
+    send_verification_email(user.email)
+    return jsonify({"msg": "Verification email sent."}), 200
+
+
+# USER REGISTRATION
 @routes.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
     username = data.get('username')
-    email = data.get('email')  # Add email field
+    email = data.get('email')
     password = data.get('password')
+    recaptcha_token = data.get('recaptchaToken')
+
+    # reCAPTCHA verification
+    RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY')
+    if not recaptcha_token:
+        return jsonify({"msg": "reCAPTCHA token is missing"}), 400
+
+    recaptcha_response = requests.post(
+        'https://www.google.com/recaptcha/api/siteverify',
+        data={
+            'secret': RECAPTCHA_SECRET_KEY,
+            'response': recaptcha_token
+        }
+    )
+    result = recaptcha_response.json()
+    if not result.get('success'):
+        return jsonify({"msg": "reCAPTCHA verification failed"}), 400
 
     # Validate input
     if not username or not email or not password:
@@ -27,22 +132,31 @@ def register():
 
     # Create a new user
     new_user = User(username=username, email=email)
-    new_user.set_password(password)  # Hash the password
+    new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
 
+    # Send verification email
+    send_verification_email(email)
+
     return jsonify({"msg": "User created successfully"}), 201
 
-
-# Login route
+# USER LOGIN
 @routes.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    username = data.get('username')
+    identifier = data.get('identifier')  # Can be username or email
     password = data.get('password')
 
-    # Check if the user exists
-    user = User.query.filter_by(username=username).first()
+    if not identifier or not password:
+        return jsonify({"msg": "Username/email and password are required"}), 400
+
+    # Try to find user by username or email
+    user = User.query.filter(
+        (User.username == identifier) | (User.email == identifier)
+    ).first()
+
+    # If user not found, return error
     if not user:
         return jsonify({"msg": "User does not exist"}), 404
 
@@ -50,13 +164,20 @@ def login():
     if not user.check_password(password):
         return jsonify({"msg": "Incorrect password"}), 401
 
-    # Generate access token if login is successful
+    # Check if the user's email has been verified
+    if not user.is_verified:
+        return jsonify({"msg": "Please verify your email before logging in."}), 403
+
     access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(hours=12))
     print(f"User ID: {user.id}")
-    return jsonify({"access_token": access_token, "user_id": user.id}), 200
 
+    return jsonify({
+        "access_token": access_token,
+        "user_id": user.id,
+        "username": user.username
+    }), 200
 
-# Route to get the user's profile
+# GET USER PROFILE
 @routes.route('/profile', methods=['GET'])
 @jwt_required()
 def get_profile():
@@ -68,11 +189,11 @@ def get_profile():
         "id": user.id,
         "username": user.username,
         "email": user.email,
-        "created_at": user.created_at.isoformat()
+        "created_at": user.created_at.isoformat(),
+        "is_verified": user.is_verified
     }), 200
 
-
-# Route to update the user's profile
+# UPDATE USER PROFILE
 @routes.route('/profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
@@ -90,14 +211,38 @@ def update_profile():
         return jsonify({"msg": "Username and email are required"}), 400
 
     # Update user information
+    old_email = user.email
     user.username = username
     user.email = email
+    # Check if the email has changed, if so, send a verification email
+    if email != old_email:
+        user.is_verified = False
+        send_verification_email(email)
     db.session.commit()
 
     return jsonify({"msg": "Profile updated successfully"}), 200
 
+# DELETE USER PROFILE
+@routes.route('/profile', methods=['DELETE'])
+@jwt_required()
+def delete_profile():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
 
-# Route to get any user's profile by ID
+    # Delete user's votes
+    Vote.query.filter_by(user_id=user.id).delete(synchronize_session=False)
+    # Delete user's comments
+    Comment.query.filter_by(user_id=user.id).delete(synchronize_session=False)
+    # Delete user's posts (this will also delete votes/comments on those posts due to cascade)
+    BlogPost.query.filter_by(user_id=user.id).delete(synchronize_session=False)
+
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"msg": "Account and all related data deleted successfully"}), 200
+
+# GET PROFILE
 @routes.route('/users/<int:user_id>', methods=['GET'])
 @jwt_required()
 def get_user_profile(user_id):
@@ -108,20 +253,18 @@ def get_user_profile(user_id):
         "id": user.id,
         "username": user.username,
         "email": user.email,
-        "created_at": user.created_at.isoformat()
+        "created_at": user.created_at.isoformat(),
+        "is_verified": user.is_verified
     }), 200
 
-
-# Route to get all user profiles
+# GET ALL USERS
 @routes.route('/users', methods=['GET'])
 @jwt_required()
 def get_all_users():
     users = User.query.all()
     return jsonify([{"id": user.id, "username": user.username} for user in users]), 200
 
-
-# BLOG POST ROUTES
-# Route to get all blog posts
+# GET ALL BLOG POSTS
 @routes.route('/posts', methods=['GET'])
 @jwt_required()
 def get_posts():
@@ -129,8 +272,7 @@ def get_posts():
     print(f"JWT Identity: {get_jwt_identity()}")
     return jsonify([post.to_dict() for post in posts]), 200
 
-
-# Route to get all posts by a specific user
+# GET USER'S BLOG POSTS
 @routes.route('/users/<int:user_id>/posts', methods=['GET'])
 @jwt_required()
 def get_user_posts(user_id):
@@ -141,8 +283,7 @@ def get_user_posts(user_id):
     posts = BlogPost.query.filter_by(user_id=user_id).all()
     return jsonify([post.to_dict() for post in posts]), 200
 
-
-# Route to get a single blog post by ID
+# GET A SINGLE BLOG POST
 @routes.route('/posts/<int:post_id>', methods=['GET'])
 @jwt_required()
 def get_post(post_id):
@@ -151,10 +292,8 @@ def get_post(post_id):
         return jsonify({"msg": "Post not found"}), 404
     return jsonify(post.to_dict()), 200
 
-
-# Route to create a new blog post
+# GET BLOG POSTS BY TOPIC TAGS
 @routes.route('/posts', methods=['POST'])
-# TODO: Uncomment the jwt_required decorator to protect this route
 @jwt_required()
 def create_post():
     data = request.get_json()
@@ -174,8 +313,7 @@ def create_post():
 
     return jsonify(new_post.to_dict()), 201
 
-
-# Route to update a blog post
+# UPDATE BLOG POST
 @routes.route('/posts/<int:post_id>', methods=['PUT'])
 @jwt_required()
 def update_post(post_id):
@@ -206,8 +344,7 @@ def update_post(post_id):
 
     return jsonify({"msg": "Post updated successfully", "post": post.to_dict()}), 200
 
-
-# Route to delete a blog post
+# DELETE BLOG POST
 @routes.route('/posts/<int:post_id>', methods=['DELETE'])
 @jwt_required()
 def delete_post(post_id):
@@ -226,9 +363,7 @@ def delete_post(post_id):
 
     return jsonify({"msg": "Post deleted successfully"}), 200
 
-
-# Routes for voting on posts
-# Route to upvote a blog post
+# UPVOTE BLOG POST
 @routes.route('/posts/<int:post_id>/upvote', methods=['POST'])
 @jwt_required()
 def upvote_post(post_id):
@@ -258,7 +393,7 @@ def upvote_post(post_id):
     db.session.commit()
     return jsonify({"msg": "Post upvoted successfully", "upvotes": post.upvotes, "downvotes": post.downvotes}), 200
 
-# Route to downvote a blog post
+# DOWNVOTE BLOG POST
 @routes.route('/posts/<int:post_id>/downvote', methods=['POST'])
 @jwt_required()
 def downvote_post(post_id):
@@ -288,9 +423,17 @@ def downvote_post(post_id):
     db.session.commit()
     return jsonify({"msg": "Post downvoted successfully", "upvotes": post.upvotes, "downvotes": post.downvotes}), 200
 
+# COUNT VOTES
+@routes.route('/users/<int:user_id>/votes/count', methods=['GET'])
+@jwt_required()
+def get_user_votes_count(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    count = Vote.query.filter_by(user_id=user_id).count()
+    return jsonify({"count": count}), 200
 
-# Routes for comments
-# Add a comment to a blog post
+# POST A COMMENT
 @routes.route('/posts/<int:post_id>/comments', methods=['POST'])
 @jwt_required()
 def add_comment(post_id):
@@ -311,7 +454,7 @@ def add_comment(post_id):
 
     return jsonify(comment.to_dict()), 201
 
-# Get all comments for a blog post
+# GET COMMENTS FOR A POST
 @routes.route('/posts/<int:post_id>/comments', methods=['GET'])
 @jwt_required()
 def get_comments(post_id):
@@ -322,7 +465,7 @@ def get_comments(post_id):
     comments = Comment.query.filter_by(post_id=post_id).all()
     return jsonify([comment.to_dict() for comment in comments]), 200
 
-# Route to delete a comment
+# DELETE A COMMENT
 @routes.route('/posts/<int:post_id>/comments/<int:comment_id>', methods=['DELETE'])
 @jwt_required()
 def delete_comment(post_id, comment_id):
@@ -344,3 +487,13 @@ def delete_comment(post_id, comment_id):
     db.session.commit()
 
     return jsonify({"msg": "Comment deleted successfully"}), 200
+
+# COUNT COMMENTS
+@routes.route('/users/<int:user_id>/comments/count', methods=['GET'])
+@jwt_required()
+def get_user_comments_count(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    count = Comment.query.filter_by(user_id=user_id).count()
+    return jsonify({"count": count}), 200

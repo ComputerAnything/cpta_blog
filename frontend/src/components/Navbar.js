@@ -5,11 +5,11 @@ import Login from './Login';
 import Register from './Register';
 import Modal from './Modal';
 
-
 const Navbar = ({ user, onLogout, setLoading }) => {
   const [isValidToken, setIsValidToken] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [currentUsername, setCurrentUsername] = useState(localStorage.getItem('username') || '');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,6 +17,7 @@ const Navbar = ({ user, onLogout, setLoading }) => {
       const token = localStorage.getItem('token');
       if (!token) {
         setIsValidToken(false);
+        setCurrentUsername('');
         return;
       }
 
@@ -25,11 +26,13 @@ const Navbar = ({ user, onLogout, setLoading }) => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setIsValidToken(true);
+        setCurrentUsername(localStorage.getItem('username') || '');
       } catch (error) {
         console.error('Invalid or expired token:', error.response?.data || error.message);
         localStorage.removeItem('token');
         localStorage.removeItem('username');
         setIsValidToken(false);
+        setCurrentUsername('');
         navigate('/');
       }
     };
@@ -37,13 +40,21 @@ const Navbar = ({ user, onLogout, setLoading }) => {
     validateToken();
   }, [navigate]);
 
+  // Listen for username changes in localStorage (e.g., after profile update)
+  useEffect(() => {
+    const handleStorage = () => {
+      setCurrentUsername(localStorage.getItem('username') || '');
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   const handleBlogClick = () => {
     if (isValidToken) {
       navigate('/posts');
     } else {
       setShowLoginModal(true);
     }
-    // Close the dropdown menu
     const navbarToggler = document.querySelector('.navbar-collapse');
     if (navbarToggler) {
       navbarToggler.classList.remove('show');
@@ -52,7 +63,6 @@ const Navbar = ({ user, onLogout, setLoading }) => {
 
   const handleLoginClick = () => {
     setShowLoginModal(true);
-    // Close the dropdown menu
     const navbarToggler = document.querySelector('.navbar-collapse');
     if (navbarToggler) {
       navbarToggler.classList.remove('show');
@@ -61,7 +71,6 @@ const Navbar = ({ user, onLogout, setLoading }) => {
 
   const handleSignupClick = () => {
     setShowRegisterModal(true);
-    // Close the dropdown menu
     const navbarToggler = document.querySelector('.navbar-collapse');
     if (navbarToggler) {
       navbarToggler.classList.remove('show');
@@ -70,15 +79,14 @@ const Navbar = ({ user, onLogout, setLoading }) => {
 
   const handleHomeClick = () => {
     if (window.location.pathname !== '/') {
-      navigate('/'); // Navigate to the home page
+      navigate('/');
     }
     setTimeout(() => {
       const homeSection = document.getElementById('home');
       if (homeSection) {
         homeSection.scrollIntoView({ behavior: 'smooth' });
       }
-    }, 100); // Delay to ensure the DOM is loaded
-    // Close the dropdown menu
+    }, 100);
     const navbarToggler = document.querySelector('.navbar-collapse');
     if (navbarToggler) {
       navbarToggler.classList.remove('show');
@@ -87,15 +95,14 @@ const Navbar = ({ user, onLogout, setLoading }) => {
 
   const handleContactClick = () => {
     if (window.location.pathname !== '/') {
-      navigate('/'); // Navigate to the home page
+      navigate('/');
     }
     setTimeout(() => {
       const contactSection = document.getElementById('contact');
       if (contactSection) {
         contactSection.scrollIntoView({ behavior: 'smooth' });
       }
-    }, 100); // Delay to ensure the DOM is loaded
-    // Close the dropdown menu
+    }, 100);
     const navbarToggler = document.querySelector('.navbar-collapse');
     if (navbarToggler) {
       navbarToggler.classList.remove('show');
@@ -104,15 +111,14 @@ const Navbar = ({ user, onLogout, setLoading }) => {
 
   const handleFeaturesClick = () => {
     if (window.location.pathname !== '/') {
-      navigate('/'); // Navigate to the home page
+      navigate('/');
     }
     setTimeout(() => {
       const featuresSection = document.getElementById('features');
       if (featuresSection) {
         featuresSection.scrollIntoView({ behavior: 'smooth' });
       }
-    }, 100); // Delay to ensure the DOM is loaded
-    // Close the dropdown menu
+    }, 100);
     const navbarToggler = document.querySelector('.navbar-collapse');
     if (navbarToggler) {
       navbarToggler.classList.remove('show');
@@ -167,10 +173,10 @@ const Navbar = ({ user, onLogout, setLoading }) => {
                 </button>
               </li>
             </ul>
-            {isValidToken && user?.username ? (
+            {isValidToken && currentUsername ? (
               <div className="d-flex align-items-center">
                 <span className="navbar-text text-white me-3">
-                  Signed in as: <strong>{user.username}</strong>
+                  Signed in as: <strong>{currentUsername}</strong>
                 </span>
                 <button className="btn btn-outline-light btn-sm" onClick={onLogout}>
                   Logout
