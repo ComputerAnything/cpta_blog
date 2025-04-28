@@ -58,12 +58,6 @@ const Navbar = () => {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    localStorage.clear();
-    navigate('/');
-  };
-
   // Helper to close navbar collapse
   const closeNavbar = () => {
     const navbarToggler = document.querySelector('.navbar-collapse');
@@ -71,6 +65,15 @@ const Navbar = () => {
       navbarToggler.classList.remove('show');
     }
   };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    localStorage.clear();
+    // Close navbar before navigating to home
+    closeNavbar();
+    navigate('/');
+  };
+
 
   // Exit guest mode handler
   const handleExitGuest = () => {

@@ -91,20 +91,6 @@
   color: #000;
 }
 
-/* Style for success messages */
-.success-message {
-  color: green;
-  font-size: 0.9rem;
-  margin-top: 5px;
-}
-
-/* Style for error messages */
-.error-message {
-  color: red;
-  font-size: 0.9rem;
-  margin-top: 5px;
-}
-
 /* Switch auth link */
 .switch-auth {
   margin-top: 10px;

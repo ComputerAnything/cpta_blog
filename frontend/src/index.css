@@ -57,3 +57,26 @@ html, body {
   margin-top: auto; /* Push the footer to the bottom */
 }
 
+/* Style for success messages */
+.success-message {
+  color: green !important;
+  background: #d4edda;
+  border: 1px solid #b7e0c3;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  margin-top: 5px;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+/* Style for error messages */
+.error-message {
+  color: red;
+  background: #d4edda;
+  border: 1px solid #b7e0c3;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  margin-top: 5px;
+  padding: 8px 12px;
+  text-align: center;
+}

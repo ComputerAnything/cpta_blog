@@ -10,12 +10,16 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showResend, setShowResend] = useState(false);
+  const [resendStatus, setResendStatus] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     dispatch(setLoading(true));
+    setShowResend(false);
+    setResendStatus('');
     try {
       const response = await API.post('/login', { identifier, password });
       dispatch(setCredentials({
@@ -33,7 +37,11 @@ const Login = () => {
       dispatch(closeModal());
       navigate('/posts');
     } catch (error) {
-      setMessage(error.response?.data?.msg || 'Login failed. Please check your credentials.');
+      const errMsg = error.response?.data?.msg || 'Login failed. Please check your credentials.';
+      setMessage(errMsg);
+      if (errMsg.toLowerCase().includes('verify')) {
+        setShowResend(true);
+      }
     } finally {
       dispatch(setLoading(false));
     }
@@ -48,6 +56,19 @@ const Login = () => {
     setMessage('');
     dispatch(closeModal());
     navigate('/posts');
+  };
+
+  const handleResendVerification = async () => {
+    setResendStatus('');
+    dispatch(setLoading(true));
+    try {
+      await API.post('/resend-verification', { identifier });
+      setResendStatus('Verification email sent! Please check your inbox.');
+    } catch (error) {
+      setResendStatus(error.response?.data?.msg || 'Failed to resend verification email.');
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   return (
@@ -84,7 +105,32 @@ const Login = () => {
       >
         Continue as Guest
       </button>
-      {message && <p className="error-message">{message}</p>}
+      {message && (
+        <div>
+          <p className="error-message">
+            {message}
+            {showResend && (
+              <>
+                <br />
+                <button
+                  type="button"
+                  className="auth-btn"
+                  style={{ background: '#ffc107', color: '#222', margin: '8px 0 0 0' }}
+                  onClick={handleResendVerification}
+                  disabled={!identifier}
+                >
+                  Resend Verification Email
+                </button>
+              </>
+            )}
+          </p>
+          {showResend && resendStatus && (
+            <p className={resendStatus.includes('sent') ? 'success-message' : 'error-message'}>
+              {resendStatus}
+            </p>
+          )}
+        </div>
+      )}
       <p className="switch-auth">
         Don't have an account?{' '}
         <button type="button" className='switch-auth-btn' onClick={() => dispatch(openModal('register'))}>
