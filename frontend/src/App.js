@@ -4,6 +4,7 @@ import { Provider, useSelector, useDispatch } from 'react-redux';
 import store from './redux/store';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import LoadingScreen from './components/LoadingScreen';
 import Profile from './components/Profile';
 import BlogList from './components/BlogList';
 import PostDetail from './components/PostDetail';
@@ -32,6 +33,7 @@ const ModalManager = () => {
 const App = () => (
   <Provider store={store}>
     <Router>
+      <LoadingScreen />
       <Navbar />
       <ModalManager />
       <Routes>
