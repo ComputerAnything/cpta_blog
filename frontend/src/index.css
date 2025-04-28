@@ -39,13 +39,15 @@ html, body {
   background-color: #000; /* Ensure the navbar background is black */
   color: white; /* White text for contrast */
 }
-.navbar-brand {
-  font-family: monospace;
-  color: var(--computerAnythingPrimary);
+
+/* Dim and disable the navbar when modal is open */
+.navbar-disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  filter: blur(1px);
+  user-select: none;
 }
-.navbar-brand:hover {
-  color: var(--computerAnythingSecondary);
-}
+
 .footer {
   background-color: #000; /* Black background */
   color: white; /* White text */

@@ -1,99 +1,72 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from './Navbar';
+import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
+import Navbar from './Navbar';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import '../styles/BlogList.css';
 import API from '../services/api';
-
+import { logout as logoutAction } from '../redux/authSlice';
 
 const BlogList = () => {
+  const dispatch = useDispatch();
+  const { user, isGuest } = useSelector((state) => state.auth);
+
   const [posts, setPosts] = useState([]);
-  const [filteredPosts, setFilteredPosts] = useState([]); // State for filtered posts
-  const [profiles, setProfiles] = useState([]); // State to store profiles
-  const [filteredProfiles, setFilteredProfiles] = useState([]); // State for filtered profiles
-  const [searchTerm, setSearchTerm] = useState(''); // State for the blog post search term
-  const [profileSearchTerm, setProfileSearchTerm] = useState(''); // State for the profile search term
-  const [username] = useState(localStorage.getItem('username'));
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [profiles, setProfiles] = useState([]);
+  const [filteredProfiles, setFilteredProfiles] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [profileSearchTerm, setProfileSearchTerm] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
   const message = location.state?.message;
 
   // Fetch posts and profiles when the component mounts
   useEffect(() => {
-    const validateTokenAndFetchData = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/'); // Redirect to login if no token is found
-        return;
-      }
+    fetchPosts();
+    fetchProfiles();
+  }, []);
 
-      try {
-        // Validate the token by making a test request to the backend
-        await API.get('/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  const fetchPosts = async () => {
+    try {
+      const response = await API.get('/posts');
+      const sortedPosts = response.data.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+      setPosts(sortedPosts);
+      setFilteredPosts(sortedPosts);
+    } catch (error) {
+      setPosts([]);
+      setFilteredPosts([]);
+    }
+  };
 
-        // If the token is valid, fetch posts and profiles
-        await fetchPosts();
-        await fetchProfiles();
-      } catch (error) {
-        console.error('Invalid or expired token:', error.response?.data || error.message);
-        localStorage.removeItem('token'); // Clear invalid token
-        localStorage.removeItem('username');
-        navigate('/'); // Redirect to login
-      }
-    };
-    validateTokenAndFetchData();
-  }, [navigate]);
-
-    const fetchPosts = async () => {
-      try {
-        const response = await API.get('/posts', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        });
-
-        // Sort posts by created_at in descending order
-        const sortedPosts = response.data.sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at)
-        );
-
-        setPosts(sortedPosts);
-        setFilteredPosts(sortedPosts); // Initialize filtered posts
-      } catch (error) {
-        console.error('Error fetching posts:', error.response?.data || error.message);
-        setPosts([]); // Clear posts if there's an error
-        setFilteredPosts([]);
-      }
-    };
-
-    // Fetch profiles
-    const fetchProfiles = async () => {
-      try {
-        const response = await API.get('/users', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        });
-
-        // Sort profiles by username in ascending order
-        const sortedProfiles = response.data.sort((a, b) =>
-          a.username.localeCompare(b.username)
-        );
-        setProfiles(sortedProfiles);
-        setFilteredProfiles(sortedProfiles); // Initialize filtered profiles
-      } catch (error) {
-        console.error('Error fetching profiles:', error.response?.data || error.message);
-        setProfiles([]); // Clear profiles if there's an error
-        setFilteredProfiles([]);
-      }
-    };
+  const fetchProfiles = async () => {
+    try {
+      const response = await API.get('/users', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      const sortedProfiles = response.data.sort((a, b) =>
+        a.username.localeCompare(b.username)
+      );
+      setProfiles(sortedProfiles);
+      setFilteredProfiles(sortedProfiles);
+    } catch (error) {
+      setProfiles([]);
+      setFilteredProfiles([]);
+    }
+  };
 
   // Function to handle logout
   const handleLogout = () => {
+    dispatch(logoutAction());
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('userId');
-    navigate('/'); // Redirect to login page
+    localStorage.removeItem('guest');
+    navigate('/');
   };
 
   // Function to handle blog post search
@@ -132,34 +105,41 @@ const BlogList = () => {
     setFilteredProfiles(filtered);
   };
 
-  // Calculate dynamic color based on upvotes and downvotes
   const calculateScaleColor = (upvotes, downvotes) => {
     const totalVotes = upvotes + downvotes;
-    if (totalVotes === 0) return '#888'; // Neutral gray for no votes
-
-    const ratio = upvotes / totalVotes; // Ratio of upvotes to total votes
-    const red = Math.round(255 * (1 - ratio)); // More downvotes = more red
-    const green = Math.round(255 * ratio); // More upvotes = more green
-    return `rgb(${red}, ${green}, 0)`; // Dynamic color
+    if (totalVotes === 0) return '#888';
+    const ratio = upvotes / totalVotes;
+    const red = Math.round(255 * (1 - ratio));
+    const green = Math.round(255 * ratio);
+    return `rgb(${red}, ${green}, 0)`;
   };
 
 
-  // Render the list of posts and profiles
   return (
     <>
-      <Navbar user={{ username }} onLogout={handleLogout} />
+      <Navbar user={user} isGuest={isGuest} onLogout={handleLogout} />
       <div className="bloglist-container">
         <div className="blog-panel">
           <h1 className="blog-panel-title">Computer Anything Tech Blog</h1>
           <div className="action-buttons">
-            <button onClick={() => navigate('/profile')} className="left-panel-button">
+            <button
+              onClick={() => isGuest ? null : navigate('/profile')}
+              className="left-panel-button"
+              disabled={isGuest}
+              title={isGuest ? "Sign in to view your profile" : ""}
+            >
               Profile
             </button>
-            <button onClick={() => navigate('/create-post')} className="left-panel-button">
+            <button
+              onClick={() => isGuest ? null : navigate('/create-post')}
+              className="left-panel-button"
+              disabled={isGuest}
+              title={isGuest ? "Sign in to create a post" : ""}
+            >
               Create New Post
             </button>
             <button onClick={handleLogout} className="left-panel-button">
-              Logout
+              {isGuest ? "Exit Guest" : "Logout"}
             </button>
           </div>
           <h2 className="search-bar-title">Blogger Profiles</h2>

@@ -1,11 +1,17 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 
-
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = !!localStorage.getItem('token'); // Check if the user is logged in
+  const { token, isGuest } = useSelector((state) => state.auth);
 
-  return isAuthenticated ? children : <Navigate to="/" />;
+  if (!token && !isGuest) {
+    // Not logged in and not a guest
+    return <Navigate to="/" replace />;
+  }
+
+  // Allow if logged in or guest
+  return children;
 };
 
 export default ProtectedRoute;

@@ -3,3 +3,11 @@
     background-color: #000; /* Ensure the navbar background is black */
     color: white; /* White text for contrast */
 }
+
+/* Dim and disable the navbar when modal is open */
+.navbar-disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    filter: blur(1px);
+    user-select: none;
+}

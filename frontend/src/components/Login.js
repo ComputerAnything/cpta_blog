@@ -1,56 +1,53 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setCredentials, setGuest, setLoading, closeModal, openModal } from '../redux/authSlice';
 import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import '../styles/Auth.css';
 
-const Login = ({ onSwitchToRegister, setLoading }) => {
+const Login = () => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    setLoading(true); // Show loading screen
+    dispatch(setLoading(true));
     try {
       const response = await API.post('/login', { identifier, password });
+      dispatch(setCredentials({
+        user: {
+          username: response.data.username,
+          userId: response.data.user_id,
+        },
+        token: response.data.access_token,
+      }));
       localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('username', response.data.username);
       localStorage.setItem('userId', response.data.user_id);
+      localStorage.removeItem('guest');
+      setMessage('');
+      dispatch(closeModal());
       navigate('/posts');
     } catch (error) {
-      const backendMsg = error.response?.data?.msg;
-      if (backendMsg === "Please verify your email before logging in.") {
-        setMessage(
-          <>
-            Please verify your email before logging in.
-            <br />
-            <button
-              type="button"
-              className="resend-verification-btn"
-              onClick={async () => {
-                try {
-                  await API.post('/resend-verification', { identifier });
-                  setMessage("Verification email sent! Please check your inbox.");
-                } catch {
-                  setMessage("Failed to resend verification email. Please try again later.");
-                }
-              }}
-            >
-              Resend Verification Email
-            </button>
-          </>
-        );
-      } else if (backendMsg) {
-        setMessage(backendMsg);
-      } else {
-        setMessage('Login failed. Please check your credentials.');
-      }
+      setMessage(error.response?.data?.msg || 'Login failed. Please check your credentials.');
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
+  };
+
+  const handleGuest = () => {
+    dispatch(setGuest());
+    localStorage.setItem('guest', 'true');
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
+    setMessage('');
+    dispatch(closeModal());
+    navigate('/posts');
   };
 
   return (
@@ -73,16 +70,24 @@ const Login = ({ onSwitchToRegister, setLoading }) => {
         />
         <button
           type="button"
+          className="toggle-password-btn"
           onClick={() => setShowPassword(!showPassword)}
         >
           {showPassword ? '👁️' : '🙈'}
         </button>
       </div>
-      <button type="submit">Login</button>
+      <button type="submit" className="auth-btn">Login</button>
+      <button
+        type="button"
+        className="guest-btn"
+        onClick={handleGuest}
+      >
+        Continue as Guest
+      </button>
       {message && <p className="error-message">{message}</p>}
       <p className="switch-auth">
         Don't have an account?{' '}
-        <button type="button" onClick={onSwitchToRegister}>
+        <button type="button" className='switch-auth-btn' onClick={() => dispatch(openModal('register'))}>
           Register here
         </button>
       </p>
