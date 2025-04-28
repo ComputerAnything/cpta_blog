@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from './Navbar';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import API from '../services/api';
-import '../styles/CreateEditPost.css';
+import API from '../../services/api';
+import '../../styles/CreateEditPost.css';
 
 
 const EditPost = () => {
@@ -90,7 +89,6 @@ const EditPost = () => {
   // Render the edit post form
   return (
     <>
-      <Navbar user={{ username }} onLogout={handleLogout} />
       <div className="create-edit-post-container">
         <div className="form-section">
           <h1>Edit Post</h1>

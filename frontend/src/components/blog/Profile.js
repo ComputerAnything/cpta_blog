@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from './Navbar';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import API from '../services/api';
-import '../styles/Profile.css';
+import API from '../../services/api';
+import '../../styles/Profile.css';
 
 const Profile = () => {
   const { userId } = useParams();
@@ -149,7 +148,6 @@ const statsBlock = (
 if (!isCurrentUser) {
   return (
     <>
-      <Navbar user={{ username: currentUserName }} />
       <div className="profile-container">
         <div className="profile-header">
           <h1 className="profile-header-title">{profile.username}'s Profile</h1>
@@ -235,7 +233,6 @@ const emailStatus = profile.is_verified ? (
 
 return (
   <>
-    <Navbar user={{ username: currentUserName }} onLogout={handleLogout} />
     <div className="profile-container">
       <div className="profile-header">
         <h1 className="profile-header-title">{profile.username}'s Profile</h1>

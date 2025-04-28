@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { logout as logoutAction } from '../../redux/authSlice';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import Navbar from './Navbar';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import '../styles/BlogList.css';
-import API from '../services/api';
-import { logout as logoutAction } from '../redux/authSlice';
+import API from '../../services/api';
+import '../../styles/BlogList.css';
+
 
 const BlogList = () => {
   const dispatch = useDispatch();

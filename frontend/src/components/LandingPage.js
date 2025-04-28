@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
-import Modal from './Modal';
-import Navbar from './Navbar.js';
-import Login from './Login';
-import Register from './Register';
-import Loading from './LoadingScreen.js'; // Import the Loading component
+import Modal from './layout/Modal.js';
+import Navbar from './layout/Navbar.js';
+import Login from './auth/Login.js';
+import Register from './auth/Register.js';
+import Loading from './layout/LoadingScreen.js'; // Import the Loading component
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/LandingPage.css';
 

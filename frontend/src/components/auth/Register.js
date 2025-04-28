@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setLoading, openModal, closeModal } from '../redux/authSlice';
+import { setLoading, openModal, closeModal } from '../../redux/authSlice';
 import ReCAPTCHA from 'react-google-recaptcha';
-import API from '../services/api';
-import '../styles/Auth.css';
+import API from '../../services/api';
+import '../../styles/Auth.css';
 
 const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 

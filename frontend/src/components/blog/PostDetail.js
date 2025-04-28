@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import Navbar from './Navbar';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import API from '../services/api';
-import '../styles/PostDetail.css';
+import API from '../../services/api';
+import '../../styles/PostDetail.css';
 
 
 const PostDetail = () => {
@@ -180,7 +179,6 @@ const PostDetail = () => {
   // Render the post details
   return (
     <>
-      <Navbar user={{ username }} onLogout={handleLogout} />
       <div className="post-detail-container">
         {/* Post Header */}
         <div className="post-header">

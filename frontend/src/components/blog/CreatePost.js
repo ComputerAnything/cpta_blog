@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import Navbar from './Navbar';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import API from '../services/api';
-import '../styles/CreateEditPost.css';
+import API from '../../services/api';
+import '../../styles/CreateEditPost.css';
 
 
 const CreatePost = () => {
@@ -42,19 +41,10 @@ const CreatePost = () => {
     }
   };
 
-  // Function to handle logout
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('userId');
-    window.location.href = '/'; // Redirect to the homepage or login page
-  };
-
 
   // Render the create post form
   return (
     <>
-      <Navbar user={{ username }} onLogout={handleLogout} />
       <div className="create-edit-post-container">
         <div className="form-section">
           <h1>Create New Post</h1>
