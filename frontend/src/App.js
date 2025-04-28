@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Provider, useSelector, useDispatch } from 'react-redux';
 import store from './redux/store';
+import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Profile from './components/Profile';
 import BlogList from './components/BlogList';
@@ -31,6 +32,7 @@ const ModalManager = () => {
 const App = () => (
   <Provider store={store}>
     <Router>
+      <Navbar />
       <ModalManager />
       <Routes>
         <Route path="/" element={<LandingPage />} />

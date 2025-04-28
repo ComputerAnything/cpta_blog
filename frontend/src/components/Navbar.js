@@ -76,8 +76,11 @@ const Navbar = () => {
   const handleExitGuest = () => {
     dispatch(logout());
     localStorage.clear();
+    // Close navbar before opening the register modal
+    closeNavbar();
     dispatch(openModal('register'));
   };
+
 
   return (
     <nav className={`navbar navbar-expand-lg navbar-dark bg-dark sticky-top px-4${modal ? ' navbar-disabled' : ''}`}>
