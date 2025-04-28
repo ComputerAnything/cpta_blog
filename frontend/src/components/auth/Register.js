@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setLoading, openModal, closeModal } from '../../redux/authSlice';
+import { setLoading, openModal, closeModal } from '../../redux/slices/authSlice';
 import ReCAPTCHA from 'react-google-recaptcha';
 import API from '../../services/api';
 import '../../styles/Auth.css';

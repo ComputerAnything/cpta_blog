@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setCredentials, setGuest, setLoading, closeModal, openModal } from '../../redux/authSlice';
+import { setCredentials, setGuest, setLoading, closeModal, openModal } from '../../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import API from '../../services/api';
 import '../../styles/Auth.css';

@@ -47,11 +47,11 @@ class BlogPost(db.Model):
             "title": self.title,
             "content": self.content,
             "topic_tags": self.topic_tags,
-            "user_id": self.user_id,
-            "author": self.user.username,
-            "created_at": self.created_at.isoformat(),
             "upvotes": self.upvotes,
             "downvotes": self.downvotes,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "user_id": self.user_id,
+            "author": self.user.username if hasattr(self, 'user') and self.user else None
         }
 
     def __repr__(self):

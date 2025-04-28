@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API from '../services/api';
-import Modal from './layout/Modal.js';
-import Navbar from './layout/Navbar.js';
-import Login from './auth/Login.js';
-import Register from './auth/Register.js';
-import Loading from './layout/LoadingScreen.js'; // Import the Loading component
+import Modal from '../layout/Modal.js';
+import Login from '../auth/Login.js';
+import Register from '../auth/Register.js';
+import Loading from '../layout/LoadingScreen.js'; // Import the Loading component
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/LandingPage.css';
+import API from '../../services/api';
+import '../../styles/LandingPage.css';
 
 
 const LandingPage = () => {
   const [isValidToken, setIsValidToken] = useState(false);
-  const [username] = useState(localStorage.getItem('username'));
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [loading, setLoading] = useState(false); // Loading state
@@ -43,13 +41,6 @@ const LandingPage = () => {
     validateToken();
   }, [navigate]);
 
-  // Function to handle logout
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('userId');
-    window.location.href = '/'; // Redirect to the homepage or login page
-  };
 
   const handleBlogClick = () => {
     if (isValidToken) {
@@ -63,7 +54,6 @@ const LandingPage = () => {
   return (
     <>
       {loading && <Loading />} {/* Render Loading when loading is true */}
-      {/* Navigation */}
       <div className="d-flex flex-column h-100">
         {/* Header */}
         <section id="home">

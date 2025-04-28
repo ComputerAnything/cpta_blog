@@ -46,7 +46,7 @@
   margin-top: 1em;
   background: #222;
   color: #00ff00;
-  border: 1px solid #00ff00;
+  border: 2.5px solid #00ff00;
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
@@ -57,7 +57,8 @@
 .guest-btn:hover {
   background: #00ff00;
   color: #222;
-  border: 1px solid #222;
+  border: 2.5px solid #222;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Container for input fields with toggle buttons */

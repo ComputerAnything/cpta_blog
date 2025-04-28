@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Provider, useSelector, useDispatch } from 'react-redux';
 import store from './redux/store';
@@ -11,12 +11,33 @@ import PostDetail from './components/blog/PostDetail';
 import CreatePost from './components/blog/CreatePost';
 import EditPost from './components/blog/EditPost';
 import ProtectedRoute from './components/common/ProtectedRoute';
-import LandingPage from './components/LandingPage';
+import LandingPage from './components/landing/LandingPage';
 import Modal from './components/layout/Modal';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
-import { closeModal } from './redux/authSlice';
+import { setCredentials, setGuest, setHydrated, closeModal } from './redux/slices/authSlice';
 
+// Hydrate Redux auth state from localStorage on app load
+const AuthHydrator = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+    const userId = localStorage.getItem('userId');
+    const guest = localStorage.getItem('guest');
+    if (guest === 'true') {
+      dispatch(setGuest());
+    } else if (token && username && userId) {
+      dispatch(setCredentials({
+        user: { username, userId },
+        token,
+      }));
+    } else {
+      dispatch(setHydrated());
+    }
+  }, [dispatch]);
+  return null;
+};
 
 const ModalManager = () => {
   const modal = useSelector((state) => state.auth.modal);
@@ -33,6 +54,7 @@ const ModalManager = () => {
 const App = () => (
   <Provider store={store}>
     <Router>
+      <AuthHydrator />
       <LoadingScreen />
       <Navbar />
       <ModalManager />

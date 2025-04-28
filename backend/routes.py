@@ -268,9 +268,13 @@ def get_all_users():
 @routes.route('/posts', methods=['GET'])
 @jwt_required()
 def get_posts():
-    posts = BlogPost.query.all()
-    print(f"JWT Identity: {get_jwt_identity()}")
-    return jsonify([post.to_dict() for post in posts]), 200
+    try:
+        posts = BlogPost.query.all()
+        print([post.to_dict() for post in posts])  # Debug print
+        return jsonify([post.to_dict() for post in posts]), 200
+    except Exception as e:
+        print('Error in /posts:', e)
+        return jsonify({'msg': str(e)}), 500
 
 # GET USER'S BLOG POSTS
 @routes.route('/users/<int:user_id>/posts', methods=['GET'])
