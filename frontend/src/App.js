@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Provider, useSelector, useDispatch } from 'react-redux';
+import store from './redux/store';
 import Footer from './components/Footer';
 import Profile from './components/Profile';
 import BlogList from './components/BlogList';
@@ -9,29 +11,41 @@ import EditPost from './components/EditPost';
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './components/LandingPage';
 import VerifyEmail from './components/VerifyEmail';
+import Modal from './components/Modal';
+import Login from './components/Login';
+import Register from './components/Register';
+import { closeModal } from './redux/authSlice';
 
+const ModalManager = () => {
+  const modal = useSelector((state) => state.auth.modal);
+  const dispatch = useDispatch();
 
-const App = () => {
+  if (!modal) return null;
   return (
+    <Modal isOpen={!!modal} onClose={() => dispatch(closeModal())}>
+      {modal === 'login' ? <Login /> : <Register />}
+    </Modal>
+  );
+};
+
+const App = () => (
+  <Provider store={store}>
     <Router>
+      <ModalManager />
       <Routes>
-        {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />
-        {/* Email Verification */}
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
-        {/* Protected Routes */}
         <Route path="/posts" element={<ProtectedRoute><BlogList /></ProtectedRoute>} />
         <Route path="/create-post" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
         <Route path="/edit-post/:postId" element={<ProtectedRoute><EditPost /></ProtectedRoute>} />
         <Route path="/posts/:postId?" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/profile/:userId?" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        {/* Fallback route */}
-        <Route path="*" element={<h1>404 Not Found, It's probably your fault though TBH, LOL.</h1>} />
+        <Route path="*" element={<h1>404 Not Found</h1>} />
       </Routes>
       <Footer />
     </Router>
-  );
-};
+  </Provider>
+);
 
 export default App;
