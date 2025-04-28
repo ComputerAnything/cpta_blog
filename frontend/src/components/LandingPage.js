@@ -5,7 +5,7 @@ import Modal from './Modal';
 import Navbar from './Navbar.js';
 import Login from './Login';
 import Register from './Register';
-import Loading from './Loading'; // Import the Loading component
+import Loading from './LoadingScreen.js'; // Import the Loading component
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/LandingPage.css';
 
@@ -64,7 +64,6 @@ const LandingPage = () => {
     <>
       {loading && <Loading />} {/* Render Loading when loading is true */}
       {/* Navigation */}
-      <Navbar user={{ username }} onLogout={handleLogout} setLoading={setLoading} />
       <div className="d-flex flex-column h-100">
         {/* Header */}
         <section id="home">

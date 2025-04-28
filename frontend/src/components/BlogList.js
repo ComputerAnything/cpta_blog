@@ -117,7 +117,6 @@ const BlogList = () => {
 
   return (
     <>
-      <Navbar user={user} isGuest={isGuest} onLogout={handleLogout} />
       <div className="bloglist-container">
         <div className="blog-panel">
           <h1 className="blog-panel-title">Computer Anything Tech Blog</h1>
