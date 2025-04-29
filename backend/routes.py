@@ -254,7 +254,7 @@ def delete_profile():
 
 # GET USER PROFILE BY ID
 @routes.route('/api/users/<int:user_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_user_profile(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -270,7 +270,8 @@ def get_user_profile(user_id):
 
 # GET ALL USERS
 @routes.route('/api/users', methods=['GET'])
-@jwt_required()
+# Remove for guest access
+# @jwt_required()
 def get_all_users():
     users = User.query.all()
     return jsonify([{"id": user.id, "username": user.username} for user in users]), 200
@@ -278,7 +279,8 @@ def get_all_users():
 
 # GET ALL BLOG POSTS
 @routes.route('/api/posts', methods=['GET'])
-@jwt_required()
+# Remove for guest access
+# @jwt_required()
 def get_posts():
     try:
         posts = BlogPost.query.all()
@@ -293,7 +295,7 @@ def get_posts():
 
 # GET USER'S BLOG POSTS
 @routes.route('/api/users/<int:user_id>/posts', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_user_posts(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -305,7 +307,7 @@ def get_user_posts(user_id):
 
 # GET A SINGLE BLOG POST
 @routes.route('/api/posts/<int:post_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_post(post_id):
     post = BlogPost.query.get(post_id)
     if not post:
@@ -484,7 +486,7 @@ def add_comment(post_id):
 
 # GET COMMENTS FOR A POST
 @routes.route('/api/posts/<int:post_id>/comments', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_comments(post_id):
     post = BlogPost.query.get(post_id)
     if not post:

@@ -55,11 +55,14 @@ const BlogList = () => {
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    setFilteredPosts(
-      !term
-        ? posts
-        : posts.filter((post) => post.topic_tags?.toLowerCase().includes(term))
+    const filtered = !term
+      ? posts
+      : posts.filter((post) => post.topic_tags?.toLowerCase().includes(term));
+    // Sort by most recent
+    const sorted = [...filtered].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
     );
+    setFilteredPosts(sorted);
   };
 
   const handleProfileSearch = (e) => {
