@@ -14,4 +14,3 @@
 
 - jwt token must be a string, this is easy to miss when scaffolding rails routes
 - When hosting on render, you must use the react navigation library to handle routing, otherwise the server will not know how to handle the route
-- When using redux, you must add auth-hydrator to all protected routes

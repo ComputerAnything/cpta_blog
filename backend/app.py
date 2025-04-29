@@ -6,7 +6,6 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from config import Config
 from flask_mail import Mail
-from flask import send_from_directory, abort
 
 
 # Initialize Flask app

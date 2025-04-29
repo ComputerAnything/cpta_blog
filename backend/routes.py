@@ -16,7 +16,6 @@ if not secret_key:
 
 serializer = URLSafeTimedSerializer(secret_key)
 
-
 # function to send verification email
 def send_verification_email(user_email):
     token = serializer.dumps(user_email, salt='email-confirm')
@@ -28,10 +27,8 @@ def send_verification_email(user_email):
     )
     mail.send(msg)
 
-
 # Create a blueprint for the routes
 routes = Blueprint('routes', __name__)
-
 
 # EMAIL VERIFICATION
 @routes.route('/verify-email/<token>', methods=['GET'])
@@ -85,7 +82,6 @@ def verify_email(token):
         </body>
         </html>
     """), 200
-
 
 # RETRY EMAIL VERIFICATION
 @routes.route('/resend-verification', methods=['POST'])
@@ -145,7 +141,6 @@ def register():
 
     return jsonify({"msg": "User created successfully"}), 201
 
-
 # USER LOGIN
 @routes.route('/login', methods=['POST'])
 def login():
@@ -174,15 +169,13 @@ def login():
         return jsonify({"msg": "Please verify your email before logging in."}), 403
 
     access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(hours=12))
-    # Debugging
-    # print(f"User ID: {user.id}")
+    print(f"User ID: {user.id}")
 
     return jsonify({
         "access_token": access_token,
         "user_id": user.id,
         "username": user.username
     }), 200
-
 
 # GET USER PROFILE
 @routes.route('/profile', methods=['GET'])
@@ -199,7 +192,6 @@ def get_profile():
         "created_at": user.created_at.isoformat(),
         "is_verified": user.is_verified
     }), 200
-
 
 # UPDATE USER PROFILE
 @routes.route('/profile', methods=['PUT'])
@@ -230,7 +222,6 @@ def update_profile():
 
     return jsonify({"msg": "Profile updated successfully"}), 200
 
-
 # DELETE USER PROFILE
 @routes.route('/profile', methods=['DELETE'])
 @jwt_required()
@@ -251,7 +242,6 @@ def delete_profile():
     db.session.commit()
     return jsonify({"msg": "Account and all related data deleted successfully"}), 200
 
-
 # GET PROFILE
 @routes.route('/users/<int:user_id>', methods=['GET'])
 # @jwt_required()
@@ -267,29 +257,20 @@ def get_user_profile(user_id):
         "is_verified": user.is_verified
     }), 200
 
-
 # GET ALL USERS
 @routes.route('/users', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_all_users():
     users = User.query.all()
     return jsonify([{"id": user.id, "username": user.username} for user in users]), 200
 
-
 # GET ALL BLOG POSTS
 @routes.route('/posts', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_posts():
-    try:
-        posts = BlogPost.query.all()
-        # Debugging
-        # print([post.to_dict() for post in posts])
-        return jsonify([post.to_dict() for post in posts]), 200
-    except Exception as e:
-        # Debugging
-        # print('Error in /posts:', e)
-        return jsonify({'msg': str(e)}), 500
-
+    posts = BlogPost.query.all()
+    print(f"JWT Identity: {get_jwt_identity()}")
+    return jsonify([post.to_dict() for post in posts]), 200
 
 # GET USER'S BLOG POSTS
 @routes.route('/users/<int:user_id>/posts', methods=['GET'])
@@ -302,16 +283,14 @@ def get_user_posts(user_id):
     posts = BlogPost.query.filter_by(user_id=user_id).all()
     return jsonify([post.to_dict() for post in posts]), 200
 
-
 # GET A SINGLE BLOG POST
 @routes.route('/posts/<int:post_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_post(post_id):
     post = BlogPost.query.get(post_id)
     if not post:
         return jsonify({"msg": "Post not found"}), 404
     return jsonify(post.to_dict()), 200
-
 
 # GET BLOG POSTS BY TOPIC TAGS
 @routes.route('/posts', methods=['POST'])
@@ -333,7 +312,6 @@ def create_post():
     db.session.commit()
 
     return jsonify(new_post.to_dict()), 201
-
 
 # UPDATE BLOG POST
 @routes.route('/posts/<int:post_id>', methods=['PUT'])
@@ -366,7 +344,6 @@ def update_post(post_id):
 
     return jsonify({"msg": "Post updated successfully", "post": post.to_dict()}), 200
 
-
 # DELETE BLOG POST
 @routes.route('/posts/<int:post_id>', methods=['DELETE'])
 @jwt_required()
@@ -385,7 +362,6 @@ def delete_post(post_id):
     db.session.commit()
 
     return jsonify({"msg": "Post deleted successfully"}), 200
-
 
 # UPVOTE BLOG POST
 @routes.route('/posts/<int:post_id>/upvote', methods=['POST'])
@@ -417,7 +393,6 @@ def upvote_post(post_id):
     db.session.commit()
     return jsonify({"msg": "Post upvoted successfully", "upvotes": post.upvotes, "downvotes": post.downvotes}), 200
 
-
 # DOWNVOTE BLOG POST
 @routes.route('/posts/<int:post_id>/downvote', methods=['POST'])
 @jwt_required()
@@ -448,7 +423,6 @@ def downvote_post(post_id):
     db.session.commit()
     return jsonify({"msg": "Post downvoted successfully", "upvotes": post.upvotes, "downvotes": post.downvotes}), 200
 
-
 # COUNT VOTES
 @routes.route('/users/<int:user_id>/votes/count', methods=['GET'])
 @jwt_required()
@@ -458,7 +432,6 @@ def get_user_votes_count(user_id):
         return jsonify({"msg": "User not found"}), 404
     count = Vote.query.filter_by(user_id=user_id).count()
     return jsonify({"count": count}), 200
-
 
 # POST A COMMENT
 @routes.route('/posts/<int:post_id>/comments', methods=['POST'])
@@ -481,10 +454,9 @@ def add_comment(post_id):
 
     return jsonify(comment.to_dict()), 201
 
-
 # GET COMMENTS FOR A POST
 @routes.route('/posts/<int:post_id>/comments', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_comments(post_id):
     post = BlogPost.query.get(post_id)
     if not post:
@@ -492,7 +464,6 @@ def get_comments(post_id):
 
     comments = Comment.query.filter_by(post_id=post_id).all()
     return jsonify([comment.to_dict() for comment in comments]), 200
-
 
 # DELETE A COMMENT
 @routes.route('/posts/<int:post_id>/comments/<int:comment_id>', methods=['DELETE'])
@@ -516,7 +487,6 @@ def delete_comment(post_id, comment_id):
     db.session.commit()
 
     return jsonify({"msg": "Comment deleted successfully"}), 200
-
 
 # COUNT COMMENTS
 @routes.route('/users/<int:user_id>/comments/count', methods=['GET'])
