@@ -45,7 +45,7 @@ export const updateProfile = createAsyncThunk(
   async ({ username, email }, { dispatch, getState, rejectWithValue }) => {
     const token = localStorage.getItem('token');
     try {
-      const response = await API.put('/profile', { username, email }, { headers: { Authorization: `Bearer ${token}` } });
+      await API.put('/profile', { username, email }, { headers: { Authorization: `Bearer ${token}` } });
       // Update auth slice and localStorage for Navbar
       const user = { ...getState().auth.user, username };
       dispatch(setCredentials({ user, token }));

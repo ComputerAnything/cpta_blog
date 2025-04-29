@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { openModal, logout, setGuest } from '../../redux/slices/authSlice';
+import { openModal, logout } from '../../redux/slices/authSlice';
 
 const Navbar = () => {
   const { user, isGuest, modal } = useSelector((state) => state.auth);

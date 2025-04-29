@@ -18,7 +18,7 @@ const PostDetail = () => {
   const { postId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { posts, comments, loading, error } = useSelector((state) => state.blog);
+  const { posts, comments, error } = useSelector((state) => state.blog);
   const [commentContent, setCommentContent] = useState('');
   const [quickError, setQuickError] = useState('');
   const commentTextareaRef = useRef(null);
