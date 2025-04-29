@@ -254,7 +254,7 @@ def delete_profile():
 
 # GET PROFILE
 @routes.route('/users/<int:user_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_user_profile(user_id):
     user = User.query.get(user_id)
     if not user:
