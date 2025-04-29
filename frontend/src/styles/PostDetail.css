@@ -81,8 +81,6 @@
 
 .vote-button:hover {
   color: #0056b3;
-  transition: transform 0.3s ease;
-  transform: scale(1.15);
 }
 
 .vote-count {
@@ -190,16 +188,4 @@
 
 .delete-comment-button:hover {
   background-color: darkred;
-}
-
-.quick-error-message {
-  color: #c40000;
-  background: rgb(0, 0, 0);
-  padding: 6px 12px;
-  border-radius: 4px;
-  border-color: #c40000;
-  margin-bottom: 10px;
-  text-align: center;
-  font-weight: bold;
-  z-index: 10;
 }

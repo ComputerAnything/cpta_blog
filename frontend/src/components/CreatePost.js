@@ -1,52 +1,60 @@
-import React, { useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import Navbar from './Navbar';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { createPost } from '../../redux/slices/blogSlice';
-import '../../styles/CreateEditPost.css';
-import LoadingScreen from '../layout/LoadingScreen';
+import API from '../services/api';
+import '../styles/CreateEditPost.css';
+
 
 const CreatePost = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.blog);
-
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
   const [message, setMessage] = useState('');
-  const formRef = useRef();
+  const navigate = useNavigate();
+  const username = localStorage.getItem('username');
 
+  // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Format tags: Add # prefix to each tag and remove extra spaces
     const formattedTags = tags
       .split(',')
       .map((tag) => `#${tag.trim()}`)
       .join(', ');
-    const resultAction = await dispatch(
-      createPost({ title, content, topic_tags: formattedTags })
-    );
-    if (createPost.fulfilled.match(resultAction)) {
+    // Check if the title and content are not empty
+    try {
+      await API.post(
+        '/posts',
+        { title, content, topic_tags: formattedTags }, // Include formatted tags
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }
+      );
       setMessage('Post created successfully!');
       setTimeout(() => navigate('/posts'), 2000);
-    } else {
-      setMessage(resultAction.payload || 'Failed to create post. Please try again.');
+    } catch (error) {
+      console.error('Error creating post:', error.response?.data || error.message);
+      setMessage('Failed to create post. Please try again.');
     }
   };
 
-  // This handler will trigger the form submit
-  const handleButtonClick = () => {
-    if (formRef.current) {
-      formRef.current.requestSubmit();
-    }
+  // Function to handle logout
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
+    window.location.href = '/'; // Redirect to the homepage or login page
   };
 
-  if (loading) return <LoadingScreen />;
 
+  // Render the create post form
   return (
     <>
+      <Navbar user={{ username }} onLogout={handleLogout} />
       <div className="create-edit-post-container">
         <div className="form-section">
           <h1>Create New Post</h1>
@@ -57,7 +65,7 @@ const CreatePost = () => {
           >
             Back to Blog
           </button>
-          <form ref={formRef} onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <div>
               <label>Title:</label>
               <input
@@ -81,12 +89,16 @@ const CreatePost = () => {
               <input
                 type="text"
                 value={tags}
-                onChange={e => setTags(e.target.value.replace(/#/g, ""))}
+                onChange={e => {
+                  // Remove all '#' characters as the user types
+                  setTags(e.target.value.replace(/#/g, ""));
+                }}
                 placeholder="e.g., tech, programming, AI"
               />
             </div>
+            <button type="submit">Create Post</button>
           </form>
-          {(message || error) && <p>{message || error}</p>}
+          {message && <p>{message}</p>}
         </div>
         <div className="preview-section">
           <h2>Preview</h2>
@@ -125,16 +137,6 @@ const CreatePost = () => {
               </div>
             )}
           </div>
-          {/* Submit button moved here */}
-          <button
-            type="button"
-            className="create-post-submit-btn"
-            onClick={handleButtonClick}
-            disabled={loading}
-            style={{ marginTop: '24px' }}
-          >
-            {loading ? 'Creating...' : 'Create Post'}
-          </button>
         </div>
       </div>
     </>
