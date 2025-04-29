@@ -192,6 +192,23 @@ const blogSlice = createSlice({
       })
       .addCase(deleteComment.fulfilled, (state, action) => {
         state.comments = state.comments.filter(c => c.id !== action.payload);
+      })
+      // Voting
+      .addCase(upvotePost.fulfilled, (state, action) => {
+        const { postId, upvotes, downvotes } = action.payload;
+        const idx = state.posts.findIndex(p => p.id === Number(postId));
+        if (idx !== -1) {
+          state.posts[idx].upvotes = upvotes;
+          state.posts[idx].downvotes = downvotes;
+        }
+      })
+      .addCase(downvotePost.fulfilled, (state, action) => {
+        const { postId, upvotes, downvotes } = action.payload;
+        const idx = state.posts.findIndex(p => p.id === Number(postId));
+        if (idx !== -1) {
+          state.posts[idx].upvotes = upvotes;
+          state.posts[idx].downvotes = downvotes;
+        }
       });
   },
 });
