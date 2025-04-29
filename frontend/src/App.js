@@ -5,7 +5,7 @@ import store from './redux/store';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import LoadingScreen from './components/layout/LoadingScreen';
-import Profile from './components/blog/Profile';
+import Profile from './components/profile/Profile';
 import BlogList from './components/blog/BlogList';
 import PostDetail from './components/blog/PostDetail';
 import CreatePost from './components/blog/CreatePost';

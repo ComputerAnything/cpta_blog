@@ -46,9 +46,75 @@ export const updatePost = createAsyncThunk('blog/updatePost', async (postData, {
   }
 });
 
+// Fetch comments for a specific post
+export const fetchComments = createAsyncThunk('blog/fetchComments', async (postId, { rejectWithValue }) => {
+  const token = localStorage.getItem('token');
+  try {
+    const response = await API.get(`/posts/${postId}/comments`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.msg || 'Failed to fetch comments');
+  }
+});
+
+// Add a comment to a specific post
+export const addComment = createAsyncThunk('blog/addComment', async ({ postId, content }, { rejectWithValue }) => {
+  const token = localStorage.getItem('token');
+  try {
+    const response = await API.post(`/posts/${postId}/comments`, { content }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.msg || 'Failed to add comment');
+  }
+});
+
+// Delete a comment from a specific post
+export const deleteComment = createAsyncThunk('blog/deleteComment', async ({ postId, commentId }, { rejectWithValue }) => {
+  const token = localStorage.getItem('token');
+  try {
+    await API.delete(`/posts/${postId}/comments/${commentId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return commentId;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.msg || 'Failed to delete comment');
+  }
+});
+
+// Upvote a specific post
+export const upvotePost = createAsyncThunk('blog/upvotePost', async (postId, { rejectWithValue }) => {
+  const token = localStorage.getItem('token');
+  try {
+    const response = await API.post(`/posts/${postId}/upvote`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return { postId, ...response.data };
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.msg || 'Failed to upvote');
+  }
+});
+
+// Downvote a specific post
+export const downvotePost = createAsyncThunk('blog/downvotePost', async (postId, { rejectWithValue }) => {
+  const token = localStorage.getItem('token');
+  try {
+    const response = await API.post(`/posts/${postId}/downvote`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return { postId, ...response.data };
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.msg || 'Failed to downvote');
+  }
+});
+
 const initialState = {
   posts: [],
   profiles: [],
+  comments: [],
   loading: false,
   error: null,
 };
@@ -112,6 +178,20 @@ const blogSlice = createSlice({
       .addCase(updatePost.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
+      })
+      // Comments
+      .addCase(fetchComments.fulfilled, (state, action) => {
+        state.comments = action.payload;
+      })
+      .addCase(fetchComments.rejected, (state, action) => {
+        state.comments = [];
+        state.error = action.payload || action.error.message;
+      })
+      .addCase(addComment.fulfilled, (state, action) => {
+        state.comments.push(action.payload);
+      })
+      .addCase(deleteComment.fulfilled, (state, action) => {
+        state.comments = state.comments.filter(c => c.id !== action.payload);
       });
   },
 });

@@ -51,10 +51,13 @@ const Navbar = () => {
   };
 
   const handleBlogClick = () => {
-    navigate('/posts');
-    const navbarToggler = document.querySelector('.navbar-collapse');
-    if (navbarToggler) {
-      navbarToggler.classList.remove('show');
+    if (!user || isGuest) {
+      closeNavbar();
+      navigate('/');
+      dispatch(openModal('login'));
+    } else {
+      navigate('/posts');
+      closeNavbar();
     }
   };
 
@@ -133,16 +136,28 @@ const Navbar = () => {
             </li>
           </ul>
           <div className="d-flex align-items-center">
-            {user && !isGuest ? (
-              <>
-                <span className="navbar-text text-white me-3">
-                  Signed in as: <strong>{user.username}</strong>
-                </span>
-                <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>
-                  Logout
+          {user && !isGuest ? (
+            <>
+              <span className="navbar-text text-white me-3">
+                Signed in as:{' '}
+                <strong>
+                <button
+                  className="btn btn-link p-0 m-0 align-baseline"
+                  style={{ color: '#fff', textDecoration: 'underline', fontWeight: 'bold' }}
+                  onClick={() => {
+                    closeNavbar();
+                    navigate('profile');
+                  }}
+                >
+                  {user.username}
                 </button>
-              </>
-            ) : isGuest ? (
+                </strong>
+              </span>
+              <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>
+                Logout
+              </button>
+            </>
+          ) : isGuest ? (
               <>
                 <span className="navbar-text text-warning me-3">
                   Guest Mode
