@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
@@ -10,9 +10,14 @@ from flask_mail import Mail
 
 # Absolute path to React build directory
 REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../frontend/build')
+print("STATIC FOLDER:", REACT_BUILD_DIR)
 
 # Initialize Flask app with React build as static folder
-app = Flask(__name__, static_folder=REACT_BUILD_DIR, static_url_path='/')
+app = Flask(
+    __name__,
+    static_folder=os.path.join(REACT_BUILD_DIR, 'static'),
+    static_url_path='/static'
+)
 app.config.from_object(Config)
 
 # Configure logging
@@ -35,7 +40,8 @@ app.register_blueprint(routes)
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_react_app(path):
-    file_path = os.path.join(app.static_folder, path)
-    if path != "" and os.path.exists(file_path):
-        return send_from_directory(app.static_folder, path)
-    return send_from_directory(app.static_folder, 'index.html')
+    # Serve index.html for all non-static, non-api routes
+    if path.startswith('api/'):
+        return 'Not Found', 404
+    # Serve React's index.html for everything else
+    return send_file(os.path.join(REACT_BUILD_DIR, 'index.html'))

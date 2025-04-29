@@ -88,7 +88,7 @@ def verify_email(token):
 
 
 # RETRY EMAIL VERIFICATION
-@routes.route('/resend-verification', methods=['POST'])
+@routes.route('/api/resend-verification', methods=['POST'])
 def resend_verification():
     data = request.get_json()
     identifier = data.get('identifier')
@@ -102,7 +102,7 @@ def resend_verification():
 
 
 # USER REGISTRATION
-@routes.route('/register', methods=['POST'])
+@routes.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
     username = data.get('username')
@@ -147,7 +147,7 @@ def register():
 
 
 # USER LOGIN
-@routes.route('/login', methods=['POST'])
+@routes.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
     identifier = data.get('identifier')  # Can be username or email
@@ -184,8 +184,8 @@ def login():
     }), 200
 
 
-# GET USER PROFILE
-@routes.route('/profile', methods=['GET'])
+# GET CURRENT USER PROFILE
+@routes.route('/api/profile', methods=['GET'])
 @jwt_required()
 def get_profile():
     user_id = get_jwt_identity()  # Get the user ID from the JWT token
@@ -202,7 +202,7 @@ def get_profile():
 
 
 # UPDATE USER PROFILE
-@routes.route('/profile', methods=['PUT'])
+@routes.route('/api/profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
     user_id = get_jwt_identity()  # Get the user ID from the JWT token
@@ -232,7 +232,7 @@ def update_profile():
 
 
 # DELETE USER PROFILE
-@routes.route('/profile', methods=['DELETE'])
+@routes.route('/api/profile', methods=['DELETE'])
 @jwt_required()
 def delete_profile():
     user_id = get_jwt_identity()
@@ -252,9 +252,9 @@ def delete_profile():
     return jsonify({"msg": "Account and all related data deleted successfully"}), 200
 
 
-# GET PROFILE
-@routes.route('/users/<int:user_id>', methods=['GET'])
-# @jwt_required()
+# GET USER PROFILE BY ID
+@routes.route('/api/users/<int:user_id>', methods=['GET'])
+@jwt_required()
 def get_user_profile(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -269,16 +269,16 @@ def get_user_profile(user_id):
 
 
 # GET ALL USERS
-@routes.route('/users', methods=['GET'])
-# @jwt_required()
+@routes.route('/api/users', methods=['GET'])
+@jwt_required()
 def get_all_users():
     users = User.query.all()
     return jsonify([{"id": user.id, "username": user.username} for user in users]), 200
 
 
 # GET ALL BLOG POSTS
-@routes.route('/posts', methods=['GET'])
-# @jwt_required()
+@routes.route('/api/posts', methods=['GET'])
+@jwt_required()
 def get_posts():
     try:
         posts = BlogPost.query.all()
@@ -292,7 +292,7 @@ def get_posts():
 
 
 # GET USER'S BLOG POSTS
-@routes.route('/users/<int:user_id>/posts', methods=['GET'])
+@routes.route('/api/users/<int:user_id>/posts', methods=['GET'])
 @jwt_required()
 def get_user_posts(user_id):
     user = User.query.get(user_id)
@@ -304,8 +304,8 @@ def get_user_posts(user_id):
 
 
 # GET A SINGLE BLOG POST
-@routes.route('/posts/<int:post_id>', methods=['GET'])
-# @jwt_required()
+@routes.route('/api/posts/<int:post_id>', methods=['GET'])
+@jwt_required()
 def get_post(post_id):
     post = BlogPost.query.get(post_id)
     if not post:
@@ -313,8 +313,8 @@ def get_post(post_id):
     return jsonify(post.to_dict()), 200
 
 
-# GET BLOG POSTS BY TOPIC TAGS
-@routes.route('/posts', methods=['POST'])
+# CREATE BLOG POST
+@routes.route('/api/posts', methods=['POST'])
 @jwt_required()
 def create_post():
     data = request.get_json()
@@ -336,7 +336,7 @@ def create_post():
 
 
 # UPDATE BLOG POST
-@routes.route('/posts/<int:post_id>', methods=['PUT'])
+@routes.route('/api/posts/<int:post_id>', methods=['PUT'])
 @jwt_required()
 def update_post(post_id):
     user_id = get_jwt_identity()  # Get the user ID from the JWT token
@@ -368,7 +368,7 @@ def update_post(post_id):
 
 
 # DELETE BLOG POST
-@routes.route('/posts/<int:post_id>', methods=['DELETE'])
+@routes.route('/api/posts/<int:post_id>', methods=['DELETE'])
 @jwt_required()
 def delete_post(post_id):
     user_id = get_jwt_identity()  # Get the user ID from the JWT token
@@ -388,7 +388,7 @@ def delete_post(post_id):
 
 
 # UPVOTE BLOG POST
-@routes.route('/posts/<int:post_id>/upvote', methods=['POST'])
+@routes.route('/api/posts/<int:post_id>/upvote', methods=['POST'])
 @jwt_required()
 def upvote_post(post_id):
     user_id = get_jwt_identity()
@@ -419,7 +419,7 @@ def upvote_post(post_id):
 
 
 # DOWNVOTE BLOG POST
-@routes.route('/posts/<int:post_id>/downvote', methods=['POST'])
+@routes.route('/api/posts/<int:post_id>/downvote', methods=['POST'])
 @jwt_required()
 def downvote_post(post_id):
     user_id = get_jwt_identity()
@@ -450,7 +450,7 @@ def downvote_post(post_id):
 
 
 # COUNT VOTES
-@routes.route('/users/<int:user_id>/votes/count', methods=['GET'])
+@routes.route('/api/users/<int:user_id>/votes/count', methods=['GET'])
 @jwt_required()
 def get_user_votes_count(user_id):
     user = User.query.get(user_id)
@@ -461,7 +461,7 @@ def get_user_votes_count(user_id):
 
 
 # POST A COMMENT
-@routes.route('/posts/<int:post_id>/comments', methods=['POST'])
+@routes.route('/api/posts/<int:post_id>/comments', methods=['POST'])
 @jwt_required()
 def add_comment(post_id):
     user_id = get_jwt_identity()
@@ -483,8 +483,8 @@ def add_comment(post_id):
 
 
 # GET COMMENTS FOR A POST
-@routes.route('/posts/<int:post_id>/comments', methods=['GET'])
-# @jwt_required()
+@routes.route('/api/posts/<int:post_id>/comments', methods=['GET'])
+@jwt_required()
 def get_comments(post_id):
     post = BlogPost.query.get(post_id)
     if not post:
@@ -495,7 +495,7 @@ def get_comments(post_id):
 
 
 # DELETE A COMMENT
-@routes.route('/posts/<int:post_id>/comments/<int:comment_id>', methods=['DELETE'])
+@routes.route('/api/posts/<int:post_id>/comments/<int:comment_id>', methods=['DELETE'])
 @jwt_required()
 def delete_comment(post_id, comment_id):
     user_id = get_jwt_identity()  # Get the user ID from the JWT token
@@ -519,7 +519,7 @@ def delete_comment(post_id, comment_id):
 
 
 # COUNT COMMENTS
-@routes.route('/users/<int:user_id>/comments/count', methods=['GET'])
+@routes.route('/api/users/<int:user_id>/comments/count', methods=['GET'])
 @jwt_required()
 def get_user_comments_count(user_id):
     user = User.query.get(user_id)

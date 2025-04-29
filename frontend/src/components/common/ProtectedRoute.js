@@ -2,11 +2,12 @@ import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-  const { user, isGuest, hydrated } = useSelector((state) => state.auth);
+  const { user, token, isGuest, hydrated } = useSelector((state) => state.auth);
 
   if (!hydrated) return null; // or a loading spinner
 
-  if (!user && !isGuest) {
+  // Only allow access if authenticated (token) or guest
+  if ((!user || !token) && !isGuest) {
     return <Navigate to="/" replace />;
   }
 

@@ -4,7 +4,7 @@ import API from '../../services/api';
 // Fetch all blog posts
 export const fetchPosts = createAsyncThunk('blog/fetchPosts', async () => {
   const token = localStorage.getItem('token');
-  const response = await API.get('/posts', {
+  const response = await API.get('/api/posts', {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
@@ -13,7 +13,7 @@ export const fetchPosts = createAsyncThunk('blog/fetchPosts', async () => {
 // Fetch all user profiles
 export const fetchProfiles = createAsyncThunk('blog/fetchProfiles', async () => {
   const token = localStorage.getItem('token');
-  const response = await API.get('/users', {
+  const response = await API.get('/api/users', {
     headers: { Authorization: `Bearer ${token}` },
   });
   // Sort by username for consistency
@@ -63,7 +63,7 @@ export const deletePost = createAsyncThunk('blog/deletePost', async (postId, { r
 export const fetchComments = createAsyncThunk('blog/fetchComments', async (postId, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    const response = await API.get(`/posts/${postId}/comments`, {
+    const response = await API.get(`/api/posts/${postId}/comments`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;

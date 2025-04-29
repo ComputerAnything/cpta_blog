@@ -6,7 +6,7 @@ import { setCredentials } from './authSlice';
 export const fetchUserProfile = createAsyncThunk('profile/fetchUserProfile', async (userId, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    const url = userId ? `/users/${userId}` : '/profile';
+    const url = userId ? `/api/users/${userId}` : '/api/profile';
     const response = await API.get(url, { headers: { Authorization: `Bearer ${token}` } });
     return response.data;
   } catch (err) {
@@ -18,7 +18,7 @@ export const fetchUserProfile = createAsyncThunk('profile/fetchUserProfile', asy
 export const fetchUserPosts = createAsyncThunk('profile/fetchUserPosts', async (userId, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    const response = await API.get(`/users/${userId}/posts`, { headers: { Authorization: `Bearer ${token}` } });
+    const response = await API.get(`/api/users/${userId}/posts`, { headers: { Authorization: `Bearer ${token}` } });
     return response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   } catch (err) {
     return rejectWithValue(err.response?.data?.msg || 'Failed to fetch posts');
@@ -30,8 +30,8 @@ export const fetchUserStats = createAsyncThunk('profile/fetchUserStats', async (
   const token = localStorage.getItem('token');
   try {
     const [votes, comments] = await Promise.all([
-      API.get(`/users/${userId}/votes/count`, { headers: { Authorization: `Bearer ${token}` } }),
-      API.get(`/users/${userId}/comments/count`, { headers: { Authorization: `Bearer ${token}` } }),
+      API.get(`/api/users/${userId}/votes/count`, { headers: { Authorization: `Bearer ${token}` } }),
+      API.get(`/api/users/${userId}/comments/count`, { headers: { Authorization: `Bearer ${token}` } }),
     ]);
     return { votes: votes.data.count || 0, comments: comments.data.count || 0 };
   } catch (err) {
@@ -45,7 +45,7 @@ export const updateProfile = createAsyncThunk(
   async ({ username, email }, { dispatch, getState, rejectWithValue }) => {
     const token = localStorage.getItem('token');
     try {
-      await API.put('/profile', { username, email }, { headers: { Authorization: `Bearer ${token}` } });
+      await API.put('/api/profile', { username, email }, { headers: { Authorization: `Bearer ${token}` } });
       // Update auth slice and localStorage for Navbar
       const user = { ...getState().auth.user, username };
       dispatch(setCredentials({ user, token }));
@@ -62,7 +62,7 @@ export const updateProfile = createAsyncThunk(
 export const deleteProfile = createAsyncThunk('profile/deleteProfile', async (_, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    await API.delete('/profile', { headers: { Authorization: `Bearer ${token}` } });
+    await API.delete('/api/profile', { headers: { Authorization: `Bearer ${token}` } });
     return true;
   } catch (err) {
     return rejectWithValue('Failed to delete profile');

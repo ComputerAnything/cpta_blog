@@ -29,13 +29,18 @@ const Profile = () => {
     error,
   } = useSelector((state) => state.profile);
 
+  // Get auth state
+  const { token, hydrated } = useSelector((state) => state.auth);
+
   const [username, setUsername] = useState('');
   const [showEditForm, setShowEditForm] = useState(false);
 
-  // Fetch profile first (always)
+  // Fetch profile only after hydration and when token is present
   useEffect(() => {
-    dispatch(fetchUserProfile(userId || null));
-  }, [dispatch, userId]);
+    if (hydrated && token) {
+      dispatch(fetchUserProfile(userId || null));
+    }
+  }, [dispatch, userId, hydrated, token]);
 
   // When profile is loaded, fetch posts and stats using the correct userId
   useEffect(() => {
