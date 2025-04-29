@@ -27,7 +27,7 @@ const LandingPage = () => {
       }
 
       try {
-        await API.get('/profile', {
+        await API.get('/api/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setIsValidToken(true);

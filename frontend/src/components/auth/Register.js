@@ -30,7 +30,7 @@ const Register = () => {
     }
     dispatch(setLoading(true));
     try {
-      await API.post('/register', { username, email, password, recaptchaToken });
+      await API.post('/api/register', { username, email, password, recaptchaToken });
       setRegistered(true);
       setMessage({
         text: 'Registration successful! Please check your email to verify your account before logging in.',
