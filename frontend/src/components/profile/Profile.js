@@ -37,10 +37,10 @@ const Profile = () => {
 
   // Fetch profile only after hydration and when token is present
   useEffect(() => {
-    if (hydrated && token) {
+    if (hydrated) {
       dispatch(fetchUserProfile(userId || null));
     }
-  }, [dispatch, userId, hydrated, token]);
+  }, [dispatch, userId, hydrated]);
 
   // When profile is loaded, fetch posts and stats using the correct userId
   useEffect(() => {

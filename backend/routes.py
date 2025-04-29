@@ -453,7 +453,7 @@ def downvote_post(post_id):
 
 # COUNT VOTES
 @routes.route('/api/users/<int:user_id>/votes/count', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_user_votes_count(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -522,7 +522,7 @@ def delete_comment(post_id, comment_id):
 
 # COUNT COMMENTS
 @routes.route('/api/users/<int:user_id>/comments/count', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_user_comments_count(user_id):
     user = User.query.get(user_id)
     if not user:

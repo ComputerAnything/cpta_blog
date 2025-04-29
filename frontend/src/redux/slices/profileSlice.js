@@ -7,7 +7,8 @@ export const fetchUserProfile = createAsyncThunk('profile/fetchUserProfile', asy
   const token = localStorage.getItem('token');
   try {
     const url = userId ? `/api/users/${userId}` : '/api/profile';
-    const response = await API.get(url, { headers: { Authorization: `Bearer ${token}` } });
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await API.get(url, { headers });
     return response.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.msg || 'Failed to fetch profile');
@@ -18,7 +19,8 @@ export const fetchUserProfile = createAsyncThunk('profile/fetchUserProfile', asy
 export const fetchUserPosts = createAsyncThunk('profile/fetchUserPosts', async (userId, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    const response = await API.get(`/api/users/${userId}/posts`, { headers: { Authorization: `Bearer ${token}` } });
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await API.get(`/api/users/${userId}/posts`, { headers });
     return response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   } catch (err) {
     return rejectWithValue(err.response?.data?.msg || 'Failed to fetch posts');
@@ -29,9 +31,10 @@ export const fetchUserPosts = createAsyncThunk('profile/fetchUserPosts', async (
 export const fetchUserStats = createAsyncThunk('profile/fetchUserStats', async (userId, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
     const [votes, comments] = await Promise.all([
-      API.get(`/api/users/${userId}/votes/count`, { headers: { Authorization: `Bearer ${token}` } }),
-      API.get(`/api/users/${userId}/comments/count`, { headers: { Authorization: `Bearer ${token}` } }),
+      API.get(`/api/users/${userId}/votes/count`, { headers }),
+      API.get(`/api/users/${userId}/comments/count`, { headers }),
     ]);
     return { votes: votes.data.count || 0, comments: comments.data.count || 0 };
   } catch (err) {
