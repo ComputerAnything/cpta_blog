@@ -36,12 +36,17 @@ mail = Mail(app)
 from routes import routes
 app.register_blueprint(routes)
 
+# Serve images from build/img
+@app.route('/img/<path:filename>')
+def serve_img(filename):
+    img_dir = os.path.join(REACT_BUILD_DIR, 'img')
+    return send_from_directory(img_dir, filename)
+
 # Catch-all route for React SPA
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_react_app(path):
-    # Serve index.html for all non-static, non-api routes
+    # Only serve index.html for non-API, non-static, non-img routes
     if path.startswith('api/'):
         return 'Not Found', 404
-    # Serve React's index.html for everything else
     return send_file(os.path.join(REACT_BUILD_DIR, 'index.html'))

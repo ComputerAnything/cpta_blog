@@ -6,6 +6,7 @@ import API from '../../services/api';
 import '../../styles/Auth.css';
 
 const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
+console.log('RECAPTCHA_SITE_KEY:', RECAPTCHA_SITE_KEY);
 
 const Register = () => {
   const [username, setUsername] = useState('');
