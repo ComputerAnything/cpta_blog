@@ -147,7 +147,7 @@ const LandingPage = () => {
                   </p>
               </div>
               <div className="col">
-                <a href="https://discord.gg/QXs6p75pcS" className="text-decoration-none">
+                <a href="https://discord.gg/QXs6p75pcS" className="text-decoration-none" target="_blank" rel="noopener noreferrer">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                     <i className="bi bi-discord"></i>
                   </div>
@@ -158,7 +158,7 @@ const LandingPage = () => {
                   </p>
               </div>
               <div className="col">
-                <a href="https://www.facebook.com/people/Computer-Anything/61567372806344/" className="text-decoration-none">
+                <a href="https://www.facebook.com/people/Computer-Anything/61567372806344/" className="text-decoration-none" target="_blank" rel="noopener noreferrer">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                     <i className="bi bi-facebook"></i>
                   </div>
@@ -169,7 +169,7 @@ const LandingPage = () => {
                   </p>
               </div>
               <div className="col">
-                <a href="https://www.youtube.com/@computer_anything" className="text-decoration-none">
+                <a href="https://www.youtube.com/@computer_anything" className="text-decoration-none" target="_blank" rel="noopener noreferrer">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                     <i className="bi bi-youtube"></i>
                   </div>

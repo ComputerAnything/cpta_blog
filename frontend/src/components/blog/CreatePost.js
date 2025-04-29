@@ -6,6 +6,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { createPost } from '../../redux/slices/blogSlice';
 import '../../styles/CreateEditPost.css';
+import LoadingScreen from '../layout/LoadingScreen';
 
 const CreatePost = () => {
   const dispatch = useDispatch();
@@ -41,6 +42,8 @@ const CreatePost = () => {
       formRef.current.requestSubmit();
     }
   };
+
+  if (loading) return <LoadingScreen />;
 
   return (
     <>

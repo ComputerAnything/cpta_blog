@@ -6,6 +6,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { fetchPosts, updatePost } from '../../redux/slices/blogSlice';
 import '../../styles/CreateEditPost.css';
+import LoadingScreen from '../layout/LoadingScreen';
 
 const EditPost = () => {
   const dispatch = useDispatch();
@@ -65,6 +66,8 @@ const EditPost = () => {
       formRef.current.requestSubmit();
     }
   };
+
+  if (loading && !posts.length) return <LoadingScreen />;
 
   return (
     <div className="create-edit-post-container">

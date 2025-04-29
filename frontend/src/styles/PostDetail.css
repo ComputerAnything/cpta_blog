@@ -81,6 +81,8 @@
 
 .vote-button:hover {
   color: #0056b3;
+  transition: transform 0.3s ease;
+  transform: scale(1.15);
 }
 
 .vote-count {

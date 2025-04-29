@@ -11,6 +11,7 @@ import {
   updateProfile,
   deleteProfile,
 } from '../../redux/slices/profileSlice';
+import LoadingScreen from '../layout/LoadingScreen';
 import '../../styles/Profile.css';
 
 const Profile = () => {
@@ -63,7 +64,9 @@ const Profile = () => {
   };
 
   // Render loading/error
-  if (loading || !profile) return <p>Loading...</p>;
+  if (loading || !profile) {
+    return <LoadingScreen />;
+  }
   if (error) return <p>{error}</p>;
 
   // Stats block

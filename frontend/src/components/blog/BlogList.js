@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import '../../styles/BlogList.css';
+import LoadingScreen from '../layout/LoadingScreen';
 
 const BlogList = () => {
   const dispatch = useDispatch();
@@ -135,7 +136,7 @@ const BlogList = () => {
         </div>
 
         {message && <p>{message}</p>}
-        {loading && <p>Loading...</p>}
+        {loading && <LoadingScreen />}
         {error && <p className="error-message">{error}</p>}
 
         {filteredPosts.length > 0 ? (
