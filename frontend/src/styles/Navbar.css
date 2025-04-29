@@ -1,5 +1,0 @@
-.navbar {
-    border-bottom: 2px solid var(--computerAnythingPrimary); /* Add green border at the bottom */
-    background-color: #000; /* Ensure the navbar background is black */
-    color: white; /* White text for contrast */
-}

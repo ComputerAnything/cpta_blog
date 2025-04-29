@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../services/api';
-import Modal from './Modal';
-import Navbar from './Navbar.js';
-import Login from './Login';
-import Register from './Register';
-import Loading from './Loading'; // Import the Loading component
+import { useNavigate, useLocation } from 'react-router-dom';
+import Modal from '../layout/Modal.js';
+import Login from '../auth/Login.js';
+import Register from '../auth/Register.js';
+import Loading from '../layout/LoadingScreen.js'; // Import the Loading component
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/LandingPage.css';
+import API from '../../services/api';
+import '../../styles/LandingPage.css';
 
 
 const LandingPage = () => {
   const [isValidToken, setIsValidToken] = useState(false);
-  const [username] = useState(localStorage.getItem('username'));
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
+  const location = useLocation();
+  const message = location.state?.message;
 
   useEffect(() => {
     const validateToken = async () => {
@@ -43,13 +43,6 @@ const LandingPage = () => {
     validateToken();
   }, [navigate]);
 
-  // Function to handle logout
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('userId');
-    window.location.href = '/'; // Redirect to the homepage or login page
-  };
 
   const handleBlogClick = () => {
     if (isValidToken) {
@@ -62,9 +55,8 @@ const LandingPage = () => {
   // Render the landing page
   return (
     <>
+      {message && <div className="alert alert-success">{message}</div>}
       {loading && <Loading />} {/* Render Loading when loading is true */}
-      {/* Navigation */}
-      <Navbar user={{ username }} onLogout={handleLogout} setLoading={setLoading} />
       <div className="d-flex flex-column h-100">
         {/* Header */}
         <section id="home">
@@ -158,7 +150,7 @@ const LandingPage = () => {
                   </p>
               </div>
               <div className="col">
-                <a href="https://discord.gg/QXs6p75pcS" className="text-decoration-none">
+                <a href="https://discord.gg/QXs6p75pcS" className="text-decoration-none" target="_blank" rel="noopener noreferrer">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                     <i className="bi bi-discord"></i>
                   </div>
@@ -169,7 +161,7 @@ const LandingPage = () => {
                   </p>
               </div>
               <div className="col">
-                <a href="https://www.facebook.com/people/Computer-Anything/61567372806344/" className="text-decoration-none">
+                <a href="https://www.facebook.com/people/Computer-Anything/61567372806344/" className="text-decoration-none" target="_blank" rel="noopener noreferrer">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                     <i className="bi bi-facebook"></i>
                   </div>
@@ -180,7 +172,7 @@ const LandingPage = () => {
                   </p>
               </div>
               <div className="col">
-                <a href="https://www.youtube.com/@computer_anything" className="text-decoration-none">
+                <a href="https://www.youtube.com/@computer_anything" className="text-decoration-none" target="_blank" rel="noopener noreferrer">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                     <i className="bi bi-youtube"></i>
                   </div>

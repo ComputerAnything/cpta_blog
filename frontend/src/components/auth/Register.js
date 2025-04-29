@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setLoading, openModal, closeModal } from '../../redux/slices/authSlice';
 import ReCAPTCHA from 'react-google-recaptcha';
-import API from '../services/api';
-import '../styles/Auth.css';
+import API from '../../services/api';
+import '../../styles/Auth.css';
 
 const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
-const Register = ({ onSwitchToLogin, setLoading }) => {
+const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,21 +16,19 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
   const [message, setMessage] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState('');
   const [registered, setRegistered] = useState(false);
+  const dispatch = useDispatch();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-
     if (password !== confirmPassword) {
       setMessage({ text: 'Passwords do not match.', type: 'error' });
       return;
     }
-
     if (!recaptchaToken) {
       setMessage({ text: 'Please complete the reCAPTCHA.', type: 'error' });
       return;
     }
-
-    setLoading(true);
+    dispatch(setLoading(true));
     try {
       await API.post('/register', { username, email, password, recaptchaToken });
       setRegistered(true);
@@ -39,7 +39,7 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
     } catch (error) {
       setMessage({ text: 'Registration failed. Please try again.', type: 'error' });
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   };
 
@@ -48,7 +48,7 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
       <div className="auth-form">
         <h1>Registration Complete</h1>
         <p className="success-message">{message.text}</p>
-        <button onClick={onSwitchToLogin}>Go to Login</button>
+        <button onClick={() => dispatch(openModal('login'))}>Go to Login</button>
       </div>
     );
   }
@@ -80,6 +80,7 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
         />
         <button
           type="button"
+          className="toggle-password-btn"
           onClick={() => setShowPassword(!showPassword)}
         >
           {showPassword ? '👁️' : '🙈'}
@@ -94,7 +95,7 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
           required
         />
         <button
-          className="show-password-btn"
+          className="toggle-password-btn"
           type="button"
           onClick={() => setShowPassword(!showPassword)}
         >
@@ -107,7 +108,7 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
           onChange={token => setRecaptchaToken(token)}
         />
       </div>
-      <button type="submit">Register</button>
+      <button type="submit" className="auth-btn">Register</button>
       {message && (
         <p className={message.type === 'success' ? 'success-message' : 'error-message'}>
           {message.text}
@@ -115,7 +116,7 @@ const Register = ({ onSwitchToLogin, setLoading }) => {
       )}
       <p className="switch-auth">
         Already have an account?{' '}
-        <button type="button" onClick={onSwitchToLogin}>
+        <button type="button" className='switch-auth-btn' onClick={() => dispatch(openModal('login'))}>
           Login here
         </button>
       </p>
