@@ -27,9 +27,9 @@
 .auth-btn {
   width: 100%;
   padding: 10px;
-  background: #007bff;
-  color: white;
-  border: none;
+  background: #222;
+  color: #00ff00;
+  border: 2.5px solid #00ff00;
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
@@ -38,7 +38,10 @@
 }
 
 .auth-btn:hover {
-  background: #0056b3;
+  background: #00ff00;
+  color: #222;
+  border: 2.5px solid #222;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .guest-btn {

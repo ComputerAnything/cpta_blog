@@ -46,6 +46,19 @@ export const updatePost = createAsyncThunk('blog/updatePost', async (postData, {
   }
 });
 
+// Delete a blog post
+export const deletePost = createAsyncThunk('blog/deletePost', async (postId, { rejectWithValue }) => {
+  const token = localStorage.getItem('token');
+  try {
+    await API.delete(`/posts/${postId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return postId;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.msg || 'Failed to delete post');
+  }
+});
+
 // Fetch comments for a specific post
 export const fetchComments = createAsyncThunk('blog/fetchComments', async (postId, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
@@ -177,6 +190,12 @@ const blogSlice = createSlice({
       })
       .addCase(updatePost.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload || action.error.message;
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        state.posts = state.posts.filter(post => post.id !== action.payload);
+      })
+      .addCase(deletePost.rejected, (state, action) => {
         state.error = action.payload || action.error.message;
       })
       // Comments

@@ -20,8 +20,15 @@ const PostDetail = () => {
   const navigate = useNavigate();
   const { posts, comments, loading, error } = useSelector((state) => state.blog);
   const [commentContent, setCommentContent] = useState('');
+  const [quickError, setQuickError] = useState('');
   const commentTextareaRef = useRef(null);
   const currentUserId = parseInt(localStorage.getItem('userId'), 10);
+
+  // Show quick error message
+  const showQuickError = (msg) => {
+    setQuickError(msg);
+    setTimeout(() => setQuickError(''), 2000); // Hide after 2 seconds
+  };
 
   // Fetch post and comments on mount
   useEffect(() => {
@@ -31,13 +38,30 @@ const PostDetail = () => {
 
   const post = posts.find((p) => String(p.id) === String(postId));
 
-  // Voting handlers
-  const handleUpvote = () => dispatch(upvotePost(postId));
-  const handleDownvote = () => dispatch(downvotePost(postId));
+  const isGuest = useSelector((state) => state.auth.isGuest);
 
-  // Comment handlers
+  const handleUpvote = () => {
+    if (isGuest) {
+      showQuickError('Sign in to vote!');
+      return;
+    }
+    dispatch(upvotePost(postId));
+  };
+
+  const handleDownvote = () => {
+    if (isGuest) {
+      showQuickError('Sign in to vote!');
+      return;
+    }
+    dispatch(downvotePost(postId));
+  };
+
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
+    if (isGuest) {
+      showQuickError('Sign in to comment!');
+      return;
+    }
     if (!commentContent.trim()) return;
     await dispatch(addComment({ postId, content: commentContent }));
     setCommentContent('');
@@ -129,6 +153,11 @@ const PostDetail = () => {
 
       {/* Voting/Action Section */}
       <div className="vote-section">
+        {quickError && (
+          <div className="quick-error-message" style={{ color: 'red', marginBottom: '10px' }}>
+            {quickError}
+          </div>
+        )}
         <button className="vote-button" onClick={handleUpvote}>▲</button>
         <p
           className="vote-count"

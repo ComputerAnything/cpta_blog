@@ -191,3 +191,15 @@
 .delete-comment-button:hover {
   background-color: darkred;
 }
+
+.quick-error-message {
+  color: #c40000;
+  background: rgb(0, 0, 0);
+  padding: 6px 12px;
+  border-radius: 4px;
+  border-color: #c40000;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: bold;
+  z-index: 10;
+}

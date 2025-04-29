@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Modal from '../layout/Modal.js';
 import Login from '../auth/Login.js';
 import Register from '../auth/Register.js';
@@ -15,6 +15,8 @@ const LandingPage = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
+  const location = useLocation();
+  const message = location.state?.message;
 
   useEffect(() => {
     const validateToken = async () => {
@@ -53,6 +55,7 @@ const LandingPage = () => {
   // Render the landing page
   return (
     <>
+      {message && <div className="alert alert-success">{message}</div>}
       {loading && <Loading />} {/* Render Loading when loading is true */}
       <div className="d-flex flex-column h-100">
         {/* Header */}

@@ -22,13 +22,24 @@ const BlogList = () => {
   const [profileSearchTerm, setProfileSearchTerm] = useState('');
   const message = location.state?.message;
 
+  const [quickError, setQuickError] = useState('');
+
+  const showQuickError = (msg) => {
+    setQuickError(msg);
+    setTimeout(() => setQuickError(''), 2000);
+  };
+
   useEffect(() => {
     dispatch(fetchPosts());
     dispatch(fetchProfiles());
   }, [dispatch]);
 
   useEffect(() => {
-    setFilteredPosts(posts);
+    // Sort posts by most recent (descending by created_at)
+    const sorted = [...posts].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+    setFilteredPosts(sorted);
   }, [posts]);
 
   useEffect(() => {
@@ -74,19 +85,34 @@ const BlogList = () => {
     <div className="bloglist-container">
       <div className="blog-panel">
         <h1 className="blog-panel-title">Computer Anything Tech Blog</h1>
+        {quickError && (
+          <div className="quick-error-message" style={{ color: 'red', marginBottom: '10px', textAlign: 'center' }}>
+            {quickError}
+          </div>
+        )}
         <div className="action-buttons">
           <button
-            onClick={() => !isGuest && navigate('/profile')}
+            onClick={() => {
+              if (isGuest) {
+                showQuickError("Sign in to view your profile");
+              } else {
+                navigate('/profile');
+              }
+            }}
             className="left-panel-button"
-            disabled={isGuest}
             title={isGuest ? "Sign in to view your profile" : ""}
           >
             Profile
           </button>
           <button
-            onClick={() => !isGuest && navigate('/create-post')}
+            onClick={() => {
+              if (isGuest) {
+                showQuickError("Sign in to create a post");
+              } else {
+                navigate('/create-post');
+              }
+            }}
             className="left-panel-button"
-            disabled={isGuest}
             title={isGuest ? "Sign in to create a post" : ""}
           >
             Create New Post

@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { fetchPosts, updatePost } from '../../redux/slices/blogSlice';
+import { fetchPosts, updatePost, deletePost } from '../../redux/slices/blogSlice';
 import '../../styles/CreateEditPost.css';
 import LoadingScreen from '../layout/LoadingScreen';
 
@@ -18,6 +18,7 @@ const EditPost = () => {
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
   const [message, setMessage] = useState('');
+  const [deleting, setDeleting] = useState(false);
   const formRef = useRef();
 
   // Load post data
@@ -36,7 +37,7 @@ const EditPost = () => {
         post.topic_tags
           ? post.topic_tags
               .split(',')
-              .map((tag) => tag.replace(/^#/, '').trim())
+              .map((tag) => tag.replace(/#/g, '').trim())
               .join(', ')
           : ''
       );
@@ -57,6 +58,18 @@ const EditPost = () => {
       setTimeout(() => navigate('/posts'), 2000);
     } else {
       setMessage(resultAction.payload || 'Failed to update post. Please try again.');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) return;
+    setDeleting(true);
+    const resultAction = await dispatch(deletePost(postId));
+    setDeleting(false);
+    if (deletePost.fulfilled.match(resultAction)) {
+      navigate('/posts', { state: { message: 'Post deleted successfully.' } });
+    } else {
+      setMessage(resultAction.payload || 'Failed to delete post. Please try again.');
     }
   };
 
@@ -156,6 +169,15 @@ const EditPost = () => {
           style={{ marginTop: '24px' }}
         >
           {loading ? 'Saving...' : 'Save Changes'}
+        </button>
+        <button
+          type="button"
+          className="delete-post-btn"
+          onClick={handleDelete}
+          disabled={deleting}
+          style={{ marginTop: '12px', background: '#c00', color: '#fff' }}
+        >
+          {deleting ? 'Deleting...' : 'Delete Post'}
         </button>
       </div>
     </div>

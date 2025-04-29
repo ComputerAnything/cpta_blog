@@ -59,7 +59,7 @@ const Profile = () => {
     }
     dispatch(deleteProfile()).then(() => {
       localStorage.clear();
-      navigate('/');
+      navigate('/', { state: { message: 'Your profile has been deleted.' } });
     });
   };
 

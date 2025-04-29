@@ -181,9 +181,10 @@ html, body {
 
 .form-section .delete-post-btn,
 .delete-post-btn {
+  width: 100%; /* Match the Save Changes button width */
   margin-top: 10px;
-  background-color: #ff0000 !important; /* Red background */
-  color: #fff !important; /* White text */
+  background-color: #ff0000 !important;
+  color: #fff !important;
   border: none;
   border-radius: 5px;
   padding: 10px;
