@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from backend.config import Config
+from config import Config
 from flask_mail import Mail
 
 # Absolute path to React build directory
