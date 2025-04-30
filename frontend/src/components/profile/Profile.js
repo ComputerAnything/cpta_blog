@@ -30,7 +30,7 @@ const Profile = () => {
   } = useSelector((state) => state.profile);
 
   // Get auth state
-  const { token, hydrated } = useSelector((state) => state.auth);
+  const { hydrated } = useSelector((state) => state.auth);
 
   const [username, setUsername] = useState('');
   const [showEditForm, setShowEditForm] = useState(false);
