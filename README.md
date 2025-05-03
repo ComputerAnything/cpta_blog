@@ -134,8 +134,3 @@ MAIL_PASSWORD=your_email_password
 ## 📜 License
 
 This project is licensed under the MIT License.
-
----
-
-> 💡 **Tip:**
-> For production, set your environment variables in your hosting provider’s dashboard (e.g., Render, Heroku, etc).
