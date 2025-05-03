@@ -5,6 +5,19 @@ Features include user authentication, post creation/editing, voting, comments, a
 
 ---
 
+## 📸 Screenshots
+
+![Blog Page](assets/Screenshot_Blog_Page.png)
+*Page for viewing and searching all blog posts*
+
+![Post Page](assets/Screenshot_Post_Page.png)
+*Page for viewing a single blog post with comments*
+
+![Profile Page](assets/Screenshot_Profile_Page.png)
+*User profile page with post history*
+
+---
+
 ## 📂 Project Structure
 
 ```bash
@@ -19,30 +32,18 @@ cpt_anything_blog/
 │   └── migrations/
 ├── frontend/
 │   ├── public/
-│   │   └── index.html
+│   │   ├── index.html
+│   │   └── img/
 │   ├── src/
 │   │   ├── App.js
 │   │   ├── components/
-│   │   │   ├── Login.js
-│   │   │   ├── Register.js
-│   │   │   ├── BlogList.js
-│   │   │   ├── BlogPost.js
-│   │   │   ├── EditPost.js
-│   │   │   ├── CreatePost.js
-│   │   │   ├── CommentSection.js
-│   │   │   └── Modal.js
 │   │   ├── context/
-│   │   │   └── AuthContext.js
 │   │   ├── services/
-│   │   │   └── api.js
 │   │   └── index.js
 │   ├── styles/
-│   │   ├── CreateEditPost.css
-│   │   ├── Loading.css
-│   │   └── Modal.css
 │   ├── package.json
 │   └── .env
-├── [README.md](http://_vscodecontentref_/0)
+├── README.md
 └── docker-compose.yml
 ```
 
@@ -50,41 +51,49 @@ cpt_anything_blog/
 
 ## 🛠️ Backend Setup
 
-### 1. Navigate to the `backend` directory
+1. **Navigate to the `backend` directory:**
 
-### 2. Install the required dependencies (Backend)
+    ```bash
+    cd backend
+    ```
 
-```bash
-pip install -r requirements.txt
-```
+2. **Install dependencies:**
 
-### 3. ⚙️ Set up the database connection in `config.py`, and configure any environment variables you might need
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### 4. 📦 Make initial database migrations
+3. **⚙️ Set up the database connection in `config.py`, and configure any environment variables you might need.**
 
-```bash
-flask db init # This initializes the migration directory
-flask db migrate -m "initial migration"
-flask db upgrade
-```
+4. **📦 Make initial database migrations:**
+
+    ```bash
+    flask db init         # Only once, to initialize migrations folder
+    flask db migrate -m "initial migration"
+    flask db upgrade
+    ```
 
 ---
 
 ## 🌐 Frontend Setup
 
-### 1. Navigate to the `frontend` directory
+1. **Navigate to the `frontend` directory:**
 
-### 2. Install the required dependencies (Frontend)
+    ```bash
+    cd frontend
+    ```
 
-```bash
-npm install
-```
+2. **Install dependencies:**
 
-### 3. 🚀 Start the React application
+    ```bash
+    npm install
+    ```
 
-```bash
-npm start
-```
+3. **🚀 Start the React application:**
+
+    ```bash
+    npm start
+    ```
 
 ---
 
@@ -104,10 +113,20 @@ npm start
 
 ## 🔧 Environment Variables
 
-Frontend (`frontend/.env`):
+**Frontend (`frontend/.env`):**
 
-```bash
+```env
 REACT_APP_API_URL=http://localhost:5000/api
+```
+
+**Backend (`backend/.env`):**
+
+```env
+DATABASE_URL=your_database_url
+SECRET_KEY=your_secret_key
+JWT_SECRET_KEY=your_jwt_secret_key
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_email_password
 ```
 
 ---
@@ -115,3 +134,8 @@ REACT_APP_API_URL=http://localhost:5000/api
 ## 📜 License
 
 This project is licensed under the MIT License.
+
+---
+
+> 💡 **Tip:**
+> For production, set your environment variables in your hosting provider’s dashboard (e.g., Render, Heroku, etc).
