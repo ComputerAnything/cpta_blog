@@ -33,7 +33,7 @@ jwt = JWTManager(app)
 mail = Mail(app)
 
 # Import and register routes blueprint
-from routes import routes
+from routes import routes  # noqa: E402
 app.register_blueprint(routes)
 
 # Serve images from build/img
@@ -41,6 +41,15 @@ app.register_blueprint(routes)
 def serve_img(filename):
     img_dir = os.path.join(REACT_BUILD_DIR, 'img')
     return send_from_directory(img_dir, filename)
+
+# favicon support
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        REACT_BUILD_DIR,
+        'favicon.ico',
+        mimetype='image/vnd.microsoft.icon'
+    )
 
 # Catch-all route for React SPA
 @app.route('/', defaults={'path': ''})
