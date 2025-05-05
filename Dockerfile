@@ -5,7 +5,7 @@ FROM node:18 as frontend-build
 WORKDIR /frontend
 
 # Copy the frontend code
-COPY ../frontend ./
+COPY ./frontend ./
 
 # Install dependencies and build the React app
 RUN npm install && npm run build
@@ -17,7 +17,7 @@ FROM python:3.11-slim
 WORKDIR /backend
 
 # Copy the backend code
-COPY . .
+COPY ./backend ./
 
 # Copy the built React frontend into the backend's build directory
 COPY --from=frontend-build /frontend/build ./frontend/build
@@ -28,9 +28,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Expose the Flask port
 EXPOSE 5000
 
-# Set environment variables
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
-
-# Run the Flask app
-CMD ["flask", "run"]
+# Use gunicorn as the production WSGI server
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
