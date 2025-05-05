@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:5000" # Internal Flask app runs on 5000, exposed on 8000
+      - "8000:5000" # Expose Flask on port 8000
     environment:
       FLASK_ENV: ${FLASK_ENV}
       FLASK_APP: app.py
@@ -15,17 +15,4 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
-    restart: always
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"   # HTTP
-      - "443:443" # HTTPS
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./certs:/etc/ssl/certs
-      - ./certs:/etc/ssl/private
-    depends_on:
-      - web
     restart: always

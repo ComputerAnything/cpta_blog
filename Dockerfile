@@ -1,5 +1,5 @@
 # Stage 1: Build the React frontend
-FROM node:18 as frontend-build
+FROM node:18 AS frontend-build
 
 # Set the working directory for the frontend
 WORKDIR /frontend
@@ -28,5 +28,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Expose the Flask port
 EXPOSE 5000
 
-# Use gunicorn as the production WSGI server
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
+# Use Gunicorn as the production WSGI server
+CMD ["gunicorn", "-w", "5", "-b", "0.0.0.0:5000", "--timeout", "120", "app:app"]
