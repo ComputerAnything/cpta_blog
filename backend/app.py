@@ -10,7 +10,7 @@ from flask_mail import Mail
 
 # Absolute path to React build directory
 REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../frontend/build')
-print("STATIC FOLDER:", REACT_BUILD_DIR)
+# print("STATIC FOLDER:", REACT_BUILD_DIR)
 
 # Initialize Flask app with React build as static folder
 app = Flask(
