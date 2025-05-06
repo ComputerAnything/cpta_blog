@@ -18,6 +18,7 @@ const Register = () => {
   // const [recaptchaToken, setRecaptchaToken] = useState('');
   const [registered, setRegistered] = useState(false);
   const dispatch = useDispatch();
+  const [honeypot, setHoneypot] = useState('');
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -57,6 +58,16 @@ const Register = () => {
   return (
     <form className="auth-form" onSubmit={handleRegister}>
       <h1>Register</h1>
+      {/* Honeypot */}
+      <input
+        type="text"
+        name="website"
+        value={honeypot}
+        onChange={e => setHoneypot(e.target.value)}
+        style={{ display: 'none' }}
+        autoComplete="off"
+        tabIndex="-1"
+      />
       <input
         type="text"
         placeholder="Username"

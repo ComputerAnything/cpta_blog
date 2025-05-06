@@ -105,6 +105,9 @@ def resend_verification():
 @routes.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
+    honeypot = data.get('website', '')
+    if honeypot:
+        return jsonify({"msg": "Bot detected."}), 400
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
@@ -141,7 +144,7 @@ def register():
     db.session.commit()
 
     # Send verification email
-    send_verification_email(email)
+    # send_verification_email(email)
 
     return jsonify({"msg": "User created successfully"}), 201
 
@@ -170,8 +173,8 @@ def login():
         return jsonify({"msg": "Incorrect password"}), 401
 
     # Check if the user's email has been verified
-    if not user.is_verified:
-        return jsonify({"msg": "Please verify your email before logging in."}), 403
+    # if not user.is_verified:
+    #     return jsonify({"msg": "Please verify your email before logging in."}), 403
 
     access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(hours=12))
     # Debugging
@@ -223,10 +226,10 @@ def update_profile():
     user.username = username
     user.email = email
     # Check if the email has changed, if so, send a verification email
-    if email != old_email:
-        user.is_verified = False
-        send_verification_email(email)
-    db.session.commit()
+    # if email != old_email:
+    #     user.is_verified = False
+    #     send_verification_email(email)
+    # db.session.commit()
 
     return jsonify({"msg": "Profile updated successfully"}), 200
 
