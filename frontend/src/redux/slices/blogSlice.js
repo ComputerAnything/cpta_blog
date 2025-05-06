@@ -24,7 +24,7 @@ export const fetchProfiles = createAsyncThunk('blog/fetchProfiles', async () => 
 export const createPost = createAsyncThunk('blog/createPost', async (postData, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    const response = await API.post('/api/posts', postData, {
+    const response = await API.post('/posts', postData, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -37,7 +37,7 @@ export const createPost = createAsyncThunk('blog/createPost', async (postData, {
 export const updatePost = createAsyncThunk('blog/updatePost', async (postData, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    const response = await API.put(`/api/posts/${postData.id}`, postData, {
+    const response = await API.put(`/posts/${postData.id}`, postData, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -76,7 +76,7 @@ export const fetchComments = createAsyncThunk('blog/fetchComments', async (postI
 export const addComment = createAsyncThunk('blog/addComment', async ({ postId, content }, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    const response = await API.post(`/api/posts/${postId}/comments`, { content }, {
+    const response = await API.post(`/posts/${postId}/comments`, { content }, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -102,7 +102,7 @@ export const deleteComment = createAsyncThunk('blog/deleteComment', async ({ pos
 export const upvotePost = createAsyncThunk('blog/upvotePost', async (postId, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    const response = await API.post(`/api/posts/${postId}/upvote`, {}, {
+    const response = await API.post(`/posts/${postId}/upvote`, {}, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return { postId, ...response.data };
@@ -115,7 +115,7 @@ export const upvotePost = createAsyncThunk('blog/upvotePost', async (postId, { r
 export const downvotePost = createAsyncThunk('blog/downvotePost', async (postId, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    const response = await API.post(`/api/posts/${postId}/downvote`, {}, {
+    const response = await API.post(`/posts/${postId}/downvote`, {}, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return { postId, ...response.data };

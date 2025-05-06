@@ -20,7 +20,7 @@ export const fetchUserPosts = createAsyncThunk('profile/fetchUserPosts', async (
   const token = localStorage.getItem('token');
   try {
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    const response = await API.get(`/api/users/${userId}/posts`, { headers });
+    const response = await API.get(`/users/${userId}/posts`, { headers });
     return response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   } catch (err) {
     return rejectWithValue(err.response?.data?.msg || 'Failed to fetch posts');

@@ -22,7 +22,7 @@ const Login = () => {
     setShowResend(false);
     setResendStatus('');
     try {
-      const response = await API.post('/api/login', { identifier, password });
+      const response = await API.post('/login', { identifier, password });
       dispatch(setCredentials({
         user: {
           username: response.data.username,
