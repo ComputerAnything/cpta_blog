@@ -50,7 +50,7 @@ export const updatePost = createAsyncThunk('blog/updatePost', async (postData, {
 export const deletePost = createAsyncThunk('blog/deletePost', async (postId, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    await API.delete(`/api/posts/${postId}`, {
+    await API.delete(`/posts/${postId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return postId;
@@ -89,7 +89,7 @@ export const addComment = createAsyncThunk('blog/addComment', async ({ postId, c
 export const deleteComment = createAsyncThunk('blog/deleteComment', async ({ postId, commentId }, { rejectWithValue }) => {
   const token = localStorage.getItem('token');
   try {
-    await API.delete(`/api/posts/${postId}/comments/${commentId}`, {
+    await API.delete(`/posts/${postId}/comments/${commentId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return commentId;

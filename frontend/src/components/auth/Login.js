@@ -63,7 +63,7 @@ const Login = () => {
     setResendStatus('');
     dispatch(setLoading(true));
     try {
-      await API.post('/api/resend-verification', { identifier });
+      await API.post('/resend-verification', { identifier });
       setResendStatus('Verification email sent! Please check your inbox.');
     } catch (error) {
       setResendStatus(error.response?.data?.msg || 'Failed to resend verification email.');
