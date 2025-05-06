@@ -7,10 +7,14 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from config import Config
 from flask_mail import Mail
+# from werkzeug.middleware.proxy_fix import ProxyFix
 
-# Absolute path to React build directory
+
+# Path to React build directory (absolute when using flask, relative when using docker)
+# REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../frontend/build')
 REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend/build')
-# print("STATIC FOLDER:", REACT_BUILD_DIR)
+# print("RECAPTCHA_SITE_KEY:", os.environ.get("REACT_APP_RECAPTCHA_SITE_KEY"))
+# print("RECAPTCHA_SECRET_KEY:", os.environ.get("RECAPTCHA_SECRET_KEY"))
 
 # Initialize Flask app with React build as static folder
 app = Flask(
@@ -20,8 +24,12 @@ app = Flask(
 )
 app.config.from_object(Config)
 
+# For recaptcha to work with reverse proxy
+# app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s')
+app.logger.setLevel(logging.INFO)
 
 # cors
 CORS(app)

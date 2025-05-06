@@ -108,23 +108,23 @@ def register():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    recaptcha_token = data.get('recaptchaToken')
+    # recaptcha_token = data.get('recaptchaToken')
 
     # reCAPTCHA verification
-    RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY')
-    if not recaptcha_token:
-        return jsonify({"msg": "reCAPTCHA token is missing"}), 400
+    # RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY')
+    # if not recaptcha_token:
+    #     return jsonify({"msg": "reCAPTCHA token is missing"}), 400
 
-    recaptcha_response = requests.post(
-        'https://www.google.com/recaptcha/api/siteverify',
-        data={
-            'secret': RECAPTCHA_SECRET_KEY,
-            'response': recaptcha_token
-        }
-    )
-    result = recaptcha_response.json()
-    if not result.get('success'):
-        return jsonify({"msg": "reCAPTCHA verification failed"}), 400
+    # recaptcha_response = requests.post(
+    #     'https://www.google.com/recaptcha/api/siteverify',
+    #     data={
+    #         'secret': RECAPTCHA_SECRET_KEY,
+    #         'response': recaptcha_token
+    #     }
+    # )
+    # result = recaptcha_response.json()
+    # if not result.get('success'):
+    #     return jsonify({"msg": "reCAPTCHA verification failed"}), 400
 
     # Validate input
     if not username or not email or not password:
