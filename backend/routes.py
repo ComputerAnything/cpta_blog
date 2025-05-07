@@ -1,32 +1,42 @@
-from datetime import timedelta
-from flask import Blueprint, request, jsonify, render_template_string
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from app import db
-from models import User, BlogPost, Vote, Comment
-import requests
+# import requests # Uncomment if using reCAPTCHA
 import os
-from flask_mail import Mail, Message
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+from datetime import timedelta
 
-# SMTP configuration
-mail = Mail()
+from app import db
+from flask import Blueprint, jsonify, render_template_string, request
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
+from models import BlogPost, Comment, User, Vote
+from resend import Resend
+
+# Resend configuration
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
+if not RESEND_API_KEY:
+    raise RuntimeError("RESEND_API_KEY environment variable is not set")
+resend = Resend(api_key=RESEND_API_KEY)
+
 secret_key = os.environ.get('SECRET_KEY')
 if not secret_key:
     raise RuntimeError("SECRET_KEY environment variable is not set")
 
 serializer = URLSafeTimedSerializer(secret_key)
 
-
-# function to send verification email
+# Update send_verification_email to use Resend
 def send_verification_email(user_email):
     token = serializer.dumps(user_email, salt='email-confirm')
     confirm_url = f"{request.url_root}verify-email/{token}"
-    msg = Message(
-        subject='Confirm Your Email',
-        recipients=[user_email],
-        body=f'Click the link to verify your email: {confirm_url}'
-    )
-    mail.send(msg)
+    # You can customize the sender and email content as needed
+    resend.emails.send({
+        "from": "noreply@computeranything.dev",
+        "to": [user_email],
+        "subject": "Confirm Your Email",
+        "html": f"""
+            <h1>Confirm Your Email</h1>
+            <p>Click the link below to verify your email address:</p>
+            <a href="{confirm_url}">{confirm_url}</a>
+            <p>If you did not sign up, you can ignore this email.</p>
+        """
+    })
 
 
 # Create a blueprint for the routes
@@ -144,9 +154,9 @@ def register():
     db.session.commit()
 
     # Send verification email
-    # send_verification_email(email)
+    send_verification_email(email)
 
-    return jsonify({"msg": "User created successfully"}), 201
+    return jsonify({"msg": "User created successfully. Please check your email to verify your account."}), 201
 
 
 # USER LOGIN
@@ -173,8 +183,8 @@ def login():
         return jsonify({"msg": "Incorrect password"}), 401
 
     # Check if the user's email has been verified
-    # if not user.is_verified:
-    #     return jsonify({"msg": "Please verify your email before logging in."}), 403
+    if not user.is_verified:
+        return jsonify({"msg": "Please verify your email before logging in."}), 403
 
     access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(hours=12))
     # Debugging
@@ -226,10 +236,10 @@ def update_profile():
     user.username = username
     user.email = email
     # Check if the email has changed, if so, send a verification email
-    # if email != old_email:
-    #     user.is_verified = False
-    #     send_verification_email(email)
-    # db.session.commit()
+    if email != old_email:
+        user.is_verified = False
+        send_verification_email(email)
+    db.session.commit()
 
     return jsonify({"msg": "Profile updated successfully"}), 200
 
