@@ -66,6 +66,37 @@ Features include user authentication, post creation/editing, voting, comments, a
 
 ---
 
+## 🐳 Docker Compose Setup
+
+1. **Build and start all services:**
+
+    ```bash
+    docker compose up --build -d
+    ```
+
+2. **Check logs for all services:**
+
+    ```bash
+    docker compose logs -f
+    ```
+
+3. **Stop all services:**
+
+    ```bash
+    docker compose down
+    ```
+
+4. **(Optional) Rebuild without cache:**
+
+    ```bash
+    docker compose build --no-cache
+    ```
+
+- Make sure you have your environment variables set in `backend/.env` and `frontend/.env` before building.
+- The frontend should be built locally (`npm run build`) and the output copied to `backend/frontend/build` if you are not building the frontend inside Docker.
+
+---
+
 ## ✨ Features
 
 - ✅ User registration, login, and JWT authentication
@@ -82,21 +113,7 @@ Features include user authentication, post creation/editing, voting, comments, a
 
 ## 🔧 Environment Variables
 
-**Frontend (`frontend/.env`):**
-
-```env
-REACT_APP_API_URL=http://localhost:5000/api
-```
-
-**Backend (`backend/.env`):**
-
-```env
-DATABASE_URL=your_database_url
-SECRET_KEY=your_secret_key
-JWT_SECRET_KEY=your_jwt_secret_key
-MAIL_USERNAME=your_email@gmail.com
-MAIL_PASSWORD=your_email_password
-```
+Use the `.env.example` file as a template to create your own `.env` file. Make sure to set the following variables:
 
 ---
 
