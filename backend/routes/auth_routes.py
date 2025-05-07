@@ -24,10 +24,10 @@ resend.api_key = RESEND_API_KEY
 def send_verification_email(user_email):
     token = serializer.dumps(user_email, salt='email-confirm')
     confirm_url = f"{request.url_root}verify-email/{token}"
-    params: resend.Emails.SendParams = {
+    params = {
         "from": "noreply@computeranything.dev",
         "to": [user_email],
-        "subject": "Verify Your Email Address",
+        "subject": "Confirm Your Email",
         "html": f"""
             <h1>Confirm Your Email</h1>
             <p>Click the link below to verify your email address:</p>
@@ -44,16 +44,51 @@ def verify_email(token):
     try:
         email = serializer.loads(token, salt='email-confirm', max_age=3600)
     except SignatureExpired:
-        return render_template_string("...expired html..."), 400
+        return render_template_string("""
+            <html>
+            <head><title>Email Verification</title></head>
+            <body style="background:#111;color:#00ff00;font-family:sans-serif;text-align:center;padding:2em;">
+                <h1>Email Verification Failed</h1>
+                <p>Expired</p>
+                <a href="https://www.computeranything.dev/" style="color:#00ff00;text-decoration:underline;">Back to Computer Anything</a>
+            </body>
+            </html>
+        """), 400
     except BadSignature:
-        return render_template_string("...invalid html..."), 400
-
+        return render_template_string("""
+            <html>
+            <head><title>Email Verification</title></head>
+            <body style="background:#111;color:#00ff00;font-family:sans-serif;text-align:center;padding:2em;">
+                <h1>Email Verification Failed</h1>
+                <p>Invalid</p>
+                <a href="https://www.computeranything.dev/" style="color:#00ff00;text-decoration:underline;">Back to Computer Anything</a>
+            </body>
+            </html>
+        """), 400
     user = User.query.filter_by(email=email).first()
     if not user:
-        return render_template_string("...user not found html..."), 404
+        return render_template_string("""
+            <html>
+            <head><title>Email Verification</title></head>
+            <body style="background:#111;color:#00ff00;font-family:sans-serif;text-align:center;padding:2em;">
+                <h1>Email Verification Failed</h1>
+                <p>User not found.</p>
+                <a href="https://www.computeranything.dev/" style="color:#00ff00;text-decoration:underline;">Back to Computer Anything</a>
+            </body>
+            </html>
+        """), 404
     user.is_verified = True
     db.session.commit()
-    return render_template_string("...verified html..."), 200
+    return render_template_string("""
+        <html>
+        <head><title>Email Verified</title></head>
+        <body style="background:#111;color:#00ff00;font-family:sans-serif;text-align:center;padding:2em;">
+            <h1>Email Verified!</h1>
+            <p>Your email has been successfully verified.</p>
+            <a href="https://www.computeranything.dev/" style="color:#00ff00;text-decoration:underline;">Click Here, and login with your verified email address</a>
+        </body>
+        </html>
+    """), 200
 
 
 # RESEND VERIFICATION EMAIL

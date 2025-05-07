@@ -53,7 +53,7 @@ class BlogPost(db.Model):
             "downvotes": self.downvotes,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "user_id": self.user_id,
-            "author": self.user.username if hasattr(self, 'user') and self.user else None
+            "author": self.user.username if hasattr(self, 'user') and self.user else None # type: ignore
         }
 
     def __repr__(self):
@@ -84,7 +84,7 @@ class Comment(db.Model):
             "id": self.id,
             "content": self.content,
             "user_id": self.user_id,
-            "username": self.user.username,
+            "username": self.user.username, # type: ignore
             "post_id": self.post_id,
             "created_at": self.created_at.isoformat(),
         }
