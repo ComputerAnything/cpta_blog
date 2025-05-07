@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /
 
 COPY ./backend ./backend
-COPY ./frontend/build ./backend/frontend/build
+COPY ./frontend/build ./backend/frontend/
 
 WORKDIR /backend
 
