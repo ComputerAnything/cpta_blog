@@ -24,10 +24,10 @@ resend.api_key = RESEND_API_KEY
 def send_verification_email(user_email):
     token = serializer.dumps(user_email, salt='email-confirm')
     confirm_url = f"{request.url_root}verify-email/{token}"
-    params = {
+    params: resend.Emails.SendParams = {
         "from": "noreply@computeranything.dev",
         "to": [user_email],
-        "subject": "Confirm Your Email",
+        "subject": "Verify Your Email Address",
         "html": f"""
             <h1>Confirm Your Email</h1>
             <p>Click the link below to verify your email address:</p>
@@ -37,6 +37,8 @@ def send_verification_email(user_email):
     }
     resend.Emails.send(params)
 
+
+# VERIFY EMAIL
 @auth_routes.route('/verify-email/<token>', methods=['GET'])
 def verify_email(token):
     try:
@@ -53,6 +55,8 @@ def verify_email(token):
     db.session.commit()
     return render_template_string("...verified html..."), 200
 
+
+# RESEND VERIFICATION EMAIL
 @auth_routes.route('/api/resend-verification', methods=['POST'])
 def resend_verification():
     data = request.get_json()
@@ -65,6 +69,8 @@ def resend_verification():
     send_verification_email(user.email)
     return jsonify({"msg": "Verification email sent."}), 200
 
+
+# REGISTER
 @auth_routes.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -85,6 +91,8 @@ def register():
     send_verification_email(email)
     return jsonify({"msg": "User created successfully. Please check your email to verify your account."}), 201
 
+
+# LOGIN
 @auth_routes.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
