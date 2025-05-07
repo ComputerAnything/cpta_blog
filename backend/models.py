@@ -1,6 +1,8 @@
-from app import db
-from datetime import datetime, timezone
-from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import UTC, datetime
+
+from backend.extensions import db
+from werkzeug.security import check_password_hash, generate_password_hash
+
 
 # User model
 class User(db.Model):
@@ -9,7 +11,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     is_verified = db.Column(db.Boolean, default=False)
 
     # Add cascade delete-orphan for posts, votes, comments
@@ -34,7 +36,7 @@ class BlogPost(db.Model):
     content = db.Column(db.Text, nullable=False)
     topic_tags = db.Column(db.String(255), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     upvotes = db.Column(db.Integer, default=0, nullable=False)
     downvotes = db.Column(db.Integer, default=0, nullable=False)
 
@@ -75,7 +77,7 @@ class Comment(db.Model):
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('blog_posts.id', ondelete='CASCADE'), nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     def to_dict(self):
         return {

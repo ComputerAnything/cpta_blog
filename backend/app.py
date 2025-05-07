@@ -1,69 +1,68 @@
-import os
 import logging
-from flask import Flask, send_from_directory, send_file
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
+import os
+
+from backend.config import Config
+from backend.extensions import db, jwt, mail, migrate
+from backend.routes import all_routes
+from flask import Flask, send_file, send_from_directory
 from flask_cors import CORS
-from config import Config
-from flask_mail import Mail
-# from werkzeug.middleware.proxy_fix import ProxyFix
 
 
-# Path to React build directory (absolute when using flask, relative when using docker)
-# REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../frontend/build')
 REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend/build')
-# print("RECAPTCHA_SITE_KEY:", os.environ.get("REACT_APP_RECAPTCHA_SITE_KEY"))
-# print("RECAPTCHA_SECRET_KEY:", os.environ.get("RECAPTCHA_SECRET_KEY"))
 
-# Initialize Flask app with React build as static folder
-app = Flask(
-    __name__,
-    static_folder=os.path.join(REACT_BUILD_DIR, 'static'),
-    static_url_path='/static'
-)
-app.config.from_object(Config)
-
-# For recaptcha to work with reverse proxy
-# app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
-
-# Configure logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s')
-app.logger.setLevel(logging.INFO)
-
-# cors
-CORS(app)
-
-# Initialize extensions
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-jwt = JWTManager(app)
-mail = Mail(app)
-
-# Import and register routes blueprint
-from routes import routes  # noqa: E402
-app.register_blueprint(routes)
-
-# Serve images from build/img
-@app.route('/img/<path:filename>')
-def serve_img(filename):
-    img_dir = os.path.join(REACT_BUILD_DIR, 'img')
-    return send_from_directory(img_dir, filename)
-
-# favicon support
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(
-        REACT_BUILD_DIR,
-        'favicon.ico',
-        mimetype='image/vnd.microsoft.icon'
+def create_app(testing=False):
+    app = Flask(
+        __name__,
+        static_folder=os.path.join(REACT_BUILD_DIR, 'static'),
+        static_url_path='/static'
     )
+    app.config.from_object(Config)
+    if testing:
+        app.config["TESTING"] = True
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+        app.config["WTF_CSRF_ENABLED"] = False
 
-# Catch-all route for React SPA
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve_react_app(path):
-    # Only serve index.html for non-API, non-static, non-img routes
-    if path.startswith('api/'):
-        return 'Not Found', 404
-    return send_file(os.path.join(REACT_BUILD_DIR, 'index.html'))
+    # Configure logging
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s')
+    app.logger.setLevel(logging.INFO)
+
+    # cors
+    CORS(app)
+
+    # Initialize extensions
+    db.init_app(app)
+    migrate.init_app(app, db)
+    jwt.init_app(app)
+    mail.init_app(app)
+
+    # Register all blueprints from routes
+    for bp in all_routes:
+        app.register_blueprint(bp)
+
+    # Serve images from build/img
+    @app.route('/img/<path:filename>')
+    def serve_img(filename):
+        img_dir = os.path.join(REACT_BUILD_DIR, 'img')
+        return send_from_directory(img_dir, filename)
+
+    # favicon support
+    @app.route('/favicon.ico')
+    def favicon():
+        return send_from_directory(
+            REACT_BUILD_DIR,
+            'favicon.ico',
+            mimetype='image/vnd.microsoft.icon'
+        )
+
+    # Catch-all route for React SPA
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def serve_react_app(path):
+        if path.startswith('api/'):
+            return 'Not Found', 404
+        return send_file(os.path.join(REACT_BUILD_DIR, 'index.html'))
+
+    return app
+
+# For development/production servers that expect `app`
+app = create_app()
