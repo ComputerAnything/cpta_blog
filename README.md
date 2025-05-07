@@ -18,37 +18,6 @@ Features include user authentication, post creation/editing, voting, comments, a
 
 ---
 
-## 📂 Project Structure
-
-```bash
-cpt_anything_blog/
-├── backend/
-│   ├── app.py
-│   ├── models.py
-│   ├── routes.py
-│   ├── config.py
-│   ├── requirements.txt
-│   ├── .env
-│   └── migrations/
-├── frontend/
-│   ├── public/
-│   │   ├── index.html
-│   │   └── img/
-│   ├── src/
-│   │   ├── App.js
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── services/
-│   │   └── index.js
-│   ├── styles/
-│   ├── package.json
-│   └── .env
-├── README.md
-└── docker-compose.yml
-```
-
----
-
 ## 🛠️ Backend Setup
 
 1. **Navigate to the `backend` directory:**
@@ -68,7 +37,7 @@ cpt_anything_blog/
 4. **📦 Make initial database migrations:**
 
     ```bash
-    flask db init         # Only once, to initialize migrations folder
+    flask db init
     flask db migrate -m "initial migration"
     flask db upgrade
     ```

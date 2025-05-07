@@ -35,7 +35,7 @@ const Register = () => {
       await API.post('/register', { username, email, password });
       setRegistered(true);
       setMessage({
-        text: 'Registration successful! Login and start using the app.',
+        text: 'Registration successful! Please check your email to verify your account.',
         type: 'success'
       });
     } catch (error) {

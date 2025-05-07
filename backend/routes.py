@@ -1,19 +1,13 @@
-# import requests # Uncomment if using reCAPTCHA
-import os
 from datetime import timedelta
+import os
 
-from app import db
+from backend.extensions import db
+from backend.models import BlogPost, Comment, User, Vote
 from flask import Blueprint, jsonify, render_template_string, request
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
-from models import BlogPost, Comment, User, Vote
-from resend import Resend
+import resend
 
-# Resend configuration
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
-if not RESEND_API_KEY:
-    raise RuntimeError("RESEND_API_KEY environment variable is not set")
-resend = Resend(api_key=RESEND_API_KEY)
 
 secret_key = os.environ.get('SECRET_KEY')
 if not secret_key:
@@ -21,12 +15,17 @@ if not secret_key:
 
 serializer = URLSafeTimedSerializer(secret_key)
 
+# Resend configuration
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
+if not RESEND_API_KEY:
+    raise RuntimeError("RESEND_API_KEY environment variable is not set")
+resend.api_key = RESEND_API_KEY
+
 # Update send_verification_email to use Resend
 def send_verification_email(user_email):
     token = serializer.dumps(user_email, salt='email-confirm')
     confirm_url = f"{request.url_root}verify-email/{token}"
-    # You can customize the sender and email content as needed
-    resend.emails.send({
+    params = {
         "from": "noreply@computeranything.dev",
         "to": [user_email],
         "subject": "Confirm Your Email",
@@ -35,8 +34,9 @@ def send_verification_email(user_email):
             <p>Click the link below to verify your email address:</p>
             <a href="{confirm_url}">{confirm_url}</a>
             <p>If you did not sign up, you can ignore this email.</p>
-        """
-    })
+        """,
+    }
+    resend.Emails.send(params)
 
 
 # Create a blueprint for the routes
@@ -148,7 +148,7 @@ def register():
         return jsonify({"msg": "User already exists"}), 400
 
     # Create a new user
-    new_user = User(username=username, email=email)
+    new_user = User(username=username, email=email) # type: ignore
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
@@ -343,7 +343,7 @@ def create_post():
         return jsonify({"msg": "Title and content are required"}), 400
 
     # Create a new blog post
-    new_post = BlogPost(title=title, content=content, topic_tags=topic_tags, user_id=user_id)
+    new_post = BlogPost(title=title, content=content, topic_tags=topic_tags, user_id=user_id) # type: ignore
     db.session.add(new_post)
     db.session.commit()
 
@@ -425,7 +425,7 @@ def upvote_post(post_id):
             post.downvotes -= 1
     else:
         # Add a new upvote
-        new_vote = Vote(user_id=user_id, post_id=post_id, vote_type='upvote')
+        new_vote = Vote(user_id=user_id, post_id=post_id, vote_type='upvote') # type: ignore
         db.session.add(new_vote)
         post.upvotes += 1
 
@@ -456,7 +456,7 @@ def downvote_post(post_id):
             post.upvotes -= 1
     else:
         # Add a new downvote
-        new_vote = Vote(user_id=user_id, post_id=post_id, vote_type='downvote')
+        new_vote = Vote(user_id=user_id, post_id=post_id, vote_type='downvote') # type: ignore
         db.session.add(new_vote)
         post.downvotes += 1
 
@@ -490,7 +490,7 @@ def add_comment(post_id):
     if not post:
         return jsonify({"msg": "Post not found"}), 404
 
-    comment = Comment(content=content, user_id=user_id, post_id=post_id)
+    comment = Comment(content=content, user_id=user_id, post_id=post_id) # type: ignore
     db.session.add(comment)
     db.session.commit()
 
