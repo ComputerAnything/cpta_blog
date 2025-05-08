@@ -97,6 +97,37 @@ cpt_anything_blog/
 
 ---
 
+## 🐳 Docker Compose Setup
+
+1. **Build and start all services:**
+
+    ```bash
+    docker compose up --build -d
+    ```
+
+2. **Check logs for all services:**
+
+    ```bash
+    docker compose logs -f
+    ```
+
+3. **Stop all services:**
+
+    ```bash
+    docker compose down
+    ```
+
+4. **(Optional) Rebuild without cache:**
+
+    ```bash
+    docker compose build --no-cache
+    ```
+
+- Make sure you have your environment variables set in `backend/.env` and `frontend/.env` before building, use the `.env.example` files as templates.
+- The frontend should be built locally (`npm run build`) and the output copied to `backend/frontend/build` if you are not building the frontend inside Docker.
+
+---
+
 ## ✨ Features
 
 - ✅ User registration, login, and JWT authentication
@@ -108,6 +139,35 @@ cpt_anything_blog/
 - 👤 User profile and post history
 - 🖼️ Responsive, modern UI with modals and loading overlays
 - 🛡️ Secure API endpoints
+
+---
+
+## 📦 Dependencies
+
+- **Backend:**
+  - Flask
+  - Flask-SQLAlchemy
+  - Flask-Migrate
+  - Flask-JWT-Extended
+  - Flask-Cors
+  - psycopg2-binary (psql database adapter)
+  - resend (for email sending)
+  - python-dotenv
+  - pytest (for testing)
+  - ruff (for linting)
+  - black (for code formatting)
+
+- **Frontend:**
+  - React
+  - React Router
+  - Axios
+  - Redux Toolkit
+  - Redux Persist
+  - React Redux
+  - Tailwind CSS
+  - react-markdown (for rendering markdown)
+  - react-quill (for rich text editing)
+  - dotenv (for environment variables)
 
 ---
 
