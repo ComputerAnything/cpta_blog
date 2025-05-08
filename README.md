@@ -94,6 +94,7 @@ Features include user authentication, post creation/editing, voting, comments, a
 
 - Make sure you have your environment variables set in `backend/.env` and `frontend/.env` before building, use the `.env.example` files as templates.
 - The frontend should be built locally (`npm run build`) and the output copied to `backend/frontend/build` if you are not building the frontend inside Docker.
+- Run `build_and_copy_frontend.sh` to automate this process.
 
 ---
 
