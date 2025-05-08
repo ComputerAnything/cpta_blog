@@ -11,7 +11,7 @@ def fix_upvotes_downvotes():
         if post.downvotes is None:
             post.downvotes = 0
     db.session.commit()
-    print("Upvotes and downvotes fixed for all posts.")
+    print("Upvotes and downvotes fixed for all posts.")  # noqa: T201
 
 if __name__ == "__main__":
     fix_upvotes_downvotes()
