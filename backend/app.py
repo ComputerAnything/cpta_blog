@@ -8,7 +8,10 @@ from flask import Flask, send_file, send_from_directory
 from flask_cors import CORS
 
 
+# Docker container path
 REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend/build')
+# Local development path
+# REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../frontend/build')
 
 def create_app(testing=False):
     app = Flask(
