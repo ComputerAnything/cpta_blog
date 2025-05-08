@@ -92,11 +92,7 @@ Features include user authentication, post creation/editing, voting, comments, a
     docker compose build --no-cache
     ```
 
-<<<<<<< HEAD
 - Make sure you have your environment variables set in `backend/.env` and `frontend/.env` before building, use the `.env.example` files as templates.
-=======
-- Make sure you have your environment variables set in `backend/.env` and `frontend/.env` before building.
->>>>>>> 90c0c9cf449bdd611820c955d35970c5d8069760
 - The frontend should be built locally (`npm run build`) and the output copied to `backend/frontend/build` if you are not building the frontend inside Docker.
 
 ---
