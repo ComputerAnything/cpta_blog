@@ -1,0 +1,28 @@
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "I", "B", "UP", "C90", "N", "A", "C4", "SIM", "T20", "RET", "ARG", "DTZ", "PL", "RUF"
+]
+ignore = [
+    "E501", # handled by Black
+    "B008", # do not perform function calls in argument defaults (sometimes needed)
+    "ERA",  # allow commented-out code and lots of comments
+]
+
+[tool.ruff.isort]
+known-first-party = ["app", "models"]
+force-sort-within-sections = true
+section-order = ["standard-library", "first-party", "third-party"]
+default-section = "first-party"
+lines-after-imports = 2
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+skip-string-normalization = false

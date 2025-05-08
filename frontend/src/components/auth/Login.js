@@ -22,7 +22,7 @@ const Login = () => {
     setShowResend(false);
     setResendStatus('');
     try {
-      const response = await API.post('/api/login', { identifier, password });
+      const response = await API.post('/login', { identifier, password });
       dispatch(setCredentials({
         user: {
           username: response.data.username,
@@ -63,7 +63,7 @@ const Login = () => {
     setResendStatus('');
     dispatch(setLoading(true));
     try {
-      await API.post('/api/resend-verification', { identifier });
+      await API.post('/resend-verification', { identifier });
       setResendStatus('Verification email sent! Please check your inbox.');
     } catch (error) {
       setResendStatus(error.response?.data?.msg || 'Failed to resend verification email.');

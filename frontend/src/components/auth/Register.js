@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setLoading, openModal } from '../../redux/slices/authSlice';
-import ReCAPTCHA from 'react-google-recaptcha';
+// import ReCAPTCHA from 'react-google-recaptcha';
 import API from '../../services/api';
 import '../../styles/Auth.css';
 
-const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
-console.log('RECAPTCHA_SITE_KEY:', RECAPTCHA_SITE_KEY);
+// const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
+// console.log('RECAPTCHA_SITE_KEY:', RECAPTCHA_SITE_KEY);
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -15,9 +15,10 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [recaptchaToken, setRecaptchaToken] = useState('');
+  // const [recaptchaToken, setRecaptchaToken] = useState('');
   const [registered, setRegistered] = useState(false);
   const dispatch = useDispatch();
+  const [honeypot, setHoneypot] = useState('');
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -25,16 +26,16 @@ const Register = () => {
       setMessage({ text: 'Passwords do not match.', type: 'error' });
       return;
     }
-    if (!recaptchaToken) {
-      setMessage({ text: 'Please complete the reCAPTCHA.', type: 'error' });
-      return;
-    }
+    // if (!recaptchaToken) {
+    //   setMessage({ text: 'Please complete the reCAPTCHA.', type: 'error' });
+    //   return;
+    // }
     dispatch(setLoading(true));
     try {
-      await API.post('/api/register', { username, email, password, recaptchaToken });
+      await API.post('/register', { username, email, password });
       setRegistered(true);
       setMessage({
-        text: 'Registration successful! Please check your email to verify your account before logging in.',
+        text: 'Registration successful! Please check your email to verify your account.',
         type: 'success'
       });
     } catch (error) {
@@ -57,6 +58,16 @@ const Register = () => {
   return (
     <form className="auth-form" onSubmit={handleRegister}>
       <h1>Register</h1>
+      {/* Honeypot */}
+      <input
+        type="text"
+        name="website"
+        value={honeypot}
+        onChange={e => setHoneypot(e.target.value)}
+        style={{ display: 'none' }}
+        autoComplete="off"
+        tabIndex="-1"
+      />
       <input
         type="text"
         placeholder="Username"
@@ -104,10 +115,10 @@ const Register = () => {
         </button>
       </div>
       <div style={{ margin: '16px 0' }}>
-        <ReCAPTCHA
+        {/* <ReCAPTCHA
           sitekey={RECAPTCHA_SITE_KEY}
           onChange={token => setRecaptchaToken(token)}
-        />
+        /> */}
       </div>
       <button type="submit" className="auth-btn">Register</button>
       {message && (
