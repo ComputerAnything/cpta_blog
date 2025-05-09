@@ -2,7 +2,6 @@
 line-length = 88
 target-version = "py312"
 exclude = [
-    "tests",
     "migrations",
     "venv",
     "env",
