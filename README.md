@@ -18,6 +18,20 @@ Features include user authentication, post creation/editing, voting, comments, a
 
 ---
 
+## ✨ Features
+
+- ✅ User registration, login, and JWT authentication
+- 📝 Create, edit, and delete blog posts
+- 🗳️ Upvote/downvote posts
+- 💬 Comment on posts (with delete support)
+- 🔍 Search and filter posts by tags
+- 🏷️ Tag support (with automatic formatting)
+- 👤 User profile and post history
+- 🖼️ Responsive, modern UI with modals and loading overlays
+- 🛡️ Secure API endpoints
+
+---
+
 ## 🛠️ Backend Setup
 
 1. **Navigate to the `backend` directory:**
@@ -98,20 +112,6 @@ Features include user authentication, post creation/editing, voting, comments, a
 
 ---
 
-## ✨ Features
-
-- ✅ User registration, login, and JWT authentication
-- 📝 Create, edit, and delete blog posts
-- 🗳️ Upvote/downvote posts
-- 💬 Comment on posts (with delete support)
-- 🔍 Search and filter posts by tags
-- 🏷️ Tag support (with automatic formatting)
-- 👤 User profile and post history
-- 🖼️ Responsive, modern UI with modals and loading overlays
-- 🛡️ Secure API endpoints
-
----
-
 ## 📦 Dependencies
 
 - **Backend:**
@@ -140,6 +140,22 @@ Features include user authentication, post creation/editing, voting, comments, a
   - dotenv (for environment variables)
 
 ---
+
+## 🧪 Testing
+
+- **Backend:**
+  - Run tests using pytest:
+
+    ```bash
+    pytest
+    ```
+
+- **Frontend:**
+  - Run tests using Jest:
+
+    ```bash
+    npm test
+    ```
 
 ## 🔧 Environment Variables
 

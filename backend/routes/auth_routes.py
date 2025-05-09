@@ -7,6 +7,7 @@ from flask import Blueprint, jsonify, render_template_string, request
 from flask_jwt_extended import create_access_token
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 import resend
+from sqlalchemy.exc import IntegrityError
 
 
 auth_routes = Blueprint('auth_routes', __name__)
@@ -35,7 +36,7 @@ def send_verification_email(user_email):
             <p>If you did not sign up, you can ignore this email.</p>
         """,
     }
-    resend.Emails.send(params)
+    resend.Emails.send(params) # type: ignore
 
 
 # VERIFY EMAIL
@@ -122,7 +123,11 @@ def register():
     new_user = User(username=username, email=email) # type: ignore
     new_user.set_password(password)
     db.session.add(new_user)
-    db.session.commit()
+    try :
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return {"msg": "Username or email already exists."}, 400
     send_verification_email(email)
     return jsonify({"msg": "User created successfully. Please check your email to verify your account."}), 201
 

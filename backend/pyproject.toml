@@ -1,6 +1,17 @@
 [tool.ruff]
 line-length = 88
 target-version = "py312"
+exclude = [
+    "migrations",
+    "venv",
+    "env",
+    "build",
+    "dist",
+    ".venv",
+    ".env",
+    "__pycache__",
+    "reset_votes.py",
+]
 
 [tool.ruff.lint]
 select = [
@@ -12,7 +23,7 @@ ignore = [
     "ERA",  # allow commented-out code and lots of comments
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["app", "models"]
 force-sort-within-sections = true
 section-order = ["standard-library", "first-party", "third-party"]
