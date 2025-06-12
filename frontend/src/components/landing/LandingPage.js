@@ -78,7 +78,7 @@ const LandingPage = () => {
                       >
                         Computer Anything Tech Blog
                       </button>
-                      <a className="btn custom-btn btn-lg px-4 me-sm-3" href="https://dmurchison.github.io/">
+                      <a className="btn custom-btn btn-lg px-4 me-sm-3" href="https://cheloniixd.github.io/">
                         About the Developer
                       </a>
                     </div>
