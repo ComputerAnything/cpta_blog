@@ -19,4 +19,4 @@ fi
 echo "Copying 'frontend/build' to 'backend/frontend/build' ..."
 cp -r frontend/build backend/frontend/build
 
-echo "Done. You can now run 'docker build' or 'docker-compose up'."
+echo "Done. You can now run 'docker build' or 'docker compose up'."
