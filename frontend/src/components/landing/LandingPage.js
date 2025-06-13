@@ -214,33 +214,6 @@ const LandingPage = () => {
               </div>
             </div>
           </div>
-            <div className="py-5">
-                {/* Test 2 */}
-                <div className="container px-5 my-5">
-                    <div className="row gx-5 justify-content-center">
-                        <div className="col-lg-10 col-xl-7">
-                            <div className="text-center">
-                                <div className="fs-4 mb-4 fst-italic">
-                                  "When my computer was broken Duncan came over
-                                  about 10 minutes before I made my decision to
-                                  buy a new one, he replaced some pieces inside
-                                  my motherboard with extra computer parts he
-                                  had. My computer was up and running in about
-                                  45 minutes."
-                                </div>
-                                <div className="d-flex align-items-center justify-content-center">
-                                    {/* <img className="rounded-circle me-3" src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..." /> */}
-                                    <div className="fw-bold">
-                                        Easy East
-                                        <span className="fw-bold text-primary mx-1">/</span>
-                                        Personal Client of Computer Anything LLC
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </section>
         {/* Login/Reg Modals */}
         {/* Login Modal */}
@@ -253,7 +226,6 @@ const LandingPage = () => {
             setLoading={setLoading} // Pass setLoading function
           />
         </Modal>
-
         {/* Register Modal */}
         <Modal isOpen={showRegisterModal} onClose={() => setShowRegisterModal(false)}>
           <Register
