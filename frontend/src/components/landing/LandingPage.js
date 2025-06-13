@@ -57,6 +57,7 @@ const LandingPage = () => {
     <>
       {message && <div className="alert alert-success">{message}</div>}
       {loading && <Loading />} {/* Render Loading when loading is true */}
+
       <div className="d-flex flex-column h-100">
         {/* Header */}
         <section id="home">
@@ -78,7 +79,7 @@ const LandingPage = () => {
                       >
                         Computer Anything Tech Blog
                       </button>
-                      <a className="btn custom-btn btn-lg px-4 me-sm-3" href="https://cheloniixd.github.io/">
+                      <a className="btn custom-btn btn-lg px-4 me-sm-3" href="https://cheloniixd.github.io/" target="_blank" rel="noopener noreferrer">
                         About the Developer
                       </a>
                     </div>
@@ -126,7 +127,7 @@ const LandingPage = () => {
         </section>
 
         {/* Contact Section */}
-        <section className="py-5" id="contact">
+        <section className="pt-0 pb-5" id="contact"> {/* Adjusted padding */}
           <div className="container px-5">
             <div className="bg-dark rounded-3 py-5 px-4 px-md-5 mb-5">
               <div className="text-center mb-5">
@@ -137,50 +138,39 @@ const LandingPage = () => {
               </div>
             </div>
             {/* Contact Cards */}
-            <div className="row gx-5 row-cols-2 row-cols-lg-4 py-5">
-              <div className="col">
+            <div className="row gx-5 row-cols-1 row-cols-md-3 justify-content-center py-5">
+              <div className="col mb-4 mb-md-0 d-flex flex-column align-items-center">
                 <a href="mailto:cpt.anything@gmail.com" className="text-decoration-none">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                     <i className="bi bi-envelope"></i>
                   </div>
                 </a>
-                  <div className="h5">Email us</div>
-                  <p className="text-muted mb-0">
-                    Send an email to cpt.anything@gmail.com
-                  </p>
+                <div className="h5">Email us</div>
+                <p className="text-muted mb-0">
+                  Send an email to cpt.anything@gmail.com
+                </p>
               </div>
-              <div className="col">
+              <div className="col mb-4 mb-md-0 d-flex flex-column align-items-center">
                 <a href="https://discord.gg/QXs6p75pcS" className="text-decoration-none" target="_blank" rel="noopener noreferrer">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                     <i className="bi bi-discord"></i>
                   </div>
                 </a>
-                  <div className="h5 mb-2">Chat with us</div>
-                  <p className="text-muted mb-0">
-                    Join our <span>Discord</span> channel and chat with us live.
-                  </p>
+                <div className="h5 mb-2">Chat with us</div>
+                <p className="text-muted mb-0">
+                  Join our <span>Discord</span> channel and chat with us live.
+                </p>
               </div>
-              <div className="col">
+              <div className="col mb-4 mb-md-0 d-flex flex-column align-items-center">
                 <a href="https://www.facebook.com/people/Computer-Anything/61567372806344/" className="text-decoration-none" target="_blank" rel="noopener noreferrer">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                     <i className="bi bi-facebook"></i>
                   </div>
                 </a>
-                  <div className="h5">Ask the community</div>
-                  <p className="text-muted mb-0">
-                    Follow us on <span>Facebook</span> and find out more about us.
-                  </p>
-              </div>
-              <div className="col">
-                <a href="https://www.youtube.com/@computer_anything" className="text-decoration-none" target="_blank" rel="noopener noreferrer">
-                  <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
-                    <i className="bi bi-youtube"></i>
-                  </div>
-                </a>
-                  <div className="h5">Checkout our videos</div>
-                  <p className="text-muted mb-0">
-                    Visit our <span>YouTube channel</span> for coding tutorials and more!
-                  </p>
+                <div className="h5">Ask the community</div>
+                <p className="text-muted mb-0">
+                  Follow us on <span>Facebook</span> and find out more about us.
+                </p>
               </div>
             </div>
           </div>
@@ -188,33 +178,56 @@ const LandingPage = () => {
 
         {/* Testimonial Section */}
         <section id="testimonials">
-            <div className="py-5">
-                {/* Test 1 */}
-                <div className="container px-5 my-5">
-                    <div className="row gx-5 justify-content-center">
-                        <div className="col-lg-10 col-xl-7">
-                            <div className="text-center">
-                                <div className="fs-4 mb-4 fst-italic">"Working with Computer Anything has saved me tons of development time Duncan is an excellent Software Engineer and has the ability to see your vision through with you while still getting things done in a surprisingly quick manner."</div>
-                                <div className="d-flex align-items-center justify-content-center">
-                                    {/* <img className="rounded-circle me-3" src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..." /> */}
-                                    <div className="fw-bold">
-                                        Tulla Contracting
-                                        <span className="fw-bold text-primary mx-1">/</span>
-                                        Personal Client of Computer Anything LLC
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+          <div className="py-5">
+            {/* Test 1 */}
+            <div className="container px-5 my-5">
+              <div className="row gx-5 justify-content-center">
+                <div className="col-lg-10 col-xl-7">
+                  <div className="text-center">
+                    <div className="fs-4 mb-4 fst-italic">
+                      "Working with Computer Anything LLC was an
+                      absolute game-changer for Our company. From the very first consultation, their team
+                      demonstrated an impressive depth of knowledge, creativity, and professionalism that
+                      immediately put us at ease. They took the time to understand our brand, our values,
+                      and the unique challenges of the contracting industry, translating all of that into a
+                      stunning, user-friendly website that exceeded every expectation. The design is clean,
+                      modern, and highly functional—exactly what we needed to showcase our work and attract
+                      new clients. Navigation is seamless, load times are lightning-fast, and the site is
+                      optimized beautifully for both desktop and mobile users. Beyond the design, their
+                      consulting services are top-notch. Duncan provided strategic insights that helped us
+                      improve our digital presence across the board. Whether it was content planning,
+                      analytics, or ongoing support, Computer Anything LLC delivered with clarity and
+                      purpose. We couldn't be happier with the results. If you're looking for a website
+                      partner who’s invested in your success and knows how to deliver real value, look no
+                      further than Computer Anything LLC. Highly recommended!"
                     </div>
+                    <div className="d-flex align-items-center justify-content-center">
+                      {/* <img className="rounded-circle me-3" src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..." /> */}
+                      <div className="fw-bold">
+                        Tulla Contracting
+                        <span className="fw-bold text-primary mx-1">/</span>
+                        Personal Client of Computer Anything LLC
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              </div>
             </div>
+          </div>
             <div className="py-5">
                 {/* Test 2 */}
                 <div className="container px-5 my-5">
                     <div className="row gx-5 justify-content-center">
                         <div className="col-lg-10 col-xl-7">
                             <div className="text-center">
-                                <div className="fs-4 mb-4 fst-italic">"When my computer was broken Duncan came over about 10 minutes before I made my decision to buy a new one, he replaced some pieces inside my motherboard with extra computer parts he had. My computer was up and running in about 45 minutes."</div>
+                                <div className="fs-4 mb-4 fst-italic">
+                                  "When my computer was broken Duncan came over
+                                  about 10 minutes before I made my decision to
+                                  buy a new one, he replaced some pieces inside
+                                  my motherboard with extra computer parts he
+                                  had. My computer was up and running in about
+                                  45 minutes."
+                                </div>
                                 <div className="d-flex align-items-center justify-content-center">
                                     {/* <img className="rounded-circle me-3" src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..." /> */}
                                     <div className="fw-bold">
