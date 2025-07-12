@@ -59,6 +59,7 @@ const LandingPage = () => {
       {loading && <Loading />} {/* Render Loading when loading is true */}
 
       <div className="d-flex flex-column h-100">
+
         {/* Header */}
         <section id="home">
           <header className="bg-dark py-5">
@@ -137,6 +138,7 @@ const LandingPage = () => {
                 </p>
               </div>
             </div>
+
             {/* Contact Cards */}
             <div className="row gx-5 row-cols-1 row-cols-md-3 justify-content-center py-5">
               <div className="col mb-4 mb-md-0 d-flex flex-column align-items-center">
@@ -191,7 +193,7 @@ const LandingPage = () => {
                       immediately put us at ease. They took the time to understand our brand, our values,
                       and the unique challenges of the contracting industry, translating all of that into a
                       stunning, user-friendly website that exceeded every expectation. The design is clean,
-                      modern, and highly functional—exactly what we needed to showcase our work and attract
+                      modern, and highly functional, exactly what we needed to showcase our work and attract
                       new clients. Navigation is seamless, load times are lightning-fast, and the site is
                       optimized beautifully for both desktop and mobile users. Beyond the design, their
                       consulting services are top-notch. Duncan provided strategic insights that helped us
