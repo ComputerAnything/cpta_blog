@@ -66,7 +66,7 @@ const LandingPage = () => {
             <div className="container px-5">
               <div className="row gx-5 align-items-center justify-content-center">
                 <div className="col-lg-8 col-xl-7 col-xxl-6">
-                  <div className="my-5 text-center text-xl-start">
+                  <div className="my-2 text-center text-xl-start">
                     <h1 className="display-5 fw-bolder text-white mb-2">
                       All your computer software and hardware needs, in one place.
                     </h1>
@@ -87,7 +87,7 @@ const LandingPage = () => {
                   </div>
                 </div>
                 <div className="col-xl-5 col-xxl-6 d-none d-xl-block text-center">
-                  <img className="img-fluid rounded-3 my-5" src="/img/cpt_anything_box.jpg" alt="..." />
+                  <img className="img-fluid rounded-3 my-3" src="/img/cpt_anything_box.jpg" alt="..." />
                 </div>
               </div>
             </div>
@@ -95,7 +95,7 @@ const LandingPage = () => {
         </section>
 
         {/* Features Section */}
-        <section className="py-5" id="features">
+        <section className="py-2" id="features">
           <div className="container px-5 my-5">
             <div className="row gx-5">
               <div className="col-lg-4 mb-5 mb-lg-0">
@@ -130,7 +130,7 @@ const LandingPage = () => {
         {/* Contact Section */}
         <section className="pt-0 pb-5" id="contact"> {/* Adjusted padding */}
           <div className="container px-5">
-            <div className="bg-dark rounded-3 py-5 px-4 px-md-5 mb-5">
+            <div className="bg-dark rounded-3 py-5 px-4 px-md-5 mb-2">
               <div className="text-center mb-5">
                 <h1 className="text-white">Contact Us</h1>
                 <p className="contact-us-pgraph lead fw-normal mb-0">
@@ -181,36 +181,35 @@ const LandingPage = () => {
         {/* Testimonial Section */}
         <section id="testimonials">
           <div className="py-5">
-            {/* Test 1 */}
-            <div className="container px-5 my-5">
-              <div className="row gx-5 justify-content-center">
-                <div className="col-lg-10 col-xl-7">
-                  <div className="text-center">
-                    <div className="fs-4 mb-4 fst-italic">
-                      "Working with Computer Anything LLC was an
-                      absolute game-changer for Our company. From the very first consultation, their team
-                      demonstrated an impressive depth of knowledge, creativity, and professionalism that
-                      immediately put us at ease. They took the time to understand our brand, our values,
-                      and the unique challenges of the contracting industry, translating all of that into a
-                      stunning, user-friendly website that exceeded every expectation. The design is clean,
-                      modern, and highly functional, exactly what we needed to showcase our work and attract
-                      new clients. Navigation is seamless, load times are lightning-fast, and the site is
-                      optimized beautifully for both desktop and mobile users. Beyond the design, their
-                      consulting services are top-notch. Duncan provided strategic insights that helped us
-                      improve our digital presence across the board. Whether it was content planning,
-                      analytics, or ongoing support, Computer Anything LLC delivered with clarity and
-                      purpose. We couldn't be happier with the results. If you're looking for a website
-                      partner who’s invested in your success and knows how to deliver real value, look no
-                      further than Computer Anything LLC. Highly recommended!"
-                    </div>
-                    <div className="d-flex align-items-center justify-content-center">
-                      {/* <img className="rounded-circle me-3" src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..." /> */}
-                      <div className="fw-bold">
-                        Tulla Contracting
-                        <span className="fw-bold text-primary mx-1">/</span>
-                        Personal Client of Computer Anything LLC
-                      </div>
-                    </div>
+            <div className="container mb-5">
+              <h2 className="text-center mb-4">Checkout some of the great companies, we've helped build websites for</h2>
+              <div className="text-center">
+                <a href="https://tullacontracting.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/img/logo_tulla.png" className="d-block mx-auto rounded" alt="Tulla Contracting" style={{maxHeight: '180px'}} />
+                </a>
+                <div className="fs-4 mb-4 fst-italic mt-4">
+                  "Working with Computer Anything LLC was an
+                  absolute game-changer for Our company. From the very first consultation, their team
+                  demonstrated an impressive depth of knowledge, creativity, and professionalism that
+                  immediately put us at ease. They took the time to understand our brand, our values,
+                  and the unique challenges of the contracting industry, translating all of that into a
+                  stunning, user-friendly website that exceeded every expectation. The design is clean,
+                  modern, and highly functional, exactly what we needed to showcase our work and attract
+                  new clients. Navigation is seamless, load times are lightning-fast, and the site is
+                  optimized beautifully for both desktop and mobile users. Beyond the design, their
+                  consulting services are top-notch. Duncan provided strategic insights that helped us
+                  improve our digital presence across the board. Whether it was content planning,
+                  analytics, or ongoing support, Computer Anything LLC delivered with clarity and
+                  purpose. We couldn't be happier with the results. If you're looking for a website
+                  partner who’s invested in your success and knows how to deliver real value, look no
+                  further than Computer Anything LLC. Highly recommended!"
+                </div>
+                <div className="d-flex align-items-center justify-content-center">
+                  {/* <img className="rounded-circle me-3" src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..." /> */}
+                  <div className="fw-bold">
+                    Tulla Contracting
+                    <span className="fw-bold text-primary mx-1">/</span>
+                    Personal Client of Computer Anything LLC
                   </div>
                 </div>
               </div>
