@@ -183,7 +183,7 @@ const LandingPage = () => {
             <div className="container mb-5">
               <h2 className="text-center mb-4">Checkout some of the great companies, we've helped build websites for</h2>
               <div className="text-center">
-                <a href="https://tullacontracting.com" target="_blank" rel="noopener noreferrer">
+                <a href="https://tulla-contracting-render.onrender.com/" target="_blank" rel="noopener noreferrer">
                   <img src="/img/logo_tulla.png" className="d-block mx-auto rounded" alt="Tulla Contracting" style={{maxHeight: '180px'}} />
                 </a>
                 <div className="fs-4 mb-4 fst-italic mt-4">
@@ -204,7 +204,7 @@ const LandingPage = () => {
                 <div className="d-flex align-items-center justify-content-center">
                   {/* <img className="rounded-circle me-3" src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..." /> */}
                   <div className="fw-bold">
-                    <a href="https://tullacontracting.com" target="_blank" rel="noopener noreferrer" className="">
+                    <a href="https://tulla-contracting-render.onrender.com/" target="_blank" rel="noopener noreferrer" className="">
                       Tulla Contracting
                     </a>
                     <span className="fw-bold text-primary mx-1">/</span>
