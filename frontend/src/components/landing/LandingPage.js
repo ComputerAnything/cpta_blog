@@ -96,7 +96,7 @@ const LandingPage = () => {
 
         {/* Features Section */}
         <section className="py-2" id="features">
-          <div className="container px-5 my-5">
+          <div className="container px-3 my-3">
             <div className="row gx-5">
               <div className="col-lg-4 mb-5 mb-lg-0">
                 <h2 className="fw-bolder mb-0">A better way to start technology.</h2>
@@ -132,7 +132,7 @@ const LandingPage = () => {
           <div className="container px-5">
             <div className="bg-dark rounded-3 py-5 px-4 px-md-5 mb-2">
               <div className="text-center mb-5">
-                <h1 className="text-white">Contact Us</h1>
+                <h1 className="text-white">Contact</h1>
                 <p className="contact-us-pgraph lead fw-normal mb-0">
                   There's no time like the present to get started on a new project. We're easy to get in touch with and we'll help you figure it out. Just reach out and let's get started! If you can imagine it, we can build it!
                 </p>
@@ -140,28 +140,14 @@ const LandingPage = () => {
             </div>
 
             {/* Contact Cards */}
-            <div className="row gx-5 row-cols-1 row-cols-md-3 justify-content-center py-5">
-              <div className="col mb-4 mb-md-0 d-flex flex-column align-items-center">
-                <a href="mailto:cpt.anything@gmail.com" className="text-decoration-none">
-                  <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
-                    <i className="bi bi-envelope"></i>
-                  </div>
-                </a>
-                <div className="h5">Email us</div>
-                <p className="text-muted mb-0">
-                  Send an email to cpt.anything@gmail.com
-                </p>
-              </div>
+            <div className="row gx-5 row-cols-1 row-cols-md-4 justify-content-center py-2">
               <div className="col mb-4 mb-md-0 d-flex flex-column align-items-center">
                 <a href="https://discord.gg/QXs6p75pcS" className="text-decoration-none" target="_blank" rel="noopener noreferrer">
                   <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                     <i className="bi bi-discord"></i>
                   </div>
                 </a>
-                <div className="h5 mb-2">Chat with us</div>
-                <p className="text-muted mb-0">
-                  Join our <span>Discord</span> channel and chat with us live.
-                </p>
+                <div className="h5 mb-2">Join our Discord</div>
               </div>
               <div className="col mb-4 mb-md-0 d-flex flex-column align-items-center">
                 <a href="https://www.facebook.com/people/Computer-Anything/61567372806344/" className="text-decoration-none" target="_blank" rel="noopener noreferrer">
@@ -170,9 +156,22 @@ const LandingPage = () => {
                   </div>
                 </a>
                 <div className="h5">Ask the community</div>
-                <p className="text-muted mb-0">
-                  Follow us on <span>Facebook</span> and find out more about us.
-                </p>
+              </div>
+              <div className="col mb-4 mb-md-0 d-flex flex-column align-items-center">
+                <a href="tel:+16313586777" className="text-decoration-none">
+                  <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
+                    <i className="bi bi-telephone"></i>
+                  </div>
+                </a>
+                <div className="h5">Call Us</div>
+              </div>
+              <div className="col mb-4 mb-md-0 d-flex flex-column align-items-center">
+                <a href="mailto:cpt.anything@gmail.com" className="text-decoration-none">
+                  <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
+                    <i className="bi bi-envelope"></i>
+                  </div>
+                </a>
+                <div className="h5">Email Us</div>
               </div>
             </div>
           </div>
@@ -195,9 +194,7 @@ const LandingPage = () => {
                   and the unique challenges of the contracting industry, translating all of that into a
                   stunning, user-friendly website that exceeded every expectation. The design is clean,
                   modern, and highly functional, exactly what we needed to showcase our work and attract
-                  new clients. Navigation is seamless, load times are lightning-fast, and the site is
-                  optimized beautifully for both desktop and mobile users. Beyond the design, their
-                  consulting services are top-notch. Duncan provided strategic insights that helped us
+                  new clients. Duncan provided strategic insights that helped us
                   improve our digital presence across the board. Whether it was content planning,
                   analytics, or ongoing support, Computer Anything LLC delivered with clarity and
                   purpose. We couldn't be happier with the results. If you're looking for a website
@@ -207,7 +204,9 @@ const LandingPage = () => {
                 <div className="d-flex align-items-center justify-content-center">
                   {/* <img className="rounded-circle me-3" src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..." /> */}
                   <div className="fw-bold">
-                    Tulla Contracting
+                    <a href="https://tullacontracting.com" target="_blank" rel="noopener noreferrer" className="">
+                      Tulla Contracting
+                    </a>
                     <span className="fw-bold text-primary mx-1">/</span>
                     Personal Client of Computer Anything LLC
                   </div>
