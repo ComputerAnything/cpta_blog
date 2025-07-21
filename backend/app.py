@@ -49,11 +49,11 @@ def create_app(testing=False):
         return send_from_directory(img_dir, filename)
 
     # favicon support
-    @app.route('/favicon.ico')
+    @app.route('/favicon.png')
     def favicon():
         return send_from_directory(
             REACT_BUILD_DIR,
-            'favicon.ico',
+            'favicon.png',
             mimetype='image/vnd.microsoft.icon'
         )
 
