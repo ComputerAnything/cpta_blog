@@ -26,6 +26,7 @@
 :root {
   --computerAnythingPrimary: #02c43c;
   --computerAnythingSecondary: #0250c4;
+  --bg-light: rgb(129, 129, 129);
 }
 
 /* Button adjustments for dark theme */
@@ -103,17 +104,38 @@
 }
 
 #testimonials {
-  color: lightgray;
-  background-color: black;
+  color: rgb(255, 255, 255);
+  background-color: rgb(70, 70, 70);
 }
 
 #testimonials .fst-italic {
+  color: rgb(255, 255, 255);
+  background-color: rgb(70, 70, 70);
+}
+
+#testimonials .fw-bold {
+  background-color: rgb(70, 70, 70);
+}
+
+#reference-clients {
   color: lightgray;
   background-color: black;
 }
 
-#testimonials .fw-bold {
+#reference-clients .fst-italic {
+  color: lightgray;
   background-color: black;
+}
+#reference-clients .fw-bold {
+  background-color: black;
+}
+
+#features {
+  background-color: var(--bg-light);
+}
+
+#contact {
+  background-color: var(--bg-light);
 }
 
 #contact .cpt-anything-changes h1,

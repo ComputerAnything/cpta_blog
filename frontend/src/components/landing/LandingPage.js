@@ -129,11 +129,11 @@ const LandingPage = () => {
 
         {/* Contact Section */}
         <section className="pt-0 pb-5" id="contact"> {/* Adjusted padding */}
-          <div className="container px-5">
-            <div className="bg-dark rounded-3 py-5 px-4 px-md-5 mb-2">
-              <div className="text-center mb-5">
+          <div className="container px-2">
+            <div className="bg-dark rounded-3 py-3 px-4 mb-2">
+              <div className="text-center mb-2">
                 <h1 className="text-white">Contact</h1>
-                <p className="contact-us-pgraph lead fw-normal mb-0">
+                <p className="contact-us-pgraph lead fw-normal">
                   There's no time like the present to get started on a new project. We're easy to get in touch with and we'll help you figure it out. Just reach out and let's get started! If you can imagine it, we can build it!
                 </p>
               </div>
@@ -178,14 +178,64 @@ const LandingPage = () => {
         </section>
 
         {/* Testimonial Section */}
-        <section id="testimonials">
+        <section id="reference-clients">
           <div className="py-5">
             <div className="container mb-5">
-              <h2 className="text-center mb-4">Checkout some of the great companies, we've helped build websites for</h2>
-              <div className="text-center">
+              <h1 className="text-center mb-4">Reference Clients</h1>
+              {/* Reference Client 1 */}
+              <div className="text-center mb-4 reference-client1">
                 <a href="https://tulla-contracting-render.onrender.com/" target="_blank" rel="noopener noreferrer">
                   <img src="/img/logo_tulla.png" className="d-block mx-auto rounded" alt="Tulla Contracting" style={{maxHeight: '180px'}} />
                 </a>
+                <div className="fs-4 mb-4 mt-4">
+                  At Tulla Contracting, we rebuilt the entire company website
+                  from the ground up, focusing on a clean design and mobile
+                  responsiveness to enhance the client-facing experience. We
+                  implemented a secure SMTP integration using PHP to streamline
+                  HR communications, allowing large files and images to be
+                  submitted directly from the site.
+                </div>
+              </div>
+              {/* Reference Client 2 */}
+              <div className="text-center mb-4 reference-client2">
+                <a href="https://nex-genparts.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/img/logo_nexgen.png" className="d-block mx-auto rounded" alt="NexGen Parts" style={{maxHeight: '180px'}} />
+                </a>
+                <div className="fs-4 mb-4 mt-4">
+                  For NexGen, we are developing a client portal that allows
+                  users to manage their accounts, view invoices, and access
+                  support tickets. The portal is built with a modern tech stack
+                  including React for the frontend and Node.js with Express for
+                  the backend. We are implementing secure authentication and
+                  authorization using JWT tokens, and integrating with a
+                  PostgreSQL database to store user data and transaction history.
+                  The project also includes a responsive design to ensure a
+                  seamless experience across devices. Our team is focused on
+                  delivering a user-friendly interface while maintaining high
+                  performance and security standards.
+                </div>
+              </div>
+              {/* Reference Client 3 */}
+              <div className="text-center mb-4 reference-client3">
+                <a href="https://410labs.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/img/logo_410.png" className="d-block mx-auto rounded" alt="410 Labs" style={{maxHeight: '180px'}} />
+                </a>
+                <div className="fs-4 mb-4 mt-4">
+                  At 410 Labs, we modernized legacy Ruby on Rails applications by
+                  upgrading to newer versions, refactoring code, and ensuring
+                  full test coverage. We integrated Stripe into the mobile
+                  backend, handling complex ActiveRecord and PostgreSQL
+                  migrations.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        {/* Testimonials Section */}
+        <section id="testimonials">
+          <div className="container my-5">
+            <h1 className="text-center mb-4">Testimonials</h1>
+              <div className="text-center mb-4">
                 <div className="fs-4 mb-4 fst-italic mt-4">
                   "Working with Computer Anything LLC was an
                   absolute game-changer for Our company. From the very first consultation, their team
@@ -202,7 +252,7 @@ const LandingPage = () => {
                   further than Computer Anything LLC. Highly recommended!"
                 </div>
                 <div className="d-flex align-items-center justify-content-center">
-                  {/* <img className="rounded-circle me-3" src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..." /> */}
+                  <img className="rounded-circle me-1" src="/img/logo_tulla.png" style={{ maxHeight: '40px' }} alt="Tulla Contracting" />
                   <div className="fw-bold">
                     <a href="https://tulla-contracting-render.onrender.com/" target="_blank" rel="noopener noreferrer" className="">
                       Tulla Contracting
@@ -213,8 +263,7 @@ const LandingPage = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
         {/* Login/Reg Modals */}
         {/* Login Modal */}
         <Modal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)}>
