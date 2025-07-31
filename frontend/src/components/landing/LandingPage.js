@@ -281,14 +281,14 @@ const LandingPage = () => {
               <div className="text-center mb-4">
                 Checkout some of our other apps:
                 <div className="d-flex justify-content-center flex-wrap">
-                  <a href="https://apilooter.info" target='_blank' className="m-2">
+                  <a href="https://apilooter.info" target='_blank' rel="noopener noreferrer" className="m-2">
                     <img src="/img/api_looter.png" alt="App 1" style={{ maxHeight: '100px' }} />
                   </a>
                 </div>
               </div>
             </div>
           </section>
-          
+
         {/* Login/Reg Modals */}
         {/* Login Modal */}
         <Modal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)}>
