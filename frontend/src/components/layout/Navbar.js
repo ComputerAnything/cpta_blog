@@ -50,6 +50,34 @@ const Navbar = () => {
     }
   };
 
+  const handleTestimonialsClick = () => {
+    navigate('/');
+    setTimeout(() => {
+      const testimonialsSection = document.getElementById('testimonials');
+      if (testimonialsSection) {
+        testimonialsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+    const navbarToggler = document.querySelector('.navbar-collapse');
+    if (navbarToggler) {
+      navbarToggler.classList.remove('show');
+    }
+  };
+
+  const handleReferenceClientsClick = () => {
+    navigate('/');
+    setTimeout(() => {
+      const referenceClientsSection = document.getElementById('reference-clients');
+      if (referenceClientsSection) {
+        referenceClientsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+    const navbarToggler = document.querySelector('.navbar-collapse');
+    if (navbarToggler) {
+      navbarToggler.classList.remove('show');
+    }
+  };
+
   const handleBlogClick = () => {
     if (!user || isGuest) {
       closeNavbar();
@@ -113,17 +141,25 @@ const Navbar = () => {
             <li className="nav-item">
               <button
                 className="nav-link btn btn-link"
-                onClick={handleFeaturesClick}
+                onClick={handleContactClick}
               >
-                Features
+                Contact Us
               </button>
             </li>
             <li className="nav-item">
               <button
                 className="nav-link btn btn-link"
-                onClick={handleContactClick}
+                onClick={handleReferenceClientsClick}
               >
-                Contact
+                Reference Clients
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className="nav-link btn btn-link"
+                onClick={handleTestimonialsClick}
+              >
+                Testimonials
               </button>
             </li>
             <li className="nav-item">

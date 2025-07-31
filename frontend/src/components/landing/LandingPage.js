@@ -68,10 +68,15 @@ const LandingPage = () => {
                 <div className="col-lg-8 col-xl-7 col-xxl-6">
                   <div className="my-2 text-center text-xl-start">
                     <h1 className="display-5 fw-bolder text-white mb-2">
-                      All your computer software and hardware needs, in one place.
+                      All your computer software and web hosting needs, in one place.
                     </h1>
                     <p className="lead fw-normal text-white-50 mb-4">
-                      Build your dream website, application, or personal computer! From software engineering and database management, to custom PC builds, we do it all!
+                      Bring your vision online, and let us handle the rest.
+                      Whether it's a powerful website, custom web application, or
+                      full-stack hosting solution, Computer Anything LLC builds
+                      and maintains it all. From backend engineering and database
+                      management to secure, reliable hosting and ongoing support,
+                      we’ve got you covered.
                     </p>
                     <div className="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-xl-start">
                       <button
@@ -109,16 +114,19 @@ const LandingPage = () => {
                     </div>
                     <h2 className="h5">Software Development</h2>
                     <p className="mb-0">
-                      Building, maintaining and updating fully dynamic sites and apps. Teams dedicated strictly to software.
+                      Custom software solutions tailored to your business needs.
+                      From web applications to mobile apps, we build it all with
+                      a focus on quality and performance.
                     </p>
                   </div>
                   <div className="col mb-5 h-100">
                     <div className="feature bg-primary bg-gradient text-white rounded-3 mb-3">
                       <i className="bi bi-building"></i>
                     </div>
-                    <h2 className="h5">Custom Builds</h2>
+                    <h2 className="h5">Web Hosting</h2>
                     <p className="mb-0">
-                      Gaming, Developing, AI, or just fun personal projects. Computer Anything can be the one-stop shop to it all!
+                      Hosting solutions for all your needs. From small personal
+                      sites to large enterprise applications, we have you covered.
                     </p>
                   </div>
                 </div>
@@ -184,7 +192,7 @@ const LandingPage = () => {
               <h1 className="text-center mb-4">Reference Clients</h1>
               {/* Reference Client 1 */}
               <div className="text-center mb-4 reference-client1">
-                <a href="https://tulla-contracting-render.onrender.com/" target="_blank" rel="noopener noreferrer">
+                <a href="https://tullacontracting.com/" target="_blank" rel="noopener noreferrer">
                   <img src="/img/logo_tulla.png" className="d-block mx-auto rounded" alt="Tulla Contracting" style={{maxHeight: '180px'}} />
                 </a>
                 <div className="fs-4 mb-4 mt-4">
@@ -231,6 +239,7 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
+
         {/* Testimonials Section */}
         <section id="testimonials">
           <div className="container my-5">
@@ -254,7 +263,7 @@ const LandingPage = () => {
                 <div className="d-flex align-items-center justify-content-center">
                   <img className="rounded-circle me-1" src="/img/logo_tulla.png" style={{ maxHeight: '40px' }} alt="Tulla Contracting" />
                   <div className="fw-bold">
-                    <a href="https://tulla-contracting-render.onrender.com/" target="_blank" rel="noopener noreferrer" className="">
+                    <a href="https://tullacontracting.com/" target="_blank" rel="noopener noreferrer" className="">
                       Tulla Contracting
                     </a>
                     <span className="fw-bold text-primary mx-1">/</span>
@@ -264,6 +273,22 @@ const LandingPage = () => {
               </div>
             </div>
           </section>
+
+          {/* Other Apps */}
+          <section id='other-apps'>
+            <div className="container my-5">
+              <h1 className="text-center mb-4">Other Apps</h1>
+              <div className="text-center mb-4">
+                Checkout some of our other apps:
+                <div className="d-flex justify-content-center flex-wrap">
+                  <a href="https://apilooter.info" target='_blank' className="m-2">
+                    <img src="/img/api_looter.png" alt="App 1" style={{ maxHeight: '100px' }} />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+          
         {/* Login/Reg Modals */}
         {/* Login Modal */}
         <Modal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)}>
