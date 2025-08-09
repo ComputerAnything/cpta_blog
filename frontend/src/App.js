@@ -12,10 +12,7 @@ import CreatePost from './components/blog/CreatePost';
 import EditPost from './components/blog/EditPost';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import LandingPage from './components/landing/LandingPage';
-import Modal from './components/layout/Modal';
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import { setCredentials, setGuest, setHydrated, closeModal } from './redux/slices/authSlice';
+import { setCredentials, setGuest, setHydrated } from './redux/slices/authSlice';
 
 // Hydrate Redux auth state from localStorage on app load
 const AuthHydrator = () => {
@@ -39,25 +36,12 @@ const AuthHydrator = () => {
   return null;
 };
 
-const ModalManager = () => {
-  const modal = useSelector((state) => state.auth.modal);
-  const dispatch = useDispatch();
-
-  if (!modal) return null;
-  return (
-    <Modal isOpen={!!modal} onClose={() => dispatch(closeModal())}>
-      {modal === 'login' ? <Login /> : <Register />}
-    </Modal>
-  );
-};
-
 const App = () => (
   <Provider store={store}>
     <Router>
       <AuthHydrator />
       <LoadingScreen />
       <Navbar />
-      <ModalManager />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />

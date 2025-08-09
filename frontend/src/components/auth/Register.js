@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setLoading, openModal } from '../../redux/slices/authSlice';
+import { setLoading, setGuest } from '../../redux/slices/authSlice';
 // import ReCAPTCHA from 'react-google-recaptcha';
 import API from '../../services/api';
 import '../../styles/Auth.css';
@@ -19,6 +20,7 @@ const Register = () => {
   const [registered, setRegistered] = useState(false);
   const dispatch = useDispatch();
   const [honeypot, setHoneypot] = useState('');
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -45,19 +47,32 @@ const Register = () => {
     }
   };
 
+  const handleGuest = () => {
+    dispatch(setGuest());
+    localStorage.setItem('guest', 'true');
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
+    setMessage('');
+    navigate('/posts');
+  };
+
   if (registered) {
     return (
       <div className="auth-form">
         <h1>Registration Complete</h1>
         <p className="success-message">{message.text}</p>
-        <button onClick={() => dispatch(openModal('login'))}>Go to Login</button>
+        <button onClick={() => {
+          if (typeof window !== 'undefined' && window.onSwitchToLogin) {
+            window.onSwitchToLogin();
+          }
+        }}>Go to Login</button>
       </div>
     );
   }
 
   return (
     <form className="auth-form" onSubmit={handleRegister}>
-      <h1>Register</h1>
       {/* Honeypot */}
       <input
         type="text"
@@ -121,17 +136,18 @@ const Register = () => {
         /> */}
       </div>
       <button type="submit" className="auth-btn">Register</button>
+      <button
+        type="button"
+        className="guest-btn"
+        onClick={handleGuest}
+      >
+        Continue as Guest
+      </button>
       {message && (
         <p className={message.type === 'success' ? 'success-message' : 'error-message'}>
           {message.text}
         </p>
       )}
-      <p className="switch-auth">
-        Already have an account?{' '}
-        <button type="button" className='switch-auth-btn' onClick={() => dispatch(openModal('login'))}>
-          Login here
-        </button>
-      </p>
     </form>
   );
 };

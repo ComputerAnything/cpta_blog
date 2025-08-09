@@ -3,7 +3,7 @@
   max-width: 400px;
   margin: 0 auto;
   padding: 20px;
-  background: var(--computerAnythingPrimary);
+  background: rgba(47, 233, 23, 0.486);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }

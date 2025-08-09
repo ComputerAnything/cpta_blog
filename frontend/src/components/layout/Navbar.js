@@ -1,91 +1,28 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { openModal, logout } from '../../redux/slices/authSlice';
+import { logout, setGuest } from '../../redux/slices/authSlice';
 
 const Navbar = () => {
-  const { user, isGuest, modal } = useSelector((state) => state.auth);
+  const { user, isGuest } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleHomeClick = () => {
-    navigate('/');
-    setTimeout(() => {
-      const homeSection = document.getElementById('home');
-      if (homeSection) {
-        homeSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-    const navbarToggler = document.querySelector('.navbar-collapse');
-    if (navbarToggler) {
-      navbarToggler.classList.remove('show');
-    }
-  };
 
-  const handleFeaturesClick = () => {
-    navigate('/');
-    setTimeout(() => {
-      const featuresSection = document.getElementById('features');
-      if (featuresSection) {
-        featuresSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-    const navbarToggler = document.querySelector('.navbar-collapse');
-    if (navbarToggler) {
-      navbarToggler.classList.remove('show');
-    }
-  };
-
-  const handleContactClick = () => {
-    navigate('/');
-    setTimeout(() => {
-      const contactSection = document.getElementById('contact');
-      if (contactSection) {
-        contactSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-    const navbarToggler = document.querySelector('.navbar-collapse');
-    if (navbarToggler) {
-      navbarToggler.classList.remove('show');
-    }
-  };
-
-  const handleTestimonialsClick = () => {
-    navigate('/');
-    setTimeout(() => {
-      const testimonialsSection = document.getElementById('testimonials');
-      if (testimonialsSection) {
-        testimonialsSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-    const navbarToggler = document.querySelector('.navbar-collapse');
-    if (navbarToggler) {
-      navbarToggler.classList.remove('show');
-    }
-  };
-
-  const handleReferenceClientsClick = () => {
-    navigate('/');
-    setTimeout(() => {
-      const referenceClientsSection = document.getElementById('reference-clients');
-      if (referenceClientsSection) {
-        referenceClientsSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-    const navbarToggler = document.querySelector('.navbar-collapse');
-    if (navbarToggler) {
-      navbarToggler.classList.remove('show');
-    }
-  };
 
   const handleBlogClick = () => {
-    if (!user || isGuest) {
+    if (user && !isGuest) {
       closeNavbar();
-      navigate('/');
-      dispatch(openModal('login'));
-    } else {
       navigate('/posts');
+    } else {
+      // Set guest mode and go to /posts
+      dispatch(setGuest());
+      localStorage.setItem('guest', 'true');
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      localStorage.removeItem('userId');
       closeNavbar();
+      navigate('/posts');
     }
   };
 
@@ -110,20 +47,20 @@ const Navbar = () => {
   const handleExitGuest = () => {
     dispatch(logout());
     localStorage.clear();
-    // Close navbar before opening the register modal
     closeNavbar();
-    dispatch(openModal('register'));
+    navigate('/'); // Go to landing/auth page
   };
 
 
   return (
-    <nav className={`navbar navbar-expand-lg navbar-dark bg-dark sticky-top px-4${modal ? ' navbar-disabled' : ''}`}>
+  <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top px-4">
       <div className="container-fluid">
         <button
           className="navbar-brand btn btn-link"
-          onClick={handleHomeClick}
+          onClick={handleBlogClick}
+          style={{ border: 'none', background: 'none', padding: 0, fontSize: '1.25rem' }}
         >
-          Computer Anything
+          Blog
         </button>
         <button
           className="navbar-toggler"
@@ -137,98 +74,95 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+          <ul className="navbar-nav mb-2 mb-lg-0 d-flex align-items-center me-auto">
             <li className="nav-item">
-              <button
-                className="nav-link btn btn-link"
-                onClick={handleContactClick}
+              <a
+                className="nav-link"
+                href="https://computeranything.dev/#contact"
               >
                 Contact Us
-              </button>
+              </a>
             </li>
             <li className="nav-item">
-              <button
-                className="nav-link btn btn-link"
-                onClick={handleReferenceClientsClick}
+              <a
+                className="nav-link"
+                href="https://computeranything.dev/#reference-clients"
               >
                 Reference Clients
-              </button>
+              </a>
             </li>
             <li className="nav-item">
-              <button
-                className="nav-link btn btn-link"
-                onClick={handleTestimonialsClick}
+              <a
+                className="nav-link"
+                href="https://computeranything.dev/#testimonials"
               >
                 Testimonials
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className="navbar-brand nav-link"
-                onClick={handleBlogClick}
-              >
-                Blog
-              </button>
+              </a>
             </li>
           </ul>
-          <div className="d-flex align-items-center">
-          {user && !isGuest ? (
-            <>
-              <span className="navbar-text text-white me-3">
-                Signed in as:{' '}
-                <strong>
-                <button
-                  className="btn btn-link p-0 m-0 align-baseline"
-                  style={{ color: '#fff', textDecoration: 'underline', fontWeight: 'bold' }}
-                  onClick={() => {
-                    closeNavbar();
-                    navigate('profile');
-                  }}
-                >
-                  {user.username}
-                </button>
-                </strong>
-              </span>
-              <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>
-                Logout
-              </button>
-            </>
-          ) : isGuest ? (
+          <ul className="navbar-nav mb-2 mb-lg-0 d-flex align-items-center ms-auto">
+            {user && !isGuest && (
               <>
-                <span className="navbar-text text-warning me-3">
-                  Guest Mode
-                </span>
-                <button
-                  className="btn btn-outline-warning btn-sm"
-                  onClick={handleExitGuest}
-                  style={{ marginRight: '0.5em' }}
-                >
-                  Exit Guest
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  className="btn btn-outline-light me-2"
-                  onClick={() => {
-                    closeNavbar();
-                    dispatch(openModal('login'));
-                  }}
-                >
-                  Login
-                </button>
-                <button
-                  className="btn btn-outline-light"
-                  onClick={() => {
-                    closeNavbar();
-                    dispatch(openModal('register'));
-                  }}
-                >
-                  Register
-                </button>
+                <li className="nav-item">
+                  <span className="navbar-text text-white me-3">
+                    Signed in as:{' '}
+                    <strong>
+                      <button
+                        className="btn btn-link p-0 m-0 align-baseline"
+                        style={{ color: '#fff', textDecoration: 'underline', fontWeight: 'bold' }}
+                        onClick={() => {
+                          closeNavbar();
+                          navigate('profile');
+                        }}
+                      >
+                        {user.username}
+                      </button>
+                    </strong>
+                  </span>
+                </li>
+                <li className="nav-item">
+                  <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </li>
               </>
             )}
-          </div>
+            {isGuest && (
+              <>
+                <li className="nav-item">
+                  <span className="navbar-text text-warning me-3">
+                    Guest Mode
+                  </span>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-outline-warning btn-sm"
+                    onClick={handleExitGuest}
+                  >
+                    Exit Guest
+                  </button>
+                </li>
+              </>
+            )}
+            {(!user && !isGuest) && (
+              <li className="nav-item">
+                <button
+                  className="btn btn-outline-success btn-sm ms-2"
+                  onClick={() => {
+                    dispatch(setGuest());
+                    localStorage.setItem('guest', 'true');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('username');
+                    localStorage.removeItem('userId');
+                    closeNavbar();
+                    navigate('/posts');
+                  }}
+                >
+                  Continue as Guest
+                </button>
+              </li>
+            )}
+          </ul>
         </div>
       </div>
     </nav>
