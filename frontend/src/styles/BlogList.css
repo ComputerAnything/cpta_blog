@@ -181,36 +181,6 @@
   background-color: #0056b3; /* Darker blue on hover */
 }
 
-/* Footer */
-.footer {
-  background-color: #000;
-  color: white;
-  text-align: center;
-  padding: 20px;
-  border-top: 2px solid var(--computerAnythingPrimary);
-  margin-top: auto;
-}
-
-.footer-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-logo-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-logo {
-  width: 40px;
-  height: auto;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-}
-
 /* Action Buttons */
 .action-buttons {
   display: flex;

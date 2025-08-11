@@ -149,36 +149,6 @@ html, body {
   color: #fff; /* White text on hover */
 }
 
-/* Footer styling */
-.footer {
-  background-color: #000; /* Black background */
-  color: white; /* White text */
-  text-align: center;
-  padding: 20px;
-  border-top: 2px solid var(--computerAnythingPrimary); /* Green border on top */
-  margin-top: auto; /* Push the footer to the bottom */
-}
-
-.footer-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-logo-container {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Add spacing between text and image */
-}
-
-.footer-logo {
-  width: 40px; /* Set the width of the thumbnail */
-  height: auto; /* Maintain aspect ratio */
-  border-radius: 5px; /* Optional: Add rounded corners */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Add a subtle shadow */
-}
-
 .form-section .delete-post-btn,
 .delete-post-btn {
   width: 100%; /* Match the Save Changes button width */

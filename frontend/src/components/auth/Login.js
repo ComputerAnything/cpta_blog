@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setCredentials, setGuest, setLoading, closeModal, openModal } from '../../redux/slices/authSlice';
+import { setCredentials, setGuest, setLoading } from '../../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import API from '../../services/api';
 import '../../styles/Auth.css';
@@ -35,8 +35,7 @@ const Login = () => {
       localStorage.setItem('userId', response.data.user_id);
       localStorage.removeItem('guest');
       setMessage('');
-      dispatch(closeModal());
-      navigate('/posts');
+  navigate('/posts');
     } catch (error) {
       const errMsg = error.response?.data?.msg || 'Login failed. Please check your credentials.';
       setMessage(errMsg);
@@ -55,8 +54,7 @@ const Login = () => {
     localStorage.removeItem('username');
     localStorage.removeItem('userId');
     setMessage('');
-    dispatch(closeModal());
-    navigate('/posts');
+  navigate('/posts');
   };
 
   const handleResendVerification = async () => {
@@ -74,7 +72,6 @@ const Login = () => {
 
   return (
     <form className="auth-form" onSubmit={handleLogin}>
-      <h1>Login</h1>
       <input
         type="text"
         placeholder="Username or Email"
@@ -132,12 +129,6 @@ const Login = () => {
           )}
         </div>
       )}
-      <p className="switch-auth">
-        Don't have an account?{' '}
-        <button type="button" className='switch-auth-btn' onClick={() => dispatch(openModal('register'))}>
-          Register here
-        </button>
-      </p>
     </form>
   );
 };

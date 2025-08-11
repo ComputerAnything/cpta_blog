@@ -33,30 +33,6 @@ html, body {
   flex-direction: column;
 }
 
-/* Navbar / Footer should always be at the bottom */
-.navbar {
-  border-bottom: 2px solid var(--computerAnythingPrimary); /* Add green border at the bottom */
-  background-color: #000; /* Ensure the navbar background is black */
-  color: white; /* White text for contrast */
-}
-
-/* Dim and disable the navbar when modal is open */
-.navbar-disabled {
-  pointer-events: none;
-  opacity: 0.5;
-  filter: blur(1px);
-  user-select: none;
-}
-
-.footer {
-  background-color: #000; /* Black background */
-  color: white; /* White text */
-  text-align: center;
-  padding: 10px 20px;
-  border-top: 2px solid var(--computerAnythingPrimary); /* Green border on top */
-  margin-top: auto; /* Push the footer to the bottom */
-}
-
 /* Style for success messages */
 .success-message {
   color: green !important;
