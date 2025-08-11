@@ -1,4 +1,4 @@
-import bgLogo from '../../img/cpt-anything-transparent.png';
+import bgLogo from '../../img/blog_logo.png';
 import React, { useState } from 'react';
 import Login from '../auth/Login.js';
 import Register from '../auth/Register.js';
