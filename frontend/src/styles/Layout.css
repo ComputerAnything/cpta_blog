@@ -1,0 +1,78 @@
+/* Navbar */
+.navbar {
+  border-bottom: 2px solid var(--computerAnythingPrimary); /* Add green border at the bottom */
+  background-color: #000; /* Ensure the navbar background is black */
+  color: white; /* White text for contrast */
+}
+
+/* Dim and disable the navbar when modal is open */
+.navbar-disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  filter: blur(1px);
+  user-select: none;
+}
+
+/* Footer */
+/* Always center footer text and content */
+footer {
+  text-align: center !important;
+}
+
+footer .row,
+footer .container,
+footer .col-auto,
+footer .d-flex {
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+footer .me-3 {
+  margin-right: 0 !important;
+}
+
+@media (max-width: 575px) {
+
+  footer .row,
+  footer .container,
+  footer .col-auto,
+  footer .d-flex {
+    flex-direction: column !important;
+  }
+}
+
+.footer-powered-by {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.footer-info-bar {
+  background: var(--bs-black);
+  border-top: 2px solid var(--computerAnythingPrimary); /* Add green border at the top */
+  /* font-size: 1.1rem; */
+  color: var(--bs-white);
+  font-family: sans-serif;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-logo {
+  width: 40px;
+  height: auto;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
