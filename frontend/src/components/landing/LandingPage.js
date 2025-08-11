@@ -1,4 +1,3 @@
-import bgLogo from '../../img/blog_logo.png';
 import React, { useState } from 'react';
 import Login from '../auth/Login.js';
 import Register from '../auth/Register.js';
@@ -7,21 +6,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../styles/LandingPage.css';
 
 const LandingPage = () => {
-  // Start on Register page by default
   const [showRegister, setShowRegister] = useState(true);
   const [loading, setLoading] = useState(false);
 
   return (
     <div
-      className="d-flex flex-column align-items-center justify-content-center vh-100 bg-dark"
-      style={{
-        backgroundImage: `url(${bgLogo})`,
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        backgroundSize: 'contain',
-        maxWidth: '100vw',
-        overflowX: 'hidden',
-      }}
+      className="landing-bg d-flex flex-column align-items-center justify-content-center vh-100 bg-dark"
     >
       {loading && <Loading />}
       <div

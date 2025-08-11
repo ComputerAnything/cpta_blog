@@ -237,3 +237,18 @@
 .close-btn:hover {
   color: #000;
 }
+
+.landing-bg {
+  background-image: url('../img/blog_logo.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: auto 935px;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+@media (max-width: 575px) {
+  .landing-bg {
+    background-size: auto 725px;
+  }
+}
