@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout, setGuest } from '../../redux/slices/authSlice';
+import '../../styles/Layout.css';
 
 const Navbar = () => {
   const { user, isGuest } = useSelector((state) => state.auth);
