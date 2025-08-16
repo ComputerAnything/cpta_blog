@@ -49,13 +49,12 @@ def create_app(testing=False):
         return send_from_directory(img_dir, filename)
 
     # favicon support
-    @app.route('/favicon.png')
-    def favicon():
-        return send_from_directory(
-            REACT_BUILD_DIR,
-            'favicon.png',
-            mimetype='image/vnd.microsoft.icon'
-        )
+    @app.route('/<filename>')
+    def serve_root_static(filename):
+        file_path = os.path.join(REACT_BUILD_DIR, filename)
+        if os.path.isfile(file_path):
+            return send_from_directory(REACT_BUILD_DIR, filename)
+        return send_file(os.path.join(REACT_BUILD_DIR, 'index.html'))
 
     # Catch-all route for React SPA
     @app.route('/', defaults={'path': ''})
