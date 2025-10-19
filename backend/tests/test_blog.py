@@ -61,7 +61,7 @@ def test_create_and_get_blog_post(client):
 # ...existing code...
 
 def test_update_blog_post(client):
-    user = create_verified_user(client)
+    create_verified_user(client)
     token = get_token(client)
     # Create a post
     response = client.post('/api/posts', json={
@@ -76,13 +76,13 @@ def test_update_blog_post(client):
         'content': 'New content.',
         'topic_tags': 'test,update'
     }, headers={"Authorization": f"Bearer {token}"})
-    assert response.status_code == 200
+    assert response.status_code == 200  # noqa: PLR2004
     data = response.get_json()["post"]
     assert data["title"] == "New Title"
     assert data["content"] == "New content."
 
 def test_delete_blog_post(client):
-    user = create_verified_user(client)
+    create_verified_user(client)
     token = get_token(client)
     # Create a post
     response = client.post('/api/posts', json={
@@ -93,15 +93,15 @@ def test_delete_blog_post(client):
 
     # Delete the post
     response = client.delete(f'/api/posts/{post_id}', headers={"Authorization": f"Bearer {token}"})
-    assert response.status_code == 200
+    assert response.status_code == 200  # noqa: PLR2004
     assert b"deleted" in response.data or b"success" in response.data
 
     # Confirm deletion
     response = client.get(f'/api/posts/{post_id}')
-    assert response.status_code == 404
+    assert response.status_code == 404  # noqa: PLR2004
 
 def test_get_all_blog_posts(client):
-    user = create_verified_user(client)
+    create_verified_user(client)
     token = get_token(client)
     # Create two posts
     client.post('/api/posts', json={
@@ -115,10 +115,10 @@ def test_get_all_blog_posts(client):
 
     # Get all posts
     response = client.get('/api/posts')
-    assert response.status_code == 200
+    assert response.status_code == 200  # noqa: PLR2004
     data = response.get_json()
     assert isinstance(data, list)
-    assert len(data) >= 2
+    assert len(data) >= 2  # noqa: PLR2004
 
 def test_cannot_edit_or_delete_others_post(client):
     # User 1 creates a post
@@ -139,11 +139,11 @@ def test_cannot_edit_or_delete_others_post(client):
         'title': 'Hacked!',
         'content': 'Not allowed.'
     }, headers={"Authorization": f"Bearer {token2}"})
-    assert response.status_code == 403
+    assert response.status_code == 403  # noqa: PLR2004
 
     # Try to delete
     response = client.delete(f'/api/posts/{post_id}', headers={"Authorization": f"Bearer {token2}"})
-    assert response.status_code == 403
+    assert response.status_code == 403  # noqa: PLR2004
 
 def test_create_post_missing_fields(client):
     create_verified_user(client)
@@ -152,9 +152,9 @@ def test_create_post_missing_fields(client):
     response = client.post('/api/posts', json={
         'content': 'No title here.'
     }, headers={"Authorization": f"Bearer {token}"})
-    assert response.status_code == 400
+    assert response.status_code == 400  # noqa: PLR2004
     # Missing content
     response = client.post('/api/posts', json={
         'title': 'No Content'
     }, headers={"Authorization": f"Bearer {token}"})
-    assert response.status_code == 400
+    assert response.status_code == 400  # noqa: PLR2004
