@@ -1,17 +1,44 @@
+# Stage 1: Build React frontend
+FROM node:20 AS frontend-build
+
+WORKDIR /frontend
+
+# Copy frontend package files
+COPY ./frontend/package.json ./frontend/package-lock.json ./
+
+# Install dependencies
+RUN npm ci --silent
+
+# Copy frontend source and .env
+COPY ./frontend ./
+
+# Build the React app (uses frontend/.env)
+RUN npm run build
+
+# Stage 2: Python backend with built frontend
 FROM python:3.11-slim
 
-WORKDIR /backend
+WORKDIR /app
 
-# Copy backend code
-COPY ./backend ./
+# System deps for psycopg2
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy the pre-built React frontend (from local build)
-# COPY ./backend/frontend/build ./frontend/build
-
+# Install Python dependencies
+COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend source
+COPY backend/ ./backend/
+
+# Copy the built React frontend from stage 1
+COPY --from=frontend-build /frontend/build ./backend/frontend/build
+
+ENV PYTHONPATH=/app/backend
+ENV PYTHONUNBUFFERED=1
 
 EXPOSE 5000
 
-ENV PYTHONPATH=/ 
-
-CMD ["gunicorn", "-w", "5", "-b", "0.0.0.0:5000", "--timeout", "120", "app:app"]
+CMD ["gunicorn", "-w", "5", "-b", "0.0.0.0:5000", "--timeout", "120", "backend.app:app"]
