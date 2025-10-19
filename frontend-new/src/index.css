@@ -1,0 +1,29 @@
+/* Reset CSS to work with Bootstrap */
+* {
+  box-sizing: border-box;
+}
+
+/* Computer Anything color scheme */
+:root {
+  --computerAnythingPrimary: #28a745;
+  --computerAnythingSecondary: #048a408f;
+  --computerAnythingText: #ffffff80;
+  --computerAnythingGray: #727272;
+  --bg-light: rgb(129, 129, 129);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #0a0a0a !important;
+}
+
+/* Let Bootstrap handle all styling */
+#root {
+  min-height: 100vh;
+}
