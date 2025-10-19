@@ -39,10 +39,50 @@ const StyledNavbar = styled.nav`
     background: none;
     border: none;
     padding: 0;
+    display: flex;
+    align-items: center;
 
     &:hover {
       color: var(--computerAnythingPrimary) !important;
       transform: scale(1.02);
+    }
+  }
+
+  .brand-logo {
+    height: 40px;
+    width: auto;
+    margin-right: 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(0, 255, 65, 0.3);
+    }
+  }
+
+  &.navbar-scrolled .brand-logo {
+    height: 35px;
+  }
+
+  @media (max-width: 768px) {
+    .brand-logo {
+      height: 35px;
+      margin-right: 10px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .brand-logo {
+      height: 30px;
+      margin-right: 8px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .brand-logo {
+      height: 28px;
+      margin-right: 6px;
     }
   }
 
@@ -194,6 +234,11 @@ const Navbar: React.FC = () => {
           className="navbar-brand btn btn-link"
           onClick={handleBlogClick}
         >
+          <img
+            src="/img/logo_small_nobg.png"
+            alt="Computer Anything"
+            className="brand-logo"
+          />
           Blog
         </button>
 

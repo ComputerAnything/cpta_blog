@@ -3,17 +3,17 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { useAppDispatch } from './redux/hooks'
 import { setCredentials, setGuest, setHydrated } from './redux/slices/authSlice'
 import Navbar from './components/layout/Navbar'
+import Footer from './components/layout/Footer'
+import LoadingScreen from './components/common/LoadingScreen'
+import LandingPage from './components/landing/LandingPage'
+import ProtectedRoute from './components/common/ProtectedRoute'
 
 // Placeholder components - we'll migrate these next
-const Footer = () => <div>Footer</div>
-const LoadingScreen = () => <div>Loading...</div>
-const LandingPage = () => <div>Landing Page</div>
 const BlogList = () => <div>Blog List</div>
 const PostDetail = () => <div>Post Detail</div>
 const CreatePost = () => <div>Create Post</div>
 const EditPost = () => <div>Edit Post</div>
 const Profile = () => <div>Profile</div>
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => <>{children}</>
 
 // Hydrate Redux auth state from localStorage on app load
 const AuthHydrator = () => {
