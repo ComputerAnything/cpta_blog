@@ -69,3 +69,12 @@ export interface PostResponse {
 export interface CommentsResponse {
   comments: Comment[]
 }
+
+// Blog state types
+export interface BlogState {
+  posts: BlogPost[]
+  profiles: User[]
+  comments: Comment[]
+  loading: boolean
+  error: string | null
+}

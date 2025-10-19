@@ -1,7 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
+import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { openModal } from '../../redux/slices/authSlice'
+import { openModal, setGuest } from '../../redux/slices/authSlice'
 import LoginModal from '../auth/LoginModal'
 import RegisterModal from '../auth/RegisterModal'
 
@@ -156,7 +157,17 @@ const FeatureItem = styled.div`
 
 const LandingPage: React.FC = () => {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const { modal } = useAppSelector((state) => state.auth)
+
+  const handleGuestMode = () => {
+    dispatch(setGuest())
+    localStorage.setItem('guest', 'true')
+    localStorage.removeItem('token')
+    localStorage.removeItem('username')
+    localStorage.removeItem('userId')
+    navigate('/posts')
+  }
 
   return (
     <>
@@ -174,6 +185,9 @@ const LandingPage: React.FC = () => {
             </AuthButton>
             <AuthButton className="secondary" onClick={() => dispatch(openModal('login'))}>
               Sign In
+            </AuthButton>
+            <AuthButton className="secondary" onClick={handleGuestMode}>
+              Browse as Guest
             </AuthButton>
           </ButtonGroup>
 

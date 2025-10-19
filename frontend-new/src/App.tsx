@@ -7,9 +7,9 @@ import Footer from './components/layout/Footer'
 import LoadingScreen from './components/common/LoadingScreen'
 import LandingPage from './components/landing/LandingPage'
 import ProtectedRoute from './components/common/ProtectedRoute'
+import BlogList from './components/blog/BlogList'
 
 // Placeholder components - we'll migrate these next
-const BlogList = () => <div>Blog List</div>
 const PostDetail = () => <div>Post Detail</div>
 const CreatePost = () => <div>Create Post</div>
 const EditPost = () => <div>Edit Post</div>

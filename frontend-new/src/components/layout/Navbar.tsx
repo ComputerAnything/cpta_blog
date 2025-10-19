@@ -257,7 +257,7 @@ const Navbar: React.FC = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <a className="nav-link" href="https://computeranything.dev/#contact">
+              <a className="nav-link" href="https://computeranything.dev/contact">
                 Contact Us
               </a>
             </li>

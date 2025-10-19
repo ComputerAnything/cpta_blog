@@ -113,7 +113,7 @@ const Footer: React.FC = () => {
               <SocialLink href="https://discord.gg/QXs6p75pcS" target="_blank" rel="noopener noreferrer">
                 <i className="bi bi-discord"></i>
               </SocialLink>
-              <SocialLink href="https://www.facebook.com/people/Computer-Anything/61567372806344/" target="_blank" rel="noopener noreferrer">
+              <SocialLink href="https://www.facebook.com/people/ComputerAnything/61567372806344/" target="_blank" rel="noopener noreferrer">
                 <i className="bi bi-facebook"></i>
               </SocialLink>
               <SocialLink href="https://blog.computeranything.dev" target="_blank" rel="noopener noreferrer">
@@ -150,7 +150,7 @@ const Footer: React.FC = () => {
               </div>
               <div className="mb-2">
                 <a href="https://cheloniixd.github.io/" target="_blank" rel="noopener noreferrer">
-                  About
+                  About Developer
                 </a>
               </div>
               <div className="mb-2">
@@ -195,7 +195,7 @@ const Footer: React.FC = () => {
                 <span>Copyright © {currentYear} Computer Anything - All Rights Reserved</span>
                 <span>- Developed & Designed By:</span>
                 <a
-                  href="https://www.computeranything.dev"
+                  href="https://computeranything.dev"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="d-flex align-items-center gap-1 company-attribution"
