@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Modal, Button, Form } from 'react-bootstrap'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 import { Turnstile } from '@marsidev/react-turnstile'
+import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { useAppDispatch } from '../../redux/hooks'
 import { setCredentials, setGuest, setLoading, closeModal, openModal } from '../../redux/slices/authSlice'
 import API from '../../services/api'
@@ -144,6 +145,7 @@ const LoginModal: React.FC = () => {
   const [showResend, setShowResend] = useState(false)
   const [resendStatus, setResendStatus] = useState('')
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const turnstileRef = useRef<TurnstileInstance>(null)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
@@ -188,6 +190,7 @@ const LoginModal: React.FC = () => {
       }
       // Reset turnstile on error
       setTurnstileToken(null)
+      turnstileRef.current?.reset()
     } finally {
       dispatch(setLoading(false))
     }
@@ -255,6 +258,7 @@ const LoginModal: React.FC = () => {
 
           <div className="mb-3 d-flex justify-content-center">
             <Turnstile
+              ref={turnstileRef}
               siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
               onSuccess={(token) => setTurnstileToken(token)}
               onError={() => setTurnstileToken(null)}

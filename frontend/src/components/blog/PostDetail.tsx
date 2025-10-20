@@ -550,7 +550,7 @@ const PostDetail: React.FC = () => {
                     navigate(`/profile/${post.user_id}`)
                   }}
                 >
-                  {post.author || 'Unknown'}
+                  @{post.author || 'Unknown'}
                 </a>
               </span>
               <span>•</span>

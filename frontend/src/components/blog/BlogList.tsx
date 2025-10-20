@@ -415,11 +415,13 @@ const BlogList: React.FC = () => {
     navigate('/create-post')
   }
 
-  // Filter posts by topic tags
+  // Filter posts by title and topic tags
   const filteredPosts = posts.filter((post) => {
     if (!blogSearch) return true
+    const searchLower = blogSearch.toLowerCase()
+    const title = post.title?.toLowerCase() || ''
     const tags = post.topic_tags?.toLowerCase() || ''
-    return tags.includes(blogSearch.toLowerCase())
+    return title.includes(searchLower) || tags.includes(searchLower)
   })
 
   // Filter profiles by username
@@ -472,7 +474,7 @@ const BlogList: React.FC = () => {
           <h3>Search Posts</h3>
           <SearchBar
             type="text"
-            placeholder="Search by tags..."
+            placeholder="Search by title or tags..."
             value={blogSearch}
             onChange={(e) => setBlogSearch(e.target.value)}
           />
@@ -501,7 +503,7 @@ const BlogList: React.FC = () => {
                       setShowProfiles(false)
                     }}
                   >
-                    {profile.username}
+                    @{profile.username}
                   </ProfileItem>
                 ))
               ) : (
@@ -544,7 +546,7 @@ const BlogList: React.FC = () => {
                 <span>By <a href={`/profile/${post.user_id}`} onClick={(e) => {
                   e.stopPropagation()
                   navigate(`/profile/${post.user_id}`)
-                }}>{post.author || 'Unknown'}</a></span>
+                }}>@{post.author || 'Unknown'}</a></span>
                 <span>•</span>
                 <span>{new Date(post.created_at).toLocaleDateString()}</span>
               </PostMeta>

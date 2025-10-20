@@ -314,6 +314,14 @@ const CreatePost: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(true)
 
+  // Validation limits
+  const TITLE_MAX = 200
+  const CONTENT_MAX = 10000
+  const TAG_MAX = 8
+  const TAG_CHAR_MAX = 30
+
+  const tagCount = topicTags ? topicTags.split(',').filter(t => t.trim()).length : 0
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -329,6 +337,22 @@ const CreatePost: React.FC = () => {
 
     if (!title.trim() || !content.trim()) {
       setToastMessage('Title and content are required.')
+      return
+    }
+
+    // Frontend validation
+    if (title.length > TITLE_MAX) {
+      setToastMessage(`Title must be ${TITLE_MAX} characters or less.`)
+      return
+    }
+
+    if (content.length > CONTENT_MAX) {
+      setToastMessage(`Content must be ${CONTENT_MAX.toLocaleString()} characters or less.`)
+      return
+    }
+
+    if (tagCount > TAG_MAX) {
+      setToastMessage(`Maximum ${TAG_MAX} tags allowed.`)
       return
     }
 
@@ -379,31 +403,41 @@ const CreatePost: React.FC = () => {
           <h1>Create New Post</h1>
 
           <FormGroup>
-            <label htmlFor="title">Title</label>
+            <label htmlFor="title">
+              <span>Title</span>
+              <span style={{ color: title.length > TITLE_MAX ? '#ff4444' : 'rgba(255, 255, 255, 0.6)', fontSize: '0.85rem', fontWeight: 'normal' }}>
+                {title.length}/{TITLE_MAX}
+              </span>
+            </label>
             <Input
               id="title"
               type="text"
               placeholder="Enter post title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              maxLength={200}
+              maxLength={TITLE_MAX}
               required
+              style={{ borderColor: title.length > TITLE_MAX ? '#ff4444' : undefined }}
             />
-            <div className="helper-text">{title.length}/200 characters</div>
           </FormGroup>
 
           <FormGroup>
-            <label htmlFor="tags">Topic Tags</label>
+            <label htmlFor="tags">
+              <span>Topic Tags (optional)</span>
+              <span style={{ color: tagCount > TAG_MAX ? '#ff4444' : 'rgba(255, 255, 255, 0.6)', fontSize: '0.85rem', fontWeight: 'normal' }}>
+                {tagCount}/{TAG_MAX} tags
+              </span>
+            </label>
             <Input
               id="tags"
               type="text"
               placeholder="e.g. react, typescript, web-development"
               value={topicTags}
               onChange={(e) => setTopicTags(e.target.value.toLowerCase().replace(/[^a-z0-9, -]/g, ''))}
-              maxLength={255}
+              style={{ borderColor: tagCount > TAG_MAX ? '#ff4444' : undefined }}
             />
             <div className="helper-text">
-              Separate tags with commas. Lowercase letters, numbers, and hyphens only.
+              Separate with commas. Max {TAG_MAX} tags, {TAG_CHAR_MAX} chars each. Lowercase, numbers, hyphens only.
             </div>
           </FormGroup>
 
@@ -440,13 +474,18 @@ const CreatePost: React.FC = () => {
           <FormGroup>
             <label htmlFor="content">
               <span>Content</span>
-              <PreviewToggle
-                type="button"
-                onClick={() => setShowPreview(!showPreview)}
-                className={showPreview ? 'active' : ''}
-              >
-                <i className={`bi bi-eye${showPreview ? '-fill' : ''}`}></i> {showPreview ? 'Hide' : 'Show'} Preview
-              </PreviewToggle>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <span style={{ color: content.length > CONTENT_MAX ? '#ff4444' : 'rgba(255, 255, 255, 0.6)', fontSize: '0.85rem', fontWeight: 'normal' }}>
+                  {content.length.toLocaleString()}/{CONTENT_MAX.toLocaleString()}
+                </span>
+                <PreviewToggle
+                  type="button"
+                  onClick={() => setShowPreview(!showPreview)}
+                  className={showPreview ? 'active' : ''}
+                >
+                  <i className={`bi bi-eye${showPreview ? '-fill' : ''}`}></i> {showPreview ? 'Hide' : 'Show'} Preview
+                </PreviewToggle>
+              </div>
             </label>
             <ContentEditor $showPreview={showPreview}>
               <TextArea
@@ -454,7 +493,9 @@ const CreatePost: React.FC = () => {
                 placeholder="Write your post content here... (Markdown supported)"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
+                maxLength={CONTENT_MAX}
                 required
+                style={{ borderColor: content.length > CONTENT_MAX ? '#ff4444' : undefined }}
               />
               {showPreview && (
                 <PreviewPane>

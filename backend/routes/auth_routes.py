@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime, UTC
 import os
+import re
 import secrets
 import requests
 
@@ -46,6 +47,44 @@ def verify_turnstile(token):
     except Exception:
         # If verification fails (network error, etc.), reject
         return False
+
+def validate_password_strength(password):
+    """
+    Validate password strength.
+    Requirements (either):
+    Option 1: At least 8 characters with uppercase, lowercase, number, and special character
+    Option 2: At least 12 characters (any characters allowed)
+    """
+    has_uppercase = re.search(r'[A-Z]', password)
+    has_lowercase = re.search(r'[a-z]', password)
+    has_number = re.search(r'\d', password)
+    has_special = re.search(r'[!@#$%^&*(),.?":{}|<>]', password)
+
+    # Option 1: 8+ chars with all requirements
+    if len(password) >= 8 and has_uppercase and has_lowercase and has_number and has_special:
+        return True, "Password is strong"
+
+    # Option 2: 12+ chars (no other requirements)
+    if len(password) >= 12:
+        return True, "Password is strong"
+
+    # Build error message based on what's missing
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters (with special character) or 12 characters"
+
+    if not has_uppercase:
+        return False, "Password must contain at least one uppercase letter"
+
+    if not has_lowercase:
+        return False, "Password must contain at least one lowercase letter"
+
+    if not has_number:
+        return False, "Password must contain at least one number"
+
+    if len(password) < 12:
+        return False, "Password must contain a special character (!@#$%^&*(),.?\":{}|<>) or be at least 12 characters"
+
+    return False, "Password does not meet security requirements"
 
 def send_verification_email(user_email):
     token = serializer.dumps(user_email, salt='email-confirm')
@@ -144,11 +183,27 @@ def register():
     honeypot = data.get('website', '')
     if honeypot:
         return jsonify({"msg": "Bot detected."}), 400
-    username = data.get('username')
-    email = data.get('email')
+    username = data.get('username', '').strip()
+    email = data.get('email', '').strip()
     password = data.get('password')
     if not username or not email or not password:
         return jsonify({"msg": "Username, email, and password are required"}), 400
+
+    # Validate username
+    if len(username) < 3:
+        return jsonify({"msg": "Username must be at least 3 characters"}), 400
+    if len(username) > 20:
+        return jsonify({"msg": "Username must be 20 characters or less"}), 400
+    if not username.islower():
+        return jsonify({"msg": "Username must be lowercase"}), 400
+    if not re.match(r'^[a-z0-9_]+$', username):
+        return jsonify({"msg": "Username can only contain lowercase letters, numbers, and underscores"}), 400
+
+    # Validate password strength
+    is_valid, message = validate_password_strength(password)
+    if not is_valid:
+        return jsonify({"msg": message}), 400
+
     if User.query.filter_by(username=username).first():
         return jsonify({"msg": "User already exists"}), 400
     new_user = User(username=username, email=email) # type: ignore
@@ -251,6 +306,11 @@ def reset_password():
 
     if not token or not new_password:
         return jsonify({"msg": "Token and new password are required"}), 400
+
+    # Validate password strength
+    is_valid, message = validate_password_strength(new_password)
+    if not is_valid:
+        return jsonify({"msg": message}), 400
 
     user = User.query.filter_by(reset_token=token).first()
     if not user:

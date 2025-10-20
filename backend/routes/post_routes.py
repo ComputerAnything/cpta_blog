@@ -28,12 +28,34 @@ def get_post(post_id):
 @jwt_required()
 def create_post():
     data = request.get_json()
-    title = data.get('title')
-    content = data.get('content')
-    topic_tags = data.get('topic_tags')
+    title = data.get('title', '').strip()
+    content = data.get('content', '').strip()
+    topic_tags = data.get('topic_tags', '').strip() if data.get('topic_tags') else None
     user_id = get_jwt_identity()
-    if not title or not content:
-        return jsonify({"msg": "Title and content are required"}), 400
+
+    # Validate title
+    if not title:
+        return jsonify({"msg": "Title is required"}), 400
+    if len(title) > 200:
+        return jsonify({"msg": "Title must be 200 characters or less"}), 400
+
+    # Validate content
+    if not content:
+        return jsonify({"msg": "Content is required"}), 400
+    if len(content) > 10000:
+        return jsonify({"msg": "Content must be 10,000 characters or less"}), 400
+
+    # Validate tags
+    if topic_tags:
+        tags = [tag.strip() for tag in topic_tags.split(',')]
+        if len(tags) > 8:
+            return jsonify({"msg": "Maximum 8 tags allowed"}), 400
+        for tag in tags:
+            if len(tag) > 30:
+                return jsonify({"msg": "Each tag must be 30 characters or less"}), 400
+            if not tag:
+                return jsonify({"msg": "Empty tags are not allowed"}), 400
+
     new_post = BlogPost(title=title, content=content, topic_tags=topic_tags, user_id=user_id) # type: ignore
     db.session.add(new_post)
     db.session.commit()
@@ -49,12 +71,35 @@ def update_post(post_id):
         return jsonify({"msg": "Post not found"}), 404
     if post.user_id != int(user_id):
         return jsonify({"msg": "You are not authorized to edit this post"}), 403
+
     data = request.get_json()
-    title = data.get('title')
-    content = data.get('content')
-    topic_tags = data.get('topic_tags')
-    if not title or not content:
-        return jsonify({"msg": "Title and content are required"}), 400
+    title = data.get('title', '').strip()
+    content = data.get('content', '').strip()
+    topic_tags = data.get('topic_tags', '').strip() if data.get('topic_tags') else None
+
+    # Validate title
+    if not title:
+        return jsonify({"msg": "Title is required"}), 400
+    if len(title) > 200:
+        return jsonify({"msg": "Title must be 200 characters or less"}), 400
+
+    # Validate content
+    if not content:
+        return jsonify({"msg": "Content is required"}), 400
+    if len(content) > 10000:
+        return jsonify({"msg": "Content must be 10,000 characters or less"}), 400
+
+    # Validate tags
+    if topic_tags:
+        tags = [tag.strip() for tag in topic_tags.split(',')]
+        if len(tags) > 8:
+            return jsonify({"msg": "Maximum 8 tags allowed"}), 400
+        for tag in tags:
+            if len(tag) > 30:
+                return jsonify({"msg": "Each tag must be 30 characters or less"}), 400
+            if not tag:
+                return jsonify({"msg": "Empty tags are not allowed"}), 400
+
     post.title = title
     post.content = content
     post.topic_tags = topic_tags
@@ -129,12 +174,18 @@ def downvote_post(post_id):
 def add_comment(post_id):
     user_id = get_jwt_identity()
     data = request.get_json()
-    content = data.get('content')
+    content = data.get('content', '').strip()
+
+    # Validate comment content
     if not content:
         return jsonify({"msg": "Content is required"}), 400
+    if len(content) > 2000:
+        return jsonify({"msg": "Comment must be 2,000 characters or less"}), 400
+
     post = BlogPost.query.get(post_id)
     if not post:
         return jsonify({"msg": "Post not found"}), 404
+
     comment = Comment(content=content, user_id=user_id, post_id=post_id) # type: ignore
     db.session.add(comment)
     db.session.commit()

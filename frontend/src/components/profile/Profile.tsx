@@ -229,7 +229,7 @@ const Profile: React.FC = () => {
         <ProfileHeader>
           <Avatar>{profile.username.charAt(0).toUpperCase()}</Avatar>
           <UserInfo>
-            <h1>{profile.username}</h1>
+            <h1>@{profile.username}</h1>
             {isOwnProfile && profile.email && (
               <div className="email">{profile.email}</div>
             )}
@@ -252,7 +252,7 @@ const Profile: React.FC = () => {
         </ProfileHeader>
 
         <PostsSection>
-          <h2>{isOwnProfile ? 'My Posts' : `${profile.username}'s Posts`}</h2>
+          <h2>{isOwnProfile ? 'My Posts' : `@${profile.username}'s Posts`}</h2>
 
           {posts.length === 0 ? (
             <LoadingMessage>

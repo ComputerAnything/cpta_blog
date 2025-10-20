@@ -389,7 +389,7 @@ const Navbar: React.FC = () => {
                   aria-expanded="false"
                 >
                   <i className="bi bi-person-circle me-2"></i>
-                  {user.username}
+                  @{user.username}
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end">
                   <li>
