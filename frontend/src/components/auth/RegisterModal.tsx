@@ -266,7 +266,7 @@ const RegisterModal: React.FC = () => {
     }
   }
 
-  const { strength: passwordStrength, label, requirements, isValid } = calculatePasswordStrength(password)
+  const { strength: passwordStrength, label, requirements } = calculatePasswordStrength(password)
 
   const handleClose = () => dispatch(closeModal())
 
