@@ -381,7 +381,7 @@ const BlogList: React.FC = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { posts, profiles, loading, error } = useAppSelector((state) => state.blog)
-  const { user, isGuest } = useAppSelector((state) => state.auth)
+  const { isGuest } = useAppSelector((state) => state.auth)
 
   const [blogSearch, setBlogSearch] = useState('')
   const [profileSearch, setProfileSearch] = useState('')

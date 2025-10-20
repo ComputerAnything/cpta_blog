@@ -16,8 +16,8 @@ REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fron
 def create_app(testing=False):
     app = Flask(
         __name__,
-        static_folder=os.path.join(REACT_BUILD_DIR, 'static'),
-        static_url_path='/static'
+        static_folder=REACT_BUILD_DIR,
+        static_url_path=''
     )
     app.config.from_object(Config)
     if testing:
@@ -41,6 +41,12 @@ def create_app(testing=False):
     for bp in all_routes:
         app.register_blueprint(bp)
 
+    # Serve Vite assets (JS, CSS, etc.)
+    @app.route('/assets/<path:filename>')
+    def serve_assets(filename):
+        assets_dir = os.path.join(REACT_BUILD_DIR, 'assets')
+        return send_from_directory(assets_dir, filename)
+
     # Serve images from build/img
     @app.route('/img/<path:filename>')
     def serve_img(filename):
@@ -59,7 +65,7 @@ def create_app(testing=False):
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def serve_react_app(path):
-        if path.startswith('api/'):
+        if path.startswith('api/') or path.startswith('assets/'):
             return 'Not Found', 404
         return send_file(os.path.join(REACT_BUILD_DIR, 'index.html'))
 

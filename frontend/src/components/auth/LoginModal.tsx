@@ -248,7 +248,7 @@ const LoginModal: React.FC = () => {
                 className="toggle-password-btn"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? '👁️' : '🙈'}
+                <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
               </button>
             </div>
           </Form.Group>

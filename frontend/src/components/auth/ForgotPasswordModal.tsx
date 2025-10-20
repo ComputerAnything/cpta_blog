@@ -172,7 +172,6 @@ const ForgotPasswordModal: React.FC = () => {
               onSuccess={(token) => setTurnstileToken(token)}
               onError={() => setTurnstileToken(null)}
               onExpire={() => setTurnstileToken(null)}
-              theme="dark"
             />
           </div>
 
