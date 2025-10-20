@@ -1,8 +1,11 @@
 # Environment variables
 .env
 **/.env
-.env.*
-**/.env.*
+.env.development
+.env.production
+**/.env.development
+**/.env.production
+.
 
 # Python artifacts
 __pycache__/

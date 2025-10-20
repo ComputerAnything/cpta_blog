@@ -1,74 +1,29 @@
+/* Reset CSS to work with Bootstrap */
+* {
+  box-sizing: border-box;
+}
+
+/* Computer Anything color scheme */
 :root {
-  --computerAnythingPrimary: #02c43c;
-  --computerAnythingSecondary: #0250c4;
+  --computerAnythingPrimary: #28a745;
+  --computerAnythingSecondary: #048a408f;
   --computerAnythingText: #ffffff80;
   --computerAnythingGray: #727272;
+  --bg-light: rgb(129, 129, 129);
 }
 
 body {
   margin: 0;
+  padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #0a0a0a !important;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-/* Ensure the entire page takes up the full height */
-html, body {
-  height: 100%; /* Full height of the viewport */
-  margin: 0; /* Remove default margin */
-  display: flex;
-  flex-direction: column; /* Enable flexbox layout */
-}
-
-/* Main content area should grow to fill available space */
-#root, .app-container {
-  flex: 1; /* Allow the main content to grow and fill the space between the header and footer */
-  display: flex;
-  flex-direction: column;
-}
-
-/* Style for success messages */
-.success-message {
-  color: green !important;
-  background: #d4edda;
-  border: 1px solid #b7e0c3;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  margin-top: 5px;
-  padding: 8px 12px;
-  text-align: center;
-}
-
-/* Style for error messages */
-.error-message {
-  color: red;
-  background: #d4edda;
-  border: 1px solid #b7e0c3;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  margin-top: 5px;
-  padding: 8px 12px;
-  text-align: center;
-}
-
-.modal-close {
-  margin-bottom: 5px;
-  margin-left: auto;
-  margin-right: auto;
-  background-color: var(--computerAnythingPrimary);
-  color: black;
-  border-radius: 4px;
-}
-
-.modal-close:hover {
-  background-color: black;
-  color: var(--computerAnythingPrimary);
-  cursor: pointer;
-  transition: all 0.3s ease;
+/* Let Bootstrap handle all styling */
+#root {
+  min-height: 100vh;
 }

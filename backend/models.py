@@ -13,6 +13,8 @@ class User(db.Model):
     password = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     is_verified = db.Column(db.Boolean, default=False)
+    reset_token = db.Column(db.String(200), nullable=True)
+    reset_token_expiry = db.Column(db.DateTime, nullable=True)
 
     # Add cascade delete-orphan for posts, votes, comments
     posts = db.relationship('BlogPost', backref='user', cascade='all, delete-orphan', lazy=True)

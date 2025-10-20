@@ -45,7 +45,7 @@ def test_create_and_get_blog_post(client):
         'title': 'Test Post',
         'content': 'This is a test post.'
     }, headers={"Authorization": f"Bearer {token}"})
-    assert response.status_code == 201  # noqa: PLR2004
+    assert response.status_code == 201
     data = response.get_json()
     assert data["title"] == "Test Post"
     assert data["content"] == "This is a test post."
@@ -53,7 +53,7 @@ def test_create_and_get_blog_post(client):
     # Get the post
     post_id = data["id"]
     response = client.get(f'/api/posts/{post_id}')
-    assert response.status_code == 200  # noqa: PLR2004
+    assert response.status_code == 200
     data = response.get_json()
     assert data["title"] == "Test Post"
     assert data["content"] == "This is a test post."
@@ -61,7 +61,7 @@ def test_create_and_get_blog_post(client):
 # ...existing code...
 
 def test_update_blog_post(client):
-    user = create_verified_user(client)
+    create_verified_user(client)
     token = get_token(client)
     # Create a post
     response = client.post('/api/posts', json={
@@ -82,7 +82,7 @@ def test_update_blog_post(client):
     assert data["content"] == "New content."
 
 def test_delete_blog_post(client):
-    user = create_verified_user(client)
+    create_verified_user(client)
     token = get_token(client)
     # Create a post
     response = client.post('/api/posts', json={
@@ -101,7 +101,7 @@ def test_delete_blog_post(client):
     assert response.status_code == 404
 
 def test_get_all_blog_posts(client):
-    user = create_verified_user(client)
+    create_verified_user(client)
     token = get_token(client)
     # Create two posts
     client.post('/api/posts', json={
