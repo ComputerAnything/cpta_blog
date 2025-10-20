@@ -9,9 +9,9 @@ import ForgotPasswordModal from '../auth/ForgotPasswordModal'
 
 const LandingContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-  background-image: url('/img/blog_logo_fade.png');
-  background-size: cover;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a);
+  background-image: url('/img/cpt-anything-transparent.png');
+  background-size: 864px;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
@@ -21,6 +21,10 @@ const LandingContainer = styled.div`
   justify-content: center;
   padding: 2rem;
   position: relative;
+
+  @media (max-width: 768px) {
+    background-size: 550px;
+  }
 
   &::before {
     content: '';
@@ -195,7 +199,7 @@ const LandingPage: React.FC = () => {
           <FeatureList>
             <FeatureItem>
               <i className="bi bi-pencil-square"></i>
-              <span>Write and publish technical articles</span>
+              <span>Write technical articles</span>
             </FeatureItem>
             <FeatureItem>
               <i className="bi bi-people"></i>
