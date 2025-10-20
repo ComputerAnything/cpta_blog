@@ -1,4 +1,4 @@
-# Stage 1: Build React frontend
+# Stage 1: Build React frontend with Vite
 FROM node:20 AS frontend-build
 
 WORKDIR /frontend
@@ -12,7 +12,7 @@ RUN npm ci --silent
 # Copy frontend source and .env
 COPY ./frontend ./
 
-# Build the React app (uses frontend/.env)
+# Build the React app with Vite (uses frontend/.env)
 RUN npm run build
 
 # Stage 2: Python backend with built frontend
@@ -33,8 +33,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend source
 COPY backend/ ./backend/
 
-# Copy the built React frontend from stage 1
-COPY --from=frontend-build /frontend/build ./backend/frontend/build
+# Copy the built React frontend from stage 1 (Vite builds to 'dist' not 'build')
+COPY --from=frontend-build /frontend/dist ./backend/frontend/build
 
 ENV PYTHONPATH=/app/backend
 ENV PYTHONUNBUFFERED=1

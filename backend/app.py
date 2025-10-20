@@ -2,7 +2,7 @@ import logging
 import os
 
 from backend.config import Config
-from backend.extensions import db, jwt, mail, migrate
+from backend.extensions import db, jwt, migrate
 from backend.routes import all_routes
 from flask import Flask, send_file, send_from_directory
 from flask_cors import CORS
@@ -36,7 +36,6 @@ def create_app(testing=False):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    mail.init_app(app)
 
     # Register all blueprints from routes
     for bp in all_routes:

@@ -1,5 +1,7 @@
-from datetime import timedelta
+from datetime import timedelta, datetime, UTC
 import os
+import secrets
+import requests
 
 from backend.extensions import db
 from backend.models import User
@@ -22,9 +24,32 @@ if not RESEND_API_KEY:
     raise RuntimeError("RESEND_API_KEY environment variable is not set")
 resend.api_key = RESEND_API_KEY
 
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
+TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY')
+
+def verify_turnstile(token):
+    """Verify Cloudflare Turnstile token"""
+    if not TURNSTILE_SECRET_KEY:
+        # If no secret key is set, allow for development/testing
+        return True
+
+    url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+    data = {
+        'secret': TURNSTILE_SECRET_KEY,
+        'response': token
+    }
+
+    try:
+        response = requests.post(url, data=data, timeout=5)
+        result = response.json()
+        return result.get('success', False)
+    except Exception:
+        # If verification fails (network error, etc.), reject
+        return False
+
 def send_verification_email(user_email):
     token = serializer.dumps(user_email, salt='email-confirm')
-    confirm_url = f"{request.url_root}verify-email/{token}"
+    confirm_url = f"{FRONTEND_URL}/verify-email/{token}"
     params = {
         "from": "noreply@computeranything.dev",
         "to": [user_email],
@@ -110,6 +135,12 @@ def resend_verification():
 @auth_routes.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
+
+    # Verify Turnstile token
+    turnstile_token = data.get('turnstile_token')
+    if not verify_turnstile(turnstile_token):
+        return jsonify({"msg": "Verification challenge failed. Please try again."}), 400
+
     honeypot = data.get('website', '')
     if honeypot:
         return jsonify({"msg": "Bot detected."}), 400
@@ -136,6 +167,12 @@ def register():
 @auth_routes.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
+
+    # Verify Turnstile token
+    turnstile_token = data.get('turnstile_token')
+    if not verify_turnstile(turnstile_token):
+        return jsonify({"msg": "Verification challenge failed. Please try again."}), 400
+
     identifier = data.get('identifier')
     password = data.get('password')
     if not identifier or not password:
@@ -153,3 +190,80 @@ def login():
         "user_id": user.id,
         "username": user.username
     }), 200
+
+
+# FORGOT PASSWORD - Request password reset
+@auth_routes.route('/api/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+
+    # Verify Turnstile token
+    turnstile_token = data.get('turnstile_token')
+    if not verify_turnstile(turnstile_token):
+        return jsonify({"msg": "Verification challenge failed. Please try again."}), 400
+
+    email = data.get('email')
+
+    if not email:
+        return jsonify({"msg": "Email is required"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        # Return success even if user not found (security best practice)
+        return jsonify({"msg": "If that email exists, a password reset link has been sent."}), 200
+
+    # Generate reset token
+    reset_token = secrets.token_urlsafe(32)
+    user.reset_token = reset_token
+    user.reset_token_expiry = datetime.now(UTC).replace(tzinfo=None) + timedelta(hours=1)
+    db.session.commit()
+
+    # Send reset email
+    reset_url = f"{FRONTEND_URL}/reset-password/{reset_token}"
+    params = {
+        "from": "noreply@computeranything.dev",
+        "to": [email],
+        "subject": "Password Reset Request",
+        "html": f"""
+            <html>
+            <head><title>Password Reset</title></head>
+            <body style="background:#111;color:#00ff00;font-family:sans-serif;padding:2em;">
+                <h1>Password Reset Request</h1>
+                <p>You requested to reset your password. Click the link below to reset it:</p>
+                <a href="{reset_url}" style="color:#00ff00;text-decoration:underline;">{reset_url}</a>
+                <p>This link will expire in 1 hour.</p>
+                <p>If you did not request a password reset, you can safely ignore this email.</p>
+            </body>
+            </html>
+        """,
+    }
+    resend.Emails.send(params) # type: ignore
+
+    return jsonify({"msg": "If that email exists, a password reset link has been sent."}), 200
+
+
+# RESET PASSWORD - Set new password with token
+@auth_routes.route('/api/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    token = data.get('token')
+    new_password = data.get('password')
+
+    if not token or not new_password:
+        return jsonify({"msg": "Token and new password are required"}), 400
+
+    user = User.query.filter_by(reset_token=token).first()
+    if not user:
+        return jsonify({"msg": "Invalid or expired reset token"}), 400
+
+    # Check if token is expired
+    if not user.reset_token_expiry or user.reset_token_expiry < datetime.now(UTC).replace(tzinfo=None):
+        return jsonify({"msg": "Reset token has expired"}), 400
+
+    # Set new password
+    user.set_password(new_password)
+    user.reset_token = None
+    user.reset_token_expiry = None
+    db.session.commit()
+
+    return jsonify({"msg": "Password has been reset successfully"}), 200
