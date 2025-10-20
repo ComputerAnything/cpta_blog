@@ -26,7 +26,7 @@ def test_register_and_login(client):
         'email': 'delivered@resend.dev',
         'password': 'testpass'
     })
-    assert response.status_code == 201  # noqa: PLR2004
+    assert response.status_code == 201
     assert b'Please check your email' in response.data
 
     # Try to login before verification
@@ -34,7 +34,7 @@ def test_register_and_login(client):
         'identifier': 'testuser',
         'password': 'testpass'
     })
-    assert response.status_code == 403  # noqa: PLR2004
+    assert response.status_code == 403
     assert b'verify your email' in response.data
 
     # Manually verify user for testing
@@ -48,7 +48,7 @@ def test_register_and_login(client):
         'identifier': 'testuser',
         'password': 'testpass'
     })
-    assert response.status_code == 200  # noqa: PLR2004
+    assert response.status_code == 200
     assert b'access_token' in response.data
 
 def test_register_duplicate_username(client):
@@ -64,7 +64,7 @@ def test_register_duplicate_username(client):
         'email': 'dupe2@resend.dev',
         'password': 'testpass'
     })
-    assert response.status_code == 400  # noqa: PLR2004
+    assert response.status_code == 400
     assert b'username' in response.data or b'already' in response.data
 
 def test_register_duplicate_email(client):
@@ -80,7 +80,7 @@ def test_register_duplicate_email(client):
         'email': 'dupeemail@resend.dev',
         'password': 'testpass'
     })
-    assert response.status_code == 400  # noqa: PLR2004
+    assert response.status_code == 400
     assert b'email' in response.data or b'already' in response.data
 
 def test_login_wrong_password(client):
@@ -99,5 +99,5 @@ def test_login_wrong_password(client):
         'identifier': 'wrongpass',
         'password': 'wrongpass'
     })
-    assert response.status_code == 401  # noqa: PLR2004
+    assert response.status_code == 401
     assert b'Incorrect password' in response.data

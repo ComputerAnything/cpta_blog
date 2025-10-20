@@ -1,14 +1,14 @@
-from datetime import timedelta, datetime, UTC
+from datetime import UTC, datetime, timedelta
 import os
 import re
 import secrets
-import requests
 
 from backend.extensions import db
 from backend.models import User
 from flask import Blueprint, jsonify, render_template_string, request
 from flask_jwt_extended import create_access_token
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
+import requests
 import resend
 from sqlalchemy.exc import IntegrityError
 
