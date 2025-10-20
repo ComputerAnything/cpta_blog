@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
@@ -163,7 +163,14 @@ const FeatureItem = styled.div`
 const LandingPage: React.FC = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const { modal } = useAppSelector((state) => state.auth)
+  const { modal, user, isGuest } = useAppSelector((state) => state.auth)
+
+  // Redirect to posts if already logged in or in guest mode
+  useEffect(() => {
+    if (user || isGuest) {
+      navigate('/posts')
+    }
+  }, [user, isGuest, navigate])
 
   const handleGuestMode = () => {
     dispatch(setGuest())
