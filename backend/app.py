@@ -53,20 +53,21 @@ def create_app(testing=False):
         img_dir = os.path.join(REACT_BUILD_DIR, 'img')
         return send_from_directory(img_dir, filename)
 
-    # favicon support
-    @app.route('/<filename>')
-    def serve_root_static(filename):
-        file_path = os.path.join(REACT_BUILD_DIR, filename)
-        if os.path.isfile(file_path):
-            return send_from_directory(REACT_BUILD_DIR, filename)
-        return send_file(os.path.join(REACT_BUILD_DIR, 'index.html'))
-
     # Catch-all route for React SPA
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def serve_react_app(path):
-        if path.startswith('api/') or path.startswith('assets/'):
+        # Don't serve index.html for API requests or assets
+        if path.startswith('api/') or path.startswith('assets/') or path.startswith('img/'):
             return 'Not Found', 404
+
+        # Try to serve static files from build directory (favicon, etc.)
+        if path and '/' not in path:  # Single-segment paths only
+            file_path = os.path.join(REACT_BUILD_DIR, path)
+            if os.path.isfile(file_path):
+                return send_from_directory(REACT_BUILD_DIR, path)
+
+        # Default: serve React app
         return send_file(os.path.join(REACT_BUILD_DIR, 'index.html'))
 
     return app

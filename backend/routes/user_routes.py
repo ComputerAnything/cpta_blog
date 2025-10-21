@@ -59,10 +59,10 @@ def delete_profile():
     db.session.commit()
     return jsonify({"msg": "Account and all related data deleted successfully"}), 200
 
-# GET USER PROFILE BY ID
-@user_routes.route('/api/users/<int:user_id>', methods=['GET'])
-def get_user_profile(user_id):
-    user = User.query.get(user_id)
+# GET USER PROFILE BY USERNAME
+@user_routes.route('/api/users/<string:username>', methods=['GET'])
+def get_user_profile(username):
+    user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({"msg": "User not found"}), 404
     return jsonify({
@@ -79,30 +79,30 @@ def get_all_users():
     users = User.query.all()
     return jsonify([{"id": user.id, "username": user.username} for user in users]), 200
 
-# GET USER POSTS COUNT
-@user_routes.route('/api/users/<int:user_id>/posts', methods=['GET'])
-def get_user_posts(user_id):
-    user = User.query.get(user_id)
+# GET USER POSTS BY USERNAME
+@user_routes.route('/api/users/<string:username>/posts', methods=['GET'])
+def get_user_posts(username):
+    user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({"msg": "User not found"}), 404
-    posts = BlogPost.query.filter_by(user_id=user_id).all()
+    posts = BlogPost.query.filter_by(user_id=user.id).all()
     return jsonify([post.to_dict() for post in posts]), 200
 
-# GET USER VOTES COUNT
-@user_routes.route('/api/users/<int:user_id>/votes/count', methods=['GET'])
-def get_user_votes_count(user_id):
-    user = User.query.get(user_id)
+# GET USER VOTES COUNT BY USERNAME
+@user_routes.route('/api/users/<string:username>/votes/count', methods=['GET'])
+def get_user_votes_count(username):
+    user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({"msg": "User not found"}), 404
-    count = Vote.query.filter_by(user_id=user_id).count()
+    count = Vote.query.filter_by(user_id=user.id).count()
     return jsonify({"count": count}), 200
 
-# GET USER COMMENTS COUNT
-@user_routes.route('/api/users/<int:user_id>/comments/count', methods=['GET'])
-def get_user_comments_count(user_id):
-    user = User.query.get(user_id)
+# GET USER COMMENTS COUNT BY USERNAME
+@user_routes.route('/api/users/<string:username>/comments/count', methods=['GET'])
+def get_user_comments_count(username):
+    user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({"msg": "User not found"}), 404
-    count = Comment.query.filter_by(user_id=user_id).count()
+    count = Comment.query.filter_by(user_id=user.id).count()
     return jsonify({"count": count}), 200
 

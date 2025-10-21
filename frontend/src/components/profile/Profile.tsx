@@ -167,7 +167,7 @@ const ErrorMessage = styled.div`
 `
 
 const Profile: React.FC = () => {
-  const { userId } = useParams<{ userId: string }>()
+  const { username } = useParams<{ username: string }>()
   const navigate = useNavigate()
   const { user: currentUser } = useAppSelector((state) => state.auth)
 
@@ -183,16 +183,16 @@ const Profile: React.FC = () => {
 
       try {
         // Fetch user profile
-        const profileResponse = userId
-          ? await API.get(`/users/${userId}`)
+        const profileResponse = username
+          ? await API.get(`/users/${username}`)
           : await API.get('/profile')
 
         setProfile(profileResponse.data)
 
         // Fetch user's posts
-        const postsResponse = userId
-          ? await API.get(`/users/${userId}/posts`)
-          : await API.get(`/users/${currentUser?.id}/posts`)
+        const postsResponse = username
+          ? await API.get(`/users/${username}/posts`)
+          : await API.get(`/users/${currentUser?.username}/posts`)
 
         setPosts(postsResponse.data)
       } catch (err: any) {
@@ -203,7 +203,7 @@ const Profile: React.FC = () => {
     }
 
     fetchProfile()
-  }, [userId, currentUser])
+  }, [username, currentUser])
 
   if (loading) {
     return (
@@ -221,7 +221,7 @@ const Profile: React.FC = () => {
     )
   }
 
-  const isOwnProfile = !userId || (currentUser && currentUser.id === parseInt(userId))
+  const isOwnProfile = !username || (currentUser && currentUser.username === username)
 
   return (
     <ProfileContainer>

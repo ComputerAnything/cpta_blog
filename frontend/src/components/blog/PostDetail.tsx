@@ -544,10 +544,10 @@ const PostDetail: React.FC = () => {
               <span>
                 By{' '}
                 <a
-                  href={`/profile/${post.user_id}`}
+                  href={`/profile/${post.author}`}
                   onClick={(e) => {
                     e.preventDefault()
-                    navigate(`/profile/${post.user_id}`)
+                    navigate(`/profile/${post.author}`)
                   }}
                 >
                   @{post.author || 'Unknown'}
