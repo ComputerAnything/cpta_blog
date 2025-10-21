@@ -499,7 +499,7 @@ const BlogList: React.FC = () => {
                   <ProfileItem
                     key={profile.id}
                     onClick={() => {
-                      navigate(`/profile/${profile.id}`)
+                      navigate(`/profile/${profile.username}`)
                       setShowProfiles(false)
                     }}
                   >
@@ -543,9 +543,9 @@ const BlogList: React.FC = () => {
               </PostHeader>
 
               <PostMeta>
-                <span>By <a href={`/profile/${post.user_id}`} onClick={(e) => {
+                <span>By <a href={`/profile/${post.author}`} onClick={(e) => {
                   e.stopPropagation()
-                  navigate(`/profile/${post.user_id}`)
+                  navigate(`/profile/${post.author}`)
                 }}>@{post.author || 'Unknown'}</a></span>
                 <span>•</span>
                 <span>{new Date(post.created_at).toLocaleDateString()}</span>
