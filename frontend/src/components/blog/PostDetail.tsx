@@ -543,15 +543,19 @@ const PostDetail: React.FC = () => {
             <PostMeta>
               <span>
                 By{' '}
-                <a
-                  href={`/profile/${post.author}`}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    navigate(`/profile/${post.author}`)
-                  }}
-                >
-                  @{post.author || 'Unknown'}
-                </a>
+                {post.author ? (
+                  <a
+                    href={`/profile/${post.author}`}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      navigate(`/profile/${post.author}`)
+                    }}
+                  >
+                    @{post.author}
+                  </a>
+                ) : (
+                  <span>@Unknown</span>
+                )}
               </span>
               <span>•</span>
               <span>{new Date(post.created_at).toLocaleDateString()}</span>

@@ -543,10 +543,14 @@ const BlogList: React.FC = () => {
               </PostHeader>
 
               <PostMeta>
-                <span>By <a href={`/profile/${post.author}`} onClick={(e) => {
-                  e.stopPropagation()
-                  navigate(`/profile/${post.author}`)
-                }}>@{post.author || 'Unknown'}</a></span>
+                <span>By {post.author ? (
+                  <a href={`/profile/${post.author}`} onClick={(e) => {
+                    e.stopPropagation()
+                    navigate(`/profile/${post.author}`)
+                  }}>@{post.author}</a>
+                ) : (
+                  <span>@Unknown</span>
+                )}</span>
                 <span>•</span>
                 <span>{new Date(post.created_at).toLocaleDateString()}</span>
               </PostMeta>
