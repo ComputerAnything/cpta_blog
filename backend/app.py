@@ -29,8 +29,8 @@ def create_app(testing=False):
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s')
     app.logger.setLevel(logging.INFO)
 
-    # cors
-    CORS(app)
+    # Configure CORS with frontend URL
+    CORS(app, origins=[app.config.get('FRONTEND_URL', '*')], supports_credentials=True)
 
     # Initialize extensions
     db.init_app(app)
@@ -40,6 +40,22 @@ def create_app(testing=False):
     # Register all blueprints from routes
     for bp in all_routes:
         app.register_blueprint(bp)
+
+    # Security headers
+    @app.after_request
+    def set_security_headers(response):
+        """Set security headers on all responses"""
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        response.headers['Permissions-Policy'] = 'camera=(), microphone=(), geolocation=()'
+
+        # Add HSTS only in production (when using HTTPS)
+        if not app.config.get('TESTING'):
+            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+
+        return response
 
     # Serve Vite assets (JS, CSS, etc.)
     @app.route('/assets/<path:filename>')
