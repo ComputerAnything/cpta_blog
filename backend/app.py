@@ -16,8 +16,8 @@ REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fron
 def create_app(testing=False):
     app = Flask(
         __name__,
-        static_folder=REACT_BUILD_DIR,
-        static_url_path=''
+        static_folder=None,  # Disable automatic static file serving
+        static_url_path=None
     )
     app.config.from_object(Config)
     if testing:
