@@ -5,7 +5,11 @@
 .env.production
 **/.env.development
 **/.env.production
-.
+.env.staging
+**/.env.staging
+
+# Cloudflare Tunnel credentials (for production)
+cloudflared-config/
 
 # Python artifacts
 __pycache__/
@@ -17,6 +21,10 @@ __pycache__/
 *.egg-info/
 *.egg
 *.log
+
+# Virtual environment
+venv/
+**/venv/
 
 # Ruff and pytest caches
 .ruff_cache/

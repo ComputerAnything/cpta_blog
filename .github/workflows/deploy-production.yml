@@ -1,0 +1,99 @@
+name: Deploy Blog to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+      confirm:
+        description: 'Type "deploy" to confirm'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy to DigitalOcean
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate deployment confirmation
+        run: |
+          if [ "${{ inputs.confirm }}" != "deploy" ]; then
+            echo "❌ Deployment not confirmed. You must type 'deploy' to proceed."
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        run: |
+          ssh -i ~/.ssh/id_ed25519 cheloniixd@${{ secrets.SERVER_IP }} "echo 'SSH connection successful'"
+
+      - name: Deploy application
+        run: |
+          ssh -i ~/.ssh/id_ed25519 cheloniixd@${{ secrets.SERVER_IP }} << 'EOF'
+            set -e
+            cd /opt/blog_app
+
+            echo "📥 Pulling latest code..."
+            git fetch origin
+            git checkout ${{ inputs.branch }}
+            git pull origin ${{ inputs.branch }}
+
+            echo "🏗️ Running deployment script..."
+            bash deployment/deploy.sh ${{ inputs.branch }}
+
+            echo "✅ Deployment complete!"
+          EOF
+
+      - name: Verify deployment
+        run: |
+          ssh -i ~/.ssh/id_ed25519 cheloniixd@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /opt/blog_app
+
+            echo "🔍 Checking service status..."
+            docker compose -f docker-compose.prod.yml ps
+
+            echo ""
+            echo "🏥 Checking container health..."
+            docker ps | grep blog || echo "⚠️ No blog containers found"
+          EOF
+
+      - name: Deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ inputs.branch }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Server:** ${{ secrets.SERVER_IP }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Deployment completed successfully!" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "## ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The deployment to production has failed." >> $GITHUB_STEP_SUMMARY
+          echo "Please check the logs above for details." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "You may need to:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Check server logs: \`docker compose -f docker-compose.prod.yml logs\`" >> $GITHUB_STEP_SUMMARY
+          echo "2. SSH to server and investigate" >> $GITHUB_STEP_SUMMARY
+          echo "3. Consider rollback if necessary" >> $GITHUB_STEP_SUMMARY

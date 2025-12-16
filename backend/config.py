@@ -3,8 +3,7 @@ import os
 from dotenv import load_dotenv
 
 
-# Load environment variables from the .env file in the backend directory
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
+load_dotenv()
 
 # Configuration class for the Flask application
 class Config:
@@ -27,3 +26,10 @@ class Config:
 
     # Frontend URL (for CORS and email links)
     FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://blog.computeranything.dev')
+
+    # Redis for rate limiting
+    REDIS_URL = os.environ.get('REDIS_URL', 'memory://')
+
+    # Environment detection
+    ENV = os.environ.get('FLASK_ENV', 'development')
+    DEBUG = ENV == 'development'

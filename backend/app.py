@@ -4,14 +4,24 @@ import os
 from backend.config import Config
 from backend.extensions import db, jwt, migrate
 from backend.routes import all_routes
-from flask import Flask, send_file, send_from_directory
+from flask import Flask, request, send_file, send_from_directory
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 
 # Docker container path
 REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend/build')
 # Local development path
 # REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../frontend/build')
+
+def get_real_ip():
+    """Get real IP address, accounting for proxies and Docker."""
+    if request.environ.get('HTTP_X_FORWARDED_FOR'):
+        return request.environ['HTTP_X_FORWARDED_FOR'].split(',')[0].strip()
+    if request.environ.get('HTTP_X_REAL_IP'):
+        return request.environ['HTTP_X_REAL_IP']
+    return request.environ.get('REMOTE_ADDR', '127.0.0.1')
 
 def create_app(testing=False):
     app = Flask(
@@ -31,6 +41,14 @@ def create_app(testing=False):
 
     # Configure CORS with frontend URL
     CORS(app, origins=[app.config.get('FRONTEND_URL', '*')], supports_credentials=True)
+
+    # Initialize rate limiter
+    limiter = Limiter(
+        key_func=get_real_ip,
+        default_limits=[],  # No default limits
+        storage_uri=app.config.get('REDIS_URL', 'memory://')
+    )
+    limiter.init_app(app)
 
     # Initialize extensions
     db.init_app(app)
