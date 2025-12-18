@@ -3,14 +3,23 @@ import os
 import re
 import secrets
 
-from backend.extensions import db
-from backend.models import User
-from flask import Blueprint, jsonify, render_template_string, request
-from flask_jwt_extended import create_access_token
+from app import db, get_real_ip
+from flask import Blueprint, jsonify, make_response, render_template_string, request
+from flask_jwt_extended import create_access_token, set_access_cookies, jwt_required, unset_jwt_cookies
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
+from models import User
 import requests
-import resend
 from sqlalchemy.exc import IntegrityError
+from utils import validate_password
+from utils.login_details import parse_user_agent, get_location_from_ip
+from utils.email import (
+    send_email,
+    get_email_verification_email,
+    get_login_notification_email,
+    get_password_reset_request_email,
+    get_password_reset_confirmation_email,
+    send_password_reset_admin_alert
+)
 
 
 auth_routes = Blueprint('auth_routes', __name__)
@@ -19,11 +28,6 @@ secret_key = os.environ.get('SECRET_KEY')
 if not secret_key:
     raise RuntimeError("SECRET_KEY environment variable is not set")
 serializer = URLSafeTimedSerializer(secret_key)
-
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
-if not RESEND_API_KEY:
-    raise RuntimeError("RESEND_API_KEY environment variable is not set")
-resend.api_key = RESEND_API_KEY
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
 TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY')
@@ -48,59 +52,16 @@ def verify_turnstile(token):
         # If verification fails (network error, etc.), reject
         return False
 
-def validate_password_strength(password):
-    """
-    Validate password strength.
-    Requirements (either):
-    Option 1: At least 8 characters with uppercase, lowercase, number, and special character
-    Option 2: At least 12 characters (any characters allowed)
-    """
-    has_uppercase = re.search(r'[A-Z]', password)
-    has_lowercase = re.search(r'[a-z]', password)
-    has_number = re.search(r'\d', password)
-    has_special = re.search(r'[!@#$%^&*(),.?":{}|<>]', password)
-
-    # Option 1: 8+ chars with all requirements
-    if len(password) >= 8 and has_uppercase and has_lowercase and has_number and has_special:
-        return True, "Password is strong"
-
-    # Option 2: 12+ chars (no other requirements)
-    if len(password) >= 12:
-        return True, "Password is strong"
-
-    # Build error message based on what's missing
-    if len(password) < 8:
-        return False, "Password must be at least 8 characters (with special character) or 12 characters"
-
-    if not has_uppercase:
-        return False, "Password must contain at least one uppercase letter"
-
-    if not has_lowercase:
-        return False, "Password must contain at least one lowercase letter"
-
-    if not has_number:
-        return False, "Password must contain at least one number"
-
-    if len(password) < 12:
-        return False, "Password must contain a special character (!@#$%^&*(),.?\":{}|<>) or be at least 12 characters"
-
-    return False, "Password does not meet security requirements"
-
 def send_verification_email(user_email):
+    """Send email verification using centralized email template"""
     token = serializer.dumps(user_email, salt='email-confirm')
     confirm_url = f"{FRONTEND_URL}/verify-email/{token}"
-    params = {
-        "from": "noreply@computeranything.dev",
-        "to": [user_email],
-        "subject": "Confirm Your Email",
-        "html": f"""
-            <h1>Confirm Your Email</h1>
-            <p>Click the link below to verify your email address:</p>
-            <a href="{confirm_url}">{confirm_url}</a>
-            <p>If you did not sign up, you can ignore this email.</p>
-        """,
-    }
-    resend.Emails.send(params) # type: ignore
+
+    # Get professional email template
+    subject, html = get_email_verification_email(confirm_url)
+
+    # Send via centralized email system
+    send_email(to=user_email, subject=subject, html=html)
 
 
 # VERIFY EMAIL
@@ -157,7 +118,7 @@ def verify_email(token):
 
 
 # RESEND VERIFICATION EMAIL
-@auth_routes.route('/api/resend-verification', methods=['POST'])
+@auth_routes.route('/resend-verification', methods=['POST'])
 def resend_verification():
     data = request.get_json()
     identifier = data.get('identifier')
@@ -171,7 +132,7 @@ def resend_verification():
 
 
 # REGISTER
-@auth_routes.route('/api/register', methods=['POST'])
+@auth_routes.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
 
@@ -200,7 +161,7 @@ def register():
         return jsonify({"msg": "Username can only contain lowercase letters, numbers, and underscores"}), 400
 
     # Validate password strength
-    is_valid, message = validate_password_strength(password)
+    is_valid, message = validate_password(password)
     if not is_valid:
         return jsonify({"msg": message}), 400
 
@@ -219,7 +180,7 @@ def register():
 
 
 # LOGIN
-@auth_routes.route('/api/login', methods=['POST'])
+@auth_routes.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
 
@@ -235,20 +196,77 @@ def login():
     user = User.query.filter((User.username == identifier) | (User.email == identifier)).first()
     if not user:
         return jsonify({"msg": "User does not exist"}), 404
+
     if not user.check_password(password):
+        # Record failed login attempt
+        user.record_failed_login()
+        db.session.commit()
         return jsonify({"msg": "Incorrect password"}), 401
+
     if not user.is_verified:
         return jsonify({"msg": "Please verify your email before logging in."}), 403
-    access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(hours=12))
-    return jsonify({
-        "access_token": access_token,
-        "user_id": user.id,
-        "username": user.username
-    }), 200
+
+    # Capture login details for security tracking
+    login_ip = get_real_ip()
+    user_agent_string = request.headers.get('User-Agent', '')
+    browser_info, device_info = parse_user_agent(user_agent_string)
+    location_info = get_location_from_ip(login_ip)
+
+    # Record successful login
+    user.record_successful_login(
+        ip_address=login_ip,
+        location=location_info,
+        browser=browser_info,
+        device=device_info
+    )
+    db.session.commit()
+
+    # Send login notification email (security feature)
+    try:
+        login_time = datetime.now(UTC).strftime('%B %d, %Y at %I:%M %p UTC')
+        subject, html = get_login_notification_email(
+            email=user.email,
+            login_time=login_time,
+            ip_address=login_ip,
+            location=location_info,
+            browser=browser_info,
+            device=device_info
+        )
+        send_email(to=user.email, subject=subject, html=html)
+    except Exception as e:
+        # Don't fail login if email fails - log it
+        print(f"Failed to send login notification: {e!r}")
+
+    # Create access token with token version for invalidation support
+    access_token = create_access_token(
+        identity=str(user.id),
+        additional_claims={"token_version": user.token_version}
+    )
+
+    # Set httpOnly cookie and return user info
+    response = make_response(jsonify({'user': user.to_dict(), 'message': 'Login successful'}), 200)
+    set_access_cookies(response, access_token)
+    return response
+
+
+# LOGOUT
+@auth_routes.route('/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    """Logout by clearing httpOnly cookie"""
+    try:
+        response = make_response(jsonify({
+            'message': 'Logged out successfully'
+        }), 200)
+        unset_jwt_cookies(response)
+        return response
+    except Exception as e:
+        print(f"Logout error: {e!r}")
+        return jsonify({'error': 'An error occurred during logout'}), 500
 
 
 # FORGOT PASSWORD - Request password reset
-@auth_routes.route('/api/forgot-password', methods=['POST'])
+@auth_routes.route('/forgot-password', methods=['POST'])
 def forgot_password():
     data = request.get_json()
 
@@ -273,32 +291,23 @@ def forgot_password():
     user.reset_token_expiry = datetime.now(UTC).replace(tzinfo=None) + timedelta(hours=1)
     db.session.commit()
 
-    # Send reset email
+    # Send password reset email using professional template
     reset_url = f"{FRONTEND_URL}/reset-password/{reset_token}"
-    params = {
-        "from": "noreply@computeranything.dev",
-        "to": [email],
-        "subject": "Password Reset Request",
-        "html": f"""
-            <html>
-            <head><title>Password Reset</title></head>
-            <body style="background:#111;color:#00ff00;font-family:sans-serif;padding:2em;">
-                <h1>Password Reset Request</h1>
-                <p>You requested to reset your password. Click the link below to reset it:</p>
-                <a href="{reset_url}" style="color:#00ff00;text-decoration:underline;">{reset_url}</a>
-                <p>This link will expire in 1 hour.</p>
-                <p>If you did not request a password reset, you can safely ignore this email.</p>
-            </body>
-            </html>
-        """,
-    }
-    resend.Emails.send(params) # type: ignore
+    subject, html = get_password_reset_request_email(reset_url)
+    send_email(to=email, subject=subject, html=html)
+
+    # Send admin security alert for password reset
+    try:
+        send_password_reset_admin_alert(email)
+    except Exception as e:
+        # Don't fail request if admin alert fails - log it
+        print(f"Failed to send password reset admin alert: {e!r}")
 
     return jsonify({"msg": "If that email exists, a password reset link has been sent."}), 200
 
 
 # RESET PASSWORD - Set new password with token
-@auth_routes.route('/api/reset-password', methods=['POST'])
+@auth_routes.route('/reset-password', methods=['POST'])
 def reset_password():
     data = request.get_json()
     token = data.get('token')
@@ -308,7 +317,7 @@ def reset_password():
         return jsonify({"msg": "Token and new password are required"}), 400
 
     # Validate password strength
-    is_valid, message = validate_password_strength(new_password)
+    is_valid, message = validate_password(new_password)
     if not is_valid:
         return jsonify({"msg": message}), 400
 
@@ -320,10 +329,20 @@ def reset_password():
     if not user.reset_token_expiry or user.reset_token_expiry < datetime.now(UTC).replace(tzinfo=None):
         return jsonify({"msg": "Reset token has expired"}), 400
 
-    # Set new password
+    # Set new password and invalidate all existing tokens
     user.set_password(new_password)
+    user.invalidate_tokens()
+    user.password_reset_count += 1
     user.reset_token = None
     user.reset_token_expiry = None
     db.session.commit()
+
+    # Send password reset confirmation email
+    try:
+        subject, html = get_password_reset_confirmation_email(user.email)
+        send_email(to=user.email, subject=subject, html=html)
+    except Exception as e:
+        # Don't fail request if email fails - log it
+        print(f"Failed to send password reset confirmation email: {e!r}")
 
     return jsonify({"msg": "Password has been reset successfully"}), 200

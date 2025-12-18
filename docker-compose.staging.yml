@@ -6,7 +6,7 @@ services:
     container_name: blog_nginx_staging
     restart: always
     ports:
-      - "127.0.0.1:8001:80"  # Only accessible from localhost
+      - "127.0.0.1:8002:80"  # Only accessible from localhost (8002 to avoid conflict with cpta_app)
     volumes:
       - ./deployment/nginx/staging-proxy.conf:/etc/nginx/nginx.conf:ro
     depends_on:

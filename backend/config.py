@@ -1,4 +1,5 @@
 import os
+from typing import ClassVar
 
 from dotenv import load_dotenv
 
@@ -10,7 +11,7 @@ class Config:
     # Database configuration
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {  # noqa: RUF012
+    SQLALCHEMY_ENGINE_OPTIONS: ClassVar[dict] = {
         'pool_pre_ping': True,  # Verify connections before using them
         'pool_recycle': 300,    # Recycle connections after 5 minutes
     }
@@ -18,17 +19,25 @@ class Config:
     # Secret key for session management
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
-    # JWT secret key
+    # JWT Configuration
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
+    JWT_ACCESS_TOKEN_EXPIRES = int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRES', 43200))  # 12 hours default
 
-    # Resend API configuration (emails are sent via Resend API, not SMTP)
+    # Email Configuration (Resend API)
     RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@computeranything.dev')
+
+    # Admin Email (for security alerts)
+    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
+
+    # Cloudflare Turnstile
+    TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY')
 
     # Frontend URL (for CORS and email links)
     FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://blog.computeranything.dev')
 
-    # Redis for rate limiting
-    REDIS_URL = os.environ.get('REDIS_URL', 'memory://')
+    # Rate Limiting Storage (Redis)
+    RATELIMIT_STORAGE_URI = os.environ.get('REDIS_URL', 'memory://')
 
     # Environment detection
     ENV = os.environ.get('FLASK_ENV', 'development')

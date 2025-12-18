@@ -1,20 +1,20 @@
-import React from 'react'
+import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
-import { useAppSelector } from '../../redux/hooks'
+import { useAuth } from '../../contexts/AuthContext'
 
 interface ProtectedRouteProps {
-  children: React.ReactNode
+  children: ReactNode
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, token, isGuest, hydrated } = useAppSelector((state) => state.auth)
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  const { isAuthenticated, loading } = useAuth()
 
-  // Wait for Redux state to hydrate from localStorage before rendering
-  if (!hydrated) return null
+  // Wait for auth check to complete
+  if (loading) return null
 
-  // Allow access if authenticated (token) or guest
-  if ((!user || !token) && !isGuest) {
-    return <Navigate to="/" replace />
+  // Redirect to home with login modal if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/?login=true&message=Please log in to continue" replace />
   }
 
   return <>{children}</>
