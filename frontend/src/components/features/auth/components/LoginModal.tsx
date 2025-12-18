@@ -1,7 +1,7 @@
-import { useState, useRef, type FormEvent } from 'react'
+import { useState, useRef, useEffect, type FormEvent } from 'react'
 import { Form, Modal } from 'react-bootstrap'
 import styled from 'styled-components'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { useAuth } from '../../../../contexts/AuthContext'
@@ -10,6 +10,8 @@ import { colors, transitions, shadows } from '../../../../theme/colors'
 import { StyledModal } from '../../../common/StyledModal'
 import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
+import { useLocalStorage } from '../../../../hooks/useLocalStorage'
+import logger from '../../../../utils/logger'
 
 const StyledForm = styled(Form)`
   .form-control {
@@ -92,7 +94,41 @@ const LoginModal = () => {
   const [twoFAEmail, setTwoFAEmail] = useState('')
   const [twoFACode, setTwoFACode] = useState('')
 
+  // Rate limiting state - use localStorage hook
+  const [rateLimitedUntil, setRateLimitedUntil, removeRateLimit] = useLocalStorage<number | null>('login_rate_limit_until', null)
+  const [countdown, setCountdown] = useState<number>(0)
+
   const show = searchParams.get('login') === 'true'
+
+  // Countdown timer for rate limiting
+  useEffect(() => {
+    if (!rateLimitedUntil) {
+      setCountdown(0)
+      return
+    }
+
+    const updateCountdown = () => {
+      const now = Date.now()
+      const remaining = Math.ceil((rateLimitedUntil - now) / 1000)
+
+      if (remaining <= 0) {
+        setCountdown(0)
+        removeRateLimit()
+        setMessage('')
+      } else {
+        setCountdown(remaining)
+        // Set error message if not already set (for page refresh case)
+        if (!message) {
+          setMessage(`Too many login attempts. Please try again in ${remaining} seconds.`)
+        }
+      }
+    }
+
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+
+    return () => clearInterval(interval)
+  }, [rateLimitedUntil, message, removeRateLimit])
 
   const handleClose = () => {
     const params = new URLSearchParams(searchParams)
@@ -104,6 +140,7 @@ const LoginModal = () => {
     setRequires2FA(false)
     setTwoFAEmail('')
     setTwoFACode('')
+    // Note: DO NOT reset rateLimitedUntil or countdown - rate limit persists across modal close/open
   }
 
   const handleLogin = async (e: FormEvent) => {
@@ -139,13 +176,27 @@ const LoginModal = () => {
       setMessage('')
       handleClose()
       navigate('/')
-    } catch (error) {
-      console.error('Login failed:', error)
-      const errMsg = 'Login failed. Please check your credentials.'
-      setMessage(errMsg)
+    } catch (error: unknown) {
+      logger.error('Login failed:', error)
 
-      if (errMsg.toLowerCase().includes('verify')) {
-        setShowResend(true)
+      // Special handling for rate limiting with Retry-After header
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number; headers?: { 'retry-after'?: string }; data?: { error?: string } } }
+        if (axiosError.response?.status === 429) {
+          const retryAfter = axiosError.response.headers?.['retry-after']
+          const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 60
+          const limitUntil = Date.now() + waitSeconds * 1000
+          setRateLimitedUntil(limitUntil)
+          setMessage(`Too many login attempts. Please try again in ${waitSeconds} seconds.`)
+        } else {
+          const errMsg = axiosError.response?.data?.error || 'Login failed. Please check your credentials.'
+          setMessage(errMsg)
+          if (errMsg.toLowerCase().includes('verify')) {
+            setShowResend(true)
+          }
+        }
+      } else {
+        setMessage('Login failed. Please check your credentials.')
       }
 
       // Reset turnstile on error
@@ -176,10 +227,27 @@ const LoginModal = () => {
       setTwoFAEmail('')
       setMessage('')
       navigate('/')
-    } catch (error) {
-      console.error('2FA verification error:', error)
-      setTwoFACode('')  // Clear code on error
-      setMessage('Invalid or expired verification code. Please try again.')
+    } catch (error: unknown) {
+      logger.error('2FA verification error:', error)
+
+      // Clear code on error (force re-entry)
+      setTwoFACode('')
+
+      // Special handling for rate limiting
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number; headers?: { 'retry-after'?: string }; data?: { error?: string } } }
+        if (axiosError.response?.status === 429) {
+          const retryAfter = axiosError.response.headers?.['retry-after']
+          const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 300  // 5 minutes default
+          const limitUntil = Date.now() + waitSeconds * 1000
+          setRateLimitedUntil(limitUntil)
+          setMessage(`Too many verification attempts. Please try again in ${waitSeconds} seconds.`)
+        } else {
+          setMessage(axiosError.response?.data?.error || 'Invalid or expired verification code. Please try again.')
+        }
+      } else {
+        setMessage('Invalid or expired verification code. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -204,13 +272,6 @@ const LoginModal = () => {
     const params = new URLSearchParams(searchParams)
     params.delete('login')
     params.set('register', 'true')
-    setSearchParams(params)
-  }
-
-  const handleSwitchToForgotPassword = () => {
-    const params = new URLSearchParams(searchParams)
-    params.delete('login')
-    params.set('forgotPassword', 'true')
     setSearchParams(params)
   }
 
@@ -267,15 +328,33 @@ const LoginModal = () => {
             <PrimaryButton
               type="submit"
               className="w-100 mb-2"
-              disabled={!turnstileToken || loading}
+              disabled={!turnstileToken || loading || countdown > 0}
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? (
+                'Logging in...'
+              ) : countdown > 0 ? (
+                <>
+                  <i className="bi bi-hourglass-split me-2"></i>
+                  Try again in {countdown}s
+                </>
+              ) : (
+                'Login'
+              )}
             </PrimaryButton>
 
             <div className="text-center">
-              <SwitchLink type="button" onClick={handleSwitchToForgotPassword}>
+              <Link
+                to="/forgot-password"
+                onClick={handleClose}
+                style={{
+                  color: colors.primary,
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: 'inherit'
+                }}
+              >
                 Forgot Password?
-              </SwitchLink>
+              </Link>
             </div>
 
             {message && (
@@ -345,9 +424,18 @@ const LoginModal = () => {
             <div className="d-grid gap-2">
               <PrimaryButton
                 type="submit"
-                disabled={loading || twoFACode.length !== 6}
+                disabled={loading || countdown > 0 || twoFACode.length !== 6}
               >
-                {loading ? 'Verifying...' : 'Verify Code'}
+                {loading ? (
+                  'Verifying...'
+                ) : countdown > 0 ? (
+                  <>
+                    <i className="bi bi-hourglass-split me-2"></i>
+                    Try again in {countdown}s
+                  </>
+                ) : (
+                  'Verify Code'
+                )}
               </PrimaryButton>
               <SecondaryButton
                 onClick={handleClose}

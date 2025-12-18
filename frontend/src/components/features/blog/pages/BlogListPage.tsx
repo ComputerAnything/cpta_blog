@@ -12,7 +12,6 @@ import { PrimaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
 import LoginModal from '../../auth/components/LoginModal'
 import RegisterModal from '../../auth/components/RegisterModal'
-import ForgotPasswordModal from '../../auth/components/ForgotPasswordModal'
 import Footer from '../../../layout/Footer'
 
 const BlogListContainer = styled(PageContainer)`
@@ -574,7 +573,6 @@ const BlogListPage = () => {
       {/* Auth Modals */}
       <LoginModal />
       <RegisterModal />
-      <ForgotPasswordModal />
       </BlogListContainer>
 
       {/* Footer */}

@@ -8,6 +8,7 @@ import { colors, shadows, transitions } from '../../../../theme/colors'
 import { PageContainer } from '../../../../theme/sharedComponents'
 import { PrimaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
+import ChangePasswordModal from '../../auth/components/ChangePasswordModal'
 import Footer from '../../../layout/Footer'
 
 const ProfileHeader = styled.div`
@@ -271,6 +272,7 @@ const ProfilePage = () => {
   const [newUsername, setNewUsername] = useState('')
   const [settingsMessage, setSettingsMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [settingsLoading, setSettingsLoading] = useState(false)
+  const [showChangePassword, setShowChangePassword] = useState(false)
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -482,6 +484,16 @@ const ProfilePage = () => {
 
               <SettingRow>
                 <div className="setting-info">
+                  <h3>Change Password</h3>
+                  <p>Update your password to keep your account secure</p>
+                </div>
+                <PrimaryButton onClick={() => setShowChangePassword(true)}>
+                  Change Password
+                </PrimaryButton>
+              </SettingRow>
+              
+              <SettingRow>
+                <div className="setting-info">
                   <h3>Two-Factor Authentication</h3>
                   <p>
                     {currentUser?.twofa_enabled
@@ -500,6 +512,7 @@ const ProfilePage = () => {
                   <span className="slider"></span>
                 </ToggleSwitch>
               </SettingRow>
+
             </PostsSection>
           )}
 
@@ -536,6 +549,12 @@ const ProfilePage = () => {
               ))
             )}
           </PostsSection>
+
+          {/* Change Password Modal */}
+          <ChangePasswordModal
+            show={showChangePassword}
+            onHide={() => setShowChangePassword(false)}
+          />
         </div>
       </PageContainer>
       <Footer />

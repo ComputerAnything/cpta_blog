@@ -1,289 +1,114 @@
-import { useState, type FormEvent } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { Container, Form, Button } from 'react-bootstrap'
+import { useState } from 'react'
+import { useSearchParams, useNavigate, Link } from 'react-router-dom'
+import { Container, Form, Card } from 'react-bootstrap'
 import styled from 'styled-components'
 import { authAPI } from '../../../../services/api'
-import { colors, shadows, transitions } from '../../../../theme/colors'
-import { PageContainer as BasePageContainer } from '../../../../theme/sharedComponents'
+import { colors, gradients, shadows } from '../../../../theme/colors'
+import logger from '../../../../utils/logger'
+import { getErrorMessage } from '../../../../utils/errors'
+import StyledAlert from '../../../common/StyledAlert'
+import PasswordStrengthMeter from '../../../common/PasswordStrengthMeter'
+import { PasswordInput } from '../../../common/PasswordInput'
+import { PrimaryButton } from '../../../common/StyledButton'
 import Footer from '../../../layout/Footer'
 
-const PageContainer = styled(BasePageContainer)`
+const PageWrapper = styled.div`
+  min-height: 100vh;
+  background: linear-gradient(135deg, ${colors.backgroundDark} 0%, ${colors.background} 100%);
+  display: flex;
+  flex-direction: column;
+  padding-top: 70px; /* Account for navbar */
+`
+
+const ContentWrapper = styled.div`
+  flex: 1;
   display: flex;
   align-items: center;
-  padding: 2rem 0;
+  padding: 40px 0;
 `
 
-const ResetCard = styled.div`
+const StyledCard = styled(Card)`
   background: ${colors.backgroundAlt};
-  backdrop-filter: blur(10px);
   border: 1px solid ${colors.borderLight};
-  border-radius: 12px;
-  padding: 2.5rem;
+  box-shadow: ${shadows.large};
   max-width: 500px;
   margin: 0 auto;
-  box-shadow: ${shadows.large};
-`
+  border-radius: 12px;
 
-const Title = styled.h2`
-  color: ${colors.primary};
-  margin-bottom: 1rem;
-  text-align: center;
-  font-weight: 700;
-`
-
-const Subtitle = styled.p`
-  color: ${colors.text.secondary};
-  text-align: center;
-  margin-bottom: 2rem;
-`
-
-const StyledForm = styled(Form)`
-  .form-label {
+  .card-header {
+    background: ${gradients.primary};
+    border-bottom: none;
     color: ${colors.text.primary};
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-  }
+    padding: 1.5rem;
+    text-align: center;
+    border-radius: 12px 12px 0 0;
 
-  .form-control {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid ${colors.borderLight};
-    color: ${colors.text.primary};
-    padding: 0.75rem;
-
-    &:focus {
-      background: rgba(0, 0, 0, 0.6);
-      border-color: ${colors.primary};
-      box-shadow: ${shadows.focus};
-      color: ${colors.text.primary};
+    h2 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #000;
     }
 
-    &::placeholder {
-      color: ${colors.text.muted};
+    .subtitle {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      opacity: 0.9;
+      color: #000;
     }
   }
 
-  .input-group {
-    position: relative;
+  .card-body {
+    padding: 2rem;
+  }
 
-    .toggle-password-btn {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      z-index: 10;
-      padding: 0.25rem 0.5rem;
-      color: ${colors.text.secondary};
-      transition: ${transitions.default};
+  .back-link {
+    color: ${colors.primary};
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 
-      &:hover {
-        color: ${colors.primary};
-      }
+    &:hover {
+      color: ${colors.primaryDark};
+      text-decoration: underline;
     }
-
-    input {
-      padding-right: 50px;
-    }
-  }
-`
-
-const AuthButton = styled(Button)`
-  background: linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%);
-  border: none;
-  color: #000;
-  font-weight: 600;
-  padding: 0.75rem;
-  transition: ${transitions.fast};
-  width: 100%;
-  box-shadow: ${shadows.button};
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: ${shadows.buttonHover};
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    background: rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.5);
-    cursor: not-allowed;
-  }
-`
-
-const ErrorMessage = styled.div`
-  background: rgba(220, 53, 69, 0.2);
-  border: 1px solid ${colors.danger};
-  color: ${colors.danger};
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-top: 1rem;
-`
-
-const SuccessMessage = styled.div`
-  background: rgba(40, 167, 69, 0.2);
-  border: 1px solid ${colors.success};
-  color: ${colors.success};
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-top: 1rem;
-`
-
-const PasswordStrengthMeter = styled.div`
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-`
-
-const StrengthBar = styled.div<{ strength: number }>`
-  height: 4px;
-  background: ${props => {
-    if (props.strength === 0) return 'rgba(255, 255, 255, 0.1)';
-    if (props.strength === 1) return colors.danger;
-    if (props.strength === 2) return '#ffa500';
-    if (props.strength === 3) return colors.success;
-    if (props.strength === 4) return colors.success;
-    return 'rgba(255, 255, 255, 0.1)';
-  }};
-  width: ${props => (props.strength / 4) * 100}%;
-  transition: ${transitions.default};
-  border-radius: 2px;
-`
-
-const StrengthBarContainer = styled.div`
-  width: 100%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
-`
-
-const StrengthText = styled.div<{ strength: number }>`
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  color: ${props => {
-    if (props.strength === 0) return colors.text.muted;
-    if (props.strength === 1) return colors.danger;
-    if (props.strength === 2) return '#ffa500';
-    if (props.strength === 3) return colors.success;
-    if (props.strength === 4) return colors.success;
-    return colors.text.muted;
-  }};
-`
-
-const PasswordRequirements = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0.5rem 0 0 0;
-  font-size: 0.75rem;
-
-  li {
-    color: ${colors.text.muted};
-    margin-bottom: 0.25rem;
-
-    &.met {
-      color: ${colors.success};
-    }
-
-    &::before {
-      content: '• ';
-      margin-right: 0.25rem;
-    }
-  }
-`
-
-const BackToLogin = styled.button`
-  background: none;
-  border: none;
-  color: ${colors.primary};
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 0;
-  font-size: inherit;
-  display: block;
-  margin: 1.5rem auto 0;
-  transition: ${transitions.default};
-
-  &:hover {
-    color: ${colors.primaryDark};
   }
 `
 
 const ResetPasswordPage = () => {
-  const { token } = useParams<{ token: string }>()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const token = searchParams.get('token')
 
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [message, setMessage] = useState('')
-  const [isSuccess, setIsSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
-  // Calculate password strength (matches cpta_app logic)
-  const calculatePasswordStrength = (pwd: string) => {
-    const requirements = {
-      minLength8: pwd.length >= 8,
-      minLength12: pwd.length >= 12,
-      uppercase: /[A-Z]/.test(pwd),
-      lowercase: /[a-z]/.test(pwd),
-      number: /\d/.test(pwd),
-      special: /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
-    }
-
-    // If less than 8 chars, weak
-    if (pwd.length < 8) {
-      return { strength: 1, label: 'Weak', requirements, isValid: false }
-    }
-
-    // If 12+ characters, automatically strong
-    if (requirements.minLength12) {
-      return { strength: 4, label: 'Strong', requirements, isValid: true }
-    }
-
-    // Between 8-11 characters - check complexity
-    const complexityCount = [
-      requirements.uppercase,
-      requirements.lowercase,
-      requirements.number,
-      requirements.special
-    ].filter(Boolean).length
-
-    if (complexityCount === 4) {
-      return { strength: 3, label: 'Good', requirements, isValid: true }
-    } else if (complexityCount >= 2) {
-      return { strength: 2, label: 'Fair', requirements, isValid: false }
-    } else {
-      return { strength: 1, label: 'Weak', requirements, isValid: false }
-    }
-  }
-
-  const { strength: passwordStrength, label, requirements, isValid } = calculatePasswordStrength(password)
-
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setMessage('')
-    setIsSuccess(false)
+    setError('')
+    setSuccess(false)
+
+    // Validate token exists
+    if (!token) {
+      setError('Invalid or missing reset token')
+      return
+    }
 
     // Validate passwords match
     if (password !== confirmPassword) {
-      setMessage('Passwords do not match')
+      setError('Passwords do not match')
       return
     }
 
-    // Validate password strength
-    if (!isValid) {
-      setMessage('Password does not meet security requirements')
-      return
-    }
-
-    if (!token) {
-      setMessage('Invalid reset token')
+    // Validate password length
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters')
       return
     }
 
@@ -291,128 +116,140 @@ const ResetPasswordPage = () => {
 
     try {
       await authAPI.resetPassword(token, password)
-      setMessage('Password has been reset successfully')
-      setIsSuccess(true)
-      setPassword('')
-      setConfirmPassword('')
+      setSuccess(true)
 
-      // Redirect to login after 3 seconds
+      // Redirect to login after 2 seconds
       setTimeout(() => {
         navigate('/?login=true')
-      }, 3000)
-    } catch (error) {
-      console.error('Password reset failed:', error)
-      setMessage('Failed to reset password. The link may have expired.')
-      setIsSuccess(false)
+      }, 2000)
+    } catch (error: unknown) {
+      logger.error('Reset password error:', error)
+      setError(getErrorMessage(error, 'Failed to reset password. The link may have expired.'))
     } finally {
       setLoading(false)
     }
   }
 
-  const handleBackToLogin = () => {
-    navigate('/?login=true')
+  // Show error if no token
+  if (!token) {
+    return (
+      <>
+        <PageWrapper>
+          <ContentWrapper>
+            <Container>
+              <StyledCard>
+                <Card.Header>
+                  <h2><i className="bi bi-x-circle me-2"></i>Invalid Link</h2>
+                </Card.Header>
+                <Card.Body>
+                  <StyledAlert variant="danger">
+                    <strong>Invalid Reset Link</strong>
+                    <div>This password reset link is invalid or has expired. Please request a new one.</div>
+                  </StyledAlert>
+                  <div className="text-center mt-3">
+                    <Link to="/forgot-password" className="back-link">
+                      <i className="bi bi-arrow-left"></i>
+                      Request New Reset Link
+                    </Link>
+                  </div>
+                </Card.Body>
+              </StyledCard>
+            </Container>
+          </ContentWrapper>
+        </PageWrapper>
+        <Footer />
+      </>
+    )
   }
 
   return (
     <>
-      <PageContainer>
-        <Container>
-          <ResetCard>
-            <Title>Reset Your Password</Title>
-            <Subtitle>Enter your new password below</Subtitle>
+      <PageWrapper>
+        <ContentWrapper>
+          <Container>
+            <StyledCard>
+              <Card.Header>
+                <h2><i className="bi bi-key me-2"></i>Reset Password</h2>
+                <div className="subtitle">Choose a new secure password</div>
+              </Card.Header>
+              <Card.Body>
+                {error && (
+                  <StyledAlert variant="danger" className="mb-3">
+                    <strong>Reset Failed</strong>
+                    <div>{error}</div>
+                  </StyledAlert>
+                )}
 
-            <StyledForm onSubmit={handleSubmit}>
-              <Form.Group className="mb-3">
-                <Form.Label>New Password</Form.Label>
-                <div className="input-group">
-                  <Form.Control
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter new password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={isSuccess}
-                  />
-                  <button
-                    type="button"
-                    className="toggle-password-btn"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
-                  </button>
-                </div>
-                {password && (
-                  <PasswordStrengthMeter>
-                    <StrengthBarContainer>
-                      <StrengthBar strength={passwordStrength} />
-                    </StrengthBarContainer>
-                    <StrengthText strength={passwordStrength}>
-                      Password Strength: {label}
-                    </StrengthText>
-                    {passwordStrength < 3 && (
-                      <PasswordRequirements>
-                        <li className={requirements.minLength12 ? 'met' : ''}>
-                          12+ characters (recommended)
-                        </li>
-                        {!requirements.minLength12 && (
+                {success ? (
+                  <StyledAlert variant="success">
+                    <strong><i className="bi bi-check-circle me-2"></i>Success!</strong>
+                    <p className="mb-2" style={{ marginTop: '0.5rem' }}>
+                      Your password has been reset successfully! Redirecting to login...
+                    </p>
+                    <div className="text-center mt-3">
+                      <Link to="/?login=true" className="back-link">
+                        <i className="bi bi-box-arrow-in-right"></i>
+                        Go to Login
+                      </Link>
+                    </div>
+                  </StyledAlert>
+                ) : (
+                  <Form onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3">
+                      <PasswordInput
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        label="New Password"
+                        placeholder="Enter your new password"
+                        required
+                        autoComplete="new-password"
+                      />
+                      <PasswordStrengthMeter password={password} />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <PasswordInput
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        label="Confirm New Password"
+                        placeholder="Confirm your new password"
+                        required
+                        autoComplete="new-password"
+                      />
+                    </Form.Group>
+
+                    <div className="d-grid mb-3">
+                      <PrimaryButton
+                        type="submit"
+                        disabled={loading || !password || !confirmPassword}
+                      >
+                        {loading ? (
                           <>
-                            <li className={requirements.minLength8 ? 'met' : ''}>At least 8 characters</li>
-                            <li className={requirements.uppercase ? 'met' : ''}>One uppercase letter</li>
-                            <li className={requirements.lowercase ? 'met' : ''}>One lowercase letter</li>
-                            <li className={requirements.number ? 'met' : ''}>One number</li>
-                            <li className={requirements.special ? 'met' : ''}>One special character (!@#$%^&*)</li>
+                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Resetting Password...
+                          </>
+                        ) : (
+                          <>
+                            <i className="bi bi-shield-check me-2"></i>
+                            Reset Password
                           </>
                         )}
-                      </PasswordRequirements>
-                    )}
-                  </PasswordStrengthMeter>
+                      </PrimaryButton>
+                    </div>
+
+                    <div className="text-center">
+                      <Link to="/?login=true" className="back-link">
+                        <i className="bi bi-arrow-left"></i>
+                        Back to Login
+                      </Link>
+                    </div>
+                  </Form>
                 )}
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Confirm Password</Form.Label>
-                <div className="input-group">
-                  <Form.Control
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="Confirm new password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    disabled={isSuccess}
-                  />
-                  <button
-                    type="button"
-                    className="toggle-password-btn"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    <i className={`bi ${showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
-                  </button>
-                </div>
-              </Form.Group>
-
-              <AuthButton type="submit" disabled={isSuccess || loading}>
-                {loading ? 'Resetting Password...' : 'Reset Password'}
-              </AuthButton>
-
-              {message && (
-                isSuccess ? (
-                  <SuccessMessage>
-                    {message}
-                    <br />
-                    <small>Redirecting to login...</small>
-                  </SuccessMessage>
-                ) : (
-                  <ErrorMessage>{message}</ErrorMessage>
-                )
-              )}
-            </StyledForm>
-
-            <BackToLogin onClick={handleBackToLogin}>
-              Back to Login
-            </BackToLogin>
-          </ResetCard>
-        </Container>
-      </PageContainer>
+              </Card.Body>
+            </StyledCard>
+          </Container>
+        </ContentWrapper>
+      </PageWrapper>
       <Footer />
     </>
   )

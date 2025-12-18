@@ -410,6 +410,37 @@ def get_2fa_code_email(code: str) -> tuple[str, str]:
     return subject, BASE_STYLE.format(content=content)
 
 
+def get_registration_code_email(code: str) -> tuple[str, str]:
+    """Email sent with verification code for registration"""
+    subject = "Welcome! Verify Your Email"
+    content = f"""
+        {HEADER}
+        <h2 style="color: #333;">Welcome to Computer Anything Blog!</h2>
+        <p>Hello,</p>
+        <p>Thank you for registering! Please verify your email address with this code:</p>
+        <div style="text-align: center; margin: 30px 0;">
+            <div style="font-size: 36px; font-weight: bold; letter-spacing: 10px; color: #28a745; background-color: #f5f5f5; padding: 25px 40px; border-radius: 8px; display: inline-block; font-family: 'Courier New', monospace;">
+                {escape(code)}
+            </div>
+        </div>
+        <div style="{ALERT_WARNING}">
+            <strong>⏰ This code expires in 10 minutes</strong>
+        </div>
+        <div style="{ALERT_INFO}">
+            <strong>Next Steps:</strong><br>
+            • Enter this code on the registration page to complete your sign-up<br>
+            • Once verified, you'll be logged in automatically<br>
+            • You can then start sharing your tech knowledge!
+        </div>
+        <div style="{ALERT_INFO}">
+            <strong>Didn't sign up?</strong><br>
+            If you didn't create an account, you can safely ignore this email.
+        </div>
+        <p style="margin-top: 30px;">Best regards,<br>The Computer Anything Blog Team</p>
+    """
+    return subject, BASE_STYLE.format(content=content)
+
+
 # ============================================================================
 # ADMIN ALERT EMAIL TEMPLATES
 # ============================================================================

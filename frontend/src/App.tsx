@@ -7,6 +7,7 @@ import PostDetailPage from './components/features/blog/pages/PostDetailPage'
 import CreatePostPage from './components/features/blog/pages/CreatePostPage'
 import EditPostPage from './components/features/blog/pages/EditPostPage'
 import ProfilePage from './components/features/blog/pages/ProfilePage'
+import ForgotPasswordPage from './components/features/auth/pages/ForgotPasswordPage'
 import ResetPasswordPage from './components/features/auth/pages/ResetPasswordPage'
 import VerifyEmailPage from './components/features/auth/pages/VerifyEmailPage'
 import ProtectedRoute from './components/common/ProtectedRoute'
@@ -22,8 +23,9 @@ function App() {
           <Route path="/" element={<BlogListPage />} />
           <Route path="/posts/:postId" element={<PostDetailPage />} />
           <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
-          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* Protected Routes - Require login */}
           <Route path="/create-post" element={<ProtectedRoute><CreatePostPage /></ProtectedRoute>} />

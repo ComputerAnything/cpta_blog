@@ -25,7 +25,8 @@ from utils.email import (
     get_password_reset_request_email,
     get_password_reset_confirmation_email,
     send_password_reset_admin_alert,
-    get_2fa_code_email
+    get_2fa_code_email,
+    get_registration_code_email
 )
 
 
@@ -176,14 +177,27 @@ def register():
         return jsonify({"msg": "User already exists"}), 400
     new_user = User(username=username, email=email) # type: ignore
     new_user.set_password(password)
+
+    # Generate 6-digit verification code (expires in 10 minutes)
+    code = new_user.generate_2fa_code(minutes=10)
+
     db.session.add(new_user)
     try :
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
         return {"msg": "Username or email already exists."}, 400
-    send_verification_email(email)
-    return jsonify({"msg": "User created successfully. Please check your email to verify your account."}), 201
+
+    # Send verification code via email
+    try:
+        subject, html = get_registration_code_email(code)
+        send_email(to=email, subject=subject, html=html)
+    except Exception as e:
+        print(f"Failed to send verification code email: {e!r}")
+        # Don't fail registration if email fails - user can request resend
+        # But log the error
+
+    return jsonify({"msg": "Registration successful. Please check your email for a verification code."}), 201
 
 
 # LOGIN
@@ -433,6 +447,77 @@ def verify_2fa():
 
     # Set httpOnly cookie and return user info
     response = make_response(jsonify({'user': user.to_dict(), 'message': 'Login successful'}), 200)
+    set_access_cookies(response, access_token)
+    return response
+
+
+# VERIFY REGISTRATION
+@auth_routes.route('/verify-registration', methods=['POST'])
+def verify_registration():
+    """Verify registration code and complete account setup"""
+    data = request.get_json()
+    email = data.get('email')
+    code = data.get('code')
+
+    if not email or not code:
+        return jsonify({"msg": "Email and verification code are required"}), 400
+
+    user = User.query.filter(User.email == email).first()
+    if not user:
+        return jsonify({"msg": "Invalid verification code"}), 401
+
+    # Check if already verified
+    if user.is_verified:
+        return jsonify({"msg": "Email already verified. Please login."}), 400
+
+    # Verify the code
+    if not user.is_valid_2fa_code(code):
+        return jsonify({"msg": "Invalid or expired verification code"}), 401
+
+    # Mark user as verified
+    user.is_verified = True
+
+    # Clear verification code
+    user.clear_2fa_code()
+
+    # Capture login details for security tracking (auto-login after verification)
+    login_ip = get_real_ip()
+    user_agent_string = request.headers.get('User-Agent', '')
+    browser_info, device_info = parse_user_agent(user_agent_string)
+    location_info = get_location_from_ip(login_ip)
+
+    # Record successful login
+    user.record_successful_login(
+        ip_address=login_ip,
+        location=location_info,
+        browser=browser_info,
+        device=device_info
+    )
+    db.session.commit()
+
+    # Send login notification email (optional - user just verified)
+    try:
+        login_time = datetime.now(UTC).strftime('%B %d, %Y at %I:%M %p UTC')
+        subject, html = get_login_notification_email(
+            email=user.email,
+            login_time=login_time,
+            ip_address=login_ip,
+            location=location_info,
+            browser=browser_info,
+            device=device_info
+        )
+        send_email(to=user.email, subject=subject, html=html)
+    except Exception as e:
+        print(f"Failed to send login notification: {e!r}")
+
+    # Create access token
+    access_token = create_access_token(
+        identity=str(user.id),
+        additional_claims={"token_version": user.token_version}
+    )
+
+    # Set httpOnly cookie and return user info
+    response = make_response(jsonify({'user': user.to_dict(), 'message': 'Email verified successfully! Welcome!'}), 200)
     set_access_cookies(response, access_token)
     return response
 

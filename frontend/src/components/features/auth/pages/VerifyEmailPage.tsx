@@ -144,44 +144,47 @@ const VerifyEmailPage = () => {
   }
 
   return (
-    <PageContainer>
-      <Container>
-        <VerifyCard>
-          <Icon className={status.type}>
-            {status.type === 'loading' && '⏳'}
-            {status.type === 'success' && '✅'}
-            {status.type === 'error' && '❌'}
-          </Icon>
+    <>
+      <PageContainer>
+        <Container>
+          <VerifyCard>
+            <Icon className={status.type}>
+              {status.type === 'loading' && '⏳'}
+              {status.type === 'success' && '✅'}
+              {status.type === 'error' && '❌'}
+            </Icon>
 
-          <Title>
-            {status.type === 'loading' && 'Verifying Email'}
-            {status.type === 'success' && 'Email Verified!'}
-            {status.type === 'error' && 'Verification Failed'}
-          </Title>
+            <Title>
+              {status.type === 'loading' && 'Verifying Email'}
+              {status.type === 'success' && 'Email Verified!'}
+              {status.type === 'error' && 'Verification Failed'}
+            </Title>
 
-          <Message>{status.message}</Message>
+            <Message>{status.message}</Message>
 
-          {status.type === 'success' && (
-            <div>
-              <ActionButton onClick={handleLogin}>
-                Log In Now
-              </ActionButton>
-              <HomeLink onClick={handleGoHome}>
-                Go to Home
-              </HomeLink>
-            </div>
-          )}
+            {status.type === 'success' && (
+              <div>
+                <ActionButton onClick={handleLogin}>
+                  Log In Now
+                </ActionButton>
+                <HomeLink onClick={handleGoHome}>
+                  Go to Home
+                </HomeLink>
+              </div>
+            )}
 
-          {status.type === 'error' && (
-            <div>
-              <ActionButton onClick={handleGoHome}>
-                Go to Home
-              </ActionButton>
-            </div>
-          )}
-        </VerifyCard>
-      </Container>
-    </PageContainer>
+            {status.type === 'error' && (
+              <div>
+                <ActionButton onClick={handleGoHome}>
+                  Go to Home
+                </ActionButton>
+              </div>
+            )}
+          </VerifyCard>
+        </Container>
+      </PageContainer>
+      <Footer />
+    </>
   )
 }
 
