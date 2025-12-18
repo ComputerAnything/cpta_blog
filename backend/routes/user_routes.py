@@ -1,13 +1,13 @@
-from backend.extensions import db
-from backend.models import BlogPost, Comment, User, Vote
+from app import db
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from models import BlogPost, Comment, User, Vote
 
 
 user_routes = Blueprint('user_routes', __name__)
 
 # GET CURRENT USER PROFILE
-@user_routes.route('/api/profile', methods=['GET'])
+@user_routes.route('/profile', methods=['GET'])
 @jwt_required()
 def get_profile():
     user_id = get_jwt_identity()
@@ -23,7 +23,7 @@ def get_profile():
     }), 200
 
 # UPDATE USER PROFILE
-@user_routes.route('/api/profile', methods=['PUT'])
+@user_routes.route('/profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
     user_id = get_jwt_identity()
@@ -45,7 +45,7 @@ def update_profile():
     return jsonify({"msg": "Profile updated successfully"}), 200
 
 # DELETE USER PROFILE
-@user_routes.route('/api/profile', methods=['DELETE'])
+@user_routes.route('/profile', methods=['DELETE'])
 @jwt_required()
 def delete_profile():
     user_id = get_jwt_identity()
@@ -60,7 +60,7 @@ def delete_profile():
     return jsonify({"msg": "Account and all related data deleted successfully"}), 200
 
 # GET USER PROFILE BY USERNAME
-@user_routes.route('/api/users/<string:username>', methods=['GET'])
+@user_routes.route('/users/<string:username>', methods=['GET'])
 def get_user_profile(username):
     user = User.query.filter_by(username=username).first()
     if not user:
@@ -73,14 +73,50 @@ def get_user_profile(username):
         "is_verified": user.is_verified
     }), 200
 
-# GET ALL USERS
-@user_routes.route('/api/users', methods=['GET'])
+# GET ALL USERS (with pagination and search)
+@user_routes.route('/users', methods=['GET'])
+@jwt_required()
 def get_all_users():
-    users = User.query.all()
-    return jsonify([{"id": user.id, "username": user.username} for user in users]), 200
+    """Get all users with pagination and search (authenticated users only)"""
+    try:
+        # 1. Get pagination and search parameters
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 20, type=int)
+        search = request.args.get('search', '')
+
+        # 2. Validate inputs to prevent DoS attacks
+        if page < 1 or page > 10000:
+            return jsonify({'error': 'Page must be between 1 and 10000'}), 400
+        if per_page < 1 or per_page > 100:
+            return jsonify({'error': 'Per page must be between 1 and 100'}), 400
+        if len(search) > 100:
+            return jsonify({'error': 'Search query too long (max 100 characters)'}), 400
+
+        # 3. Build query with optional search filter
+        query = User.query
+
+        if search:
+            # Server-side filtering - search by username (case-insensitive)
+            query = query.filter(User.username.ilike(f'%{search}%'))
+
+        # 4. Apply pagination and ordering
+        users = query.order_by(User.created_at.desc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+
+        # 5. Return structured response with metadata
+        return jsonify({
+            'users': [{"id": user.id, "username": user.username} for user in users.items],
+            'total': users.total,
+            'pages': users.pages,
+            'current_page': page
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': 'An error occurred'}), 500
 
 # GET USER POSTS BY USERNAME
-@user_routes.route('/api/users/<string:username>/posts', methods=['GET'])
+@user_routes.route('/users/<string:username>/posts', methods=['GET'])
 def get_user_posts(username):
     user = User.query.filter_by(username=username).first()
     if not user:
@@ -89,7 +125,7 @@ def get_user_posts(username):
     return jsonify([post.to_dict() for post in posts]), 200
 
 # GET USER VOTES COUNT BY USERNAME
-@user_routes.route('/api/users/<string:username>/votes/count', methods=['GET'])
+@user_routes.route('/users/<string:username>/votes/count', methods=['GET'])
 def get_user_votes_count(username):
     user = User.query.filter_by(username=username).first()
     if not user:
@@ -98,7 +134,7 @@ def get_user_votes_count(username):
     return jsonify({"count": count}), 200
 
 # GET USER COMMENTS COUNT BY USERNAME
-@user_routes.route('/api/users/<string:username>/comments/count', methods=['GET'])
+@user_routes.route('/users/<string:username>/comments/count', methods=['GET'])
 def get_user_comments_count(username):
     user = User.query.filter_by(username=username).first()
     if not user:

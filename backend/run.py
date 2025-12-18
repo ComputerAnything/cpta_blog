@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
 import os
-import sys
 
-
-# Add the parent directory to the Python path so 'backend' module can be found
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from backend.app import create_app
-from backend.extensions import db
-from backend.models import BlogPost, Comment, User, Vote
+from app import create_app, db
+from models import BlogPost, Comment, User, Vote
 
 
 app = create_app()
@@ -24,4 +18,7 @@ def make_shell_context():
     }
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Only for local development; in production we use gunicorn WSGI server
+    debug_mode = os.environ.get('FLASK_ENV') != 'production'
+    port = int(os.environ.get('PORT', 5000))  # Default to 5000 for development
+    app.run(debug=debug_mode, host='0.0.0.0', port=port)

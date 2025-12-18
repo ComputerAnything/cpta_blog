@@ -1,28 +1,13 @@
-import React, { useState } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
-import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { openModal } from '../../redux/slices/authSlice'
-import Toast from '../common/Toast'
+import { colors } from '../../theme/colors'
 
 const StyledFooter = styled.footer`
-  background: #0a0a0a !important;
-  color: #ffffff;
+  background: ${colors.backgroundBlack} !important;
+  color: ${colors.text.primary};
   padding: 3rem 0 1.5rem 0;
-  border-top: 1px solid rgba(0, 255, 65, 0.15);
+  border-top: 1px solid rgba(2, 196, 60, 0.15);
   position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #00ff41, transparent);
-  }
 
   .footer-logo {
     max-height: 40px;
@@ -31,20 +16,39 @@ const StyledFooter = styled.footer`
 
     &:hover {
       transform: scale(1.05);
-      box-shadow: 0 4px 15px rgba(0, 255, 65, 0.3);
+      box-shadow: 0 4px 15px rgba(2, 196, 60, 0.3);
     }
   }
 
   .footer-links {
     a {
-      color: #ffffff80;
+      color: ${colors.text.secondary};
       text-decoration: none;
       transition: all 0.3s ease;
 
       &:hover {
-        color: #00ff41;
+        color: ${colors.primary};
         text-decoration: none;
       }
+    }
+  }
+
+  .footer-nav-button {
+    color: ${colors.text.secondary} !important;
+    text-decoration: none !important;
+    border: none !important;
+    background: none !important;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: ${colors.primary} !important;
+      text-decoration: none !important;
+      background: none !important;
+    }
+
+    &:focus {
+      box-shadow: none !important;
+      color: ${colors.primary} !important;
     }
   }
 
@@ -61,12 +65,12 @@ const StyledFooter = styled.footer`
       text-underline-offset: 3px;
 
       &:hover {
-        color: #00ff41 !important;
-        text-decoration-color: #00ff41 !important;
+        color: ${colors.primary} !important;
+        text-decoration-color: ${colors.primary} !important;
 
         .footer-logo {
           transform: scale(1.1);
-          box-shadow: 0 4px 20px rgba(0, 255, 65, 0.4);
+          box-shadow: 0 4px 20px rgba(40, 167, 69, 0.4);
         }
       }
     }
@@ -80,17 +84,17 @@ const SocialLink = styled.a`
   width: 40px;
   height: 40px;
   background: #181818;
-  border: 1px solid #333;
+  border: 1px solid ${colors.borderDark};
   border-radius: 50%;
-  color: #ffffff80;
+  color: ${colors.text.secondary};
   text-decoration: none;
   transition: all 0.3s ease;
   margin: 0 0.5rem;
 
   &:hover {
-    background: #00ff41;
+    background: ${colors.primary};
     color: white;
-    border-color: #00ff41;
+    border-color: ${colors.primary};
     transform: translateY(-2px);
   }
 
@@ -99,185 +103,141 @@ const SocialLink = styled.a`
   }
 `
 
-const FooterLink = styled.button`
-  background: none;
-  border: none;
-  padding: 0;
-  color: #ffffff80;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  text-align: left;
-  font-size: inherit;
-
-  &:hover {
-    color: #00ff41;
-    text-decoration: none;
-  }
-`
-
 const Footer: React.FC = () => {
-  const currentYear = new Date().getFullYear()
-  const navigate = useNavigate()
-  const dispatch = useAppDispatch()
-  const { user, isGuest } = useAppSelector((state) => state.auth)
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
-
-  const handleNavigation = (path: string, requiresAuth = true, guestMessage?: string) => {
-    // Check guest mode first (guests have no user but isGuest is true)
-    if (isGuest && requiresAuth && guestMessage) {
-      // Logged in as guest - show toast
-      setToastMessage(guestMessage)
-      return
-    }
-
-    if (!user && !isGuest && requiresAuth) {
-      // Not logged in at all - open login modal
-      dispatch(openModal('login'))
-      return
-    }
-
-    // Logged in properly or no auth required - navigate
-    navigate(path)
-  }
 
   return (
     <>
       <StyledFooter>
         <Container>
           {/* Main Footer Content */}
-          <Row className="mb-4">
-          <Col md={6} lg={4} className="mb-4">
-            <h5 className="text-white mb-3">Computer Anything Tech Blog</h5>
-            <p className="text-white-50 mb-3">
-              Insights, tutorials, and updates on web development, cybersecurity,
-              and cutting-edge technology from the Computer Anything team.
-            </p>
-            <div className="d-flex">
-              <SocialLink href="https://discord.gg/QXs6p75pcS" target="_blank" rel="noopener noreferrer">
-                <i className="bi bi-discord"></i>
-              </SocialLink>
-              <SocialLink href="https://www.facebook.com/people/ComputerAnything/61567372806344/" target="_blank" rel="noopener noreferrer">
-                <i className="bi bi-facebook"></i>
-              </SocialLink>
-              <SocialLink href="https://blog.computeranything.dev" target="_blank" rel="noopener noreferrer">
-                <i className="bi bi-journal-text"></i>
-              </SocialLink>
-              <SocialLink href="https://github.com/ComputerAnything" target="_blank" rel="noopener noreferrer">
-                <i className="bi bi-github"></i>
-              </SocialLink>
-            </div>
-          </Col>
+          <Row className="">
+            <Col md={6} lg={4} className="mb-4">
+              <h5 className="text-white mb-3">Computer Anything Tech Blog</h5>
+              <p className="text-white-50 mb-3">
+                Insights, tutorials, and updates on web development, cybersecurity,
+                and cutting-edge technology from the Computer Anything team.
+              </p>
+              <div className="d-flex">
+                <SocialLink href="https://discord.gg/QXs6p75pcS" target="_blank" rel="noopener noreferrer">
+                  <i className="bi bi-discord"></i>
+                </SocialLink>
+                <SocialLink href="https://www.facebook.com/people/ComputerAnything/61567372806344/" target="_blank" rel="noopener noreferrer">
+                  <i className="bi bi-facebook"></i>
+                </SocialLink>
+                <SocialLink href="https://blog.computeranything.dev" target="_blank" rel="noopener noreferrer">
+                  <i className="bi bi-journal-text"></i>
+                </SocialLink>
+                <SocialLink href="https://github.com/ComputerAnything" target="_blank" rel="noopener noreferrer">
+                  <i className="bi bi-github"></i>
+                </SocialLink>
+              </div>
+            </Col>
 
-          <Col md={6} lg={2} className="mb-4">
-            <h6 className="text-white mb-3">Explore</h6>
-            <div className="footer-links">
-              <div className="mb-2">
-                <FooterLink onClick={() => {
-                  // Allow everyone (including guests) to view posts
-                  if (!user) {
-                    dispatch(openModal('login'))
-                  } else {
-                    navigate('/posts')
-                  }
-                }}>
-                  All Posts
-                </FooterLink>
+            <Col md={6} lg={2} className="mb-2">
+              <h6 className="text-white mb-3">Services</h6>
+              <div className="footer-links">
+                <div className="mb-2">
+                  <a href="https://computeranything.dev/custom-development">Custom Development</a>
+                </div>
+                <div className="mb-2">
+                  <a href="https://computeranything.dev/web-hosting">Web Hosting</a>
+                </div>
+                <div className="mb-2">
+                  <a href="https://computeranything.dev/security">Security Audit</a>
+                </div>
               </div>
-              <div className="mb-2">
-                <FooterLink onClick={() => handleNavigation('/create-post', true, 'Guests cannot create posts. Please create an account.')}>
-                  Write a Post
-                </FooterLink>
-              </div>
-              <div className="mb-2">
-                <FooterLink onClick={() => handleNavigation('/profile', true, 'Guests cannot view profiles. Please create an account.')}>
-                  My Profile
-                </FooterLink>
-              </div>
-            </div>
-          </Col>
+            </Col>
 
-          <Col md={6} lg={2} className="mb-4">
-            <h6 className="text-white mb-3">Company</h6>
-            <div className="footer-links">
-              <div className="mb-2">
-                <a href="https://computeranything.dev" target="_blank" rel="noopener noreferrer">
-                  Main Website
-                </a>
+            <Col md={6} lg={2} className="mb-2">
+              <h6 className="text-white mb-3">Company</h6>
+              <div className="footer-links">
+                <div className="mb-2">
+                  <a href="https://computeranything.dev" target="_blank" rel="noopener noreferrer">
+                    Main Website
+                  </a>
+                </div>
+                <div className="mb-2">
+                  <a href="https://blog.computeranything.dev/" target="_blank" rel="noopener noreferrer">
+                    Tech Blog
+                  </a>
+                </div>
+                <div className="mb-2">
+                  <a href="https://apilooter.computeranything.dev/" target="_blank" rel="noopener noreferrer">
+                    API Looter
+                  </a>
+                </div>
               </div>
-              <div className="mb-2">
-                <a href="https://cheloniixd.github.io/" target="_blank" rel="noopener noreferrer">
-                  About Developer
-                </a>
-              </div>
-              <div className="mb-2">
-                <a href="https://github.com/ComputerAnything" target="_blank" rel="noopener noreferrer">
-                  GitHub
-                </a>
-              </div>
-              <div className="mb-2">
-                <a href="https://apilooter.computeranything.dev/" target="_blank" rel="noopener noreferrer">
-                  API Looter
-                </a>
-              </div>
-            </div>
-          </Col>
+            </Col>
 
-          <Col md={6} lg={4} className="mb-4">
-            <h6 className="text-white mb-3">Contact Info</h6>
-            <div className="footer-links">
-              <div className="mb-2">
-                <i className="bi bi-envelope me-2" style={{ color: '#00ff41' }}></i>
-                <a href="mailto:contact@computeranything.dev">contact@computeranything.dev</a>
+            <Col md={6} lg={4} className="mb-2">
+              <h6 className="text-white mb-3">Company Contact Info</h6>
+              <div className="footer-links">
+                <div className="mb-2">
+                  <i className="bi bi-envelope me-2 text-success"></i>
+                  <a href="mailto:contact@computeranything.dev">contact@computeranything.dev</a>
+                </div>
+                <div className="mb-2">
+                  <i className="bi bi-telephone me-2 text-success"></i>
+                  <a href="tel:+16313586777">(631) 358-6777</a>
+                </div>
+                <div className="mb-2">
+                  <i className="bi bi-globe me-2 text-success"></i>
+                  <a href="https://www.computeranything.dev" target="_blank" rel="noopener noreferrer">computeranything.dev</a>
+                </div>
               </div>
-              <div className="mb-2">
-                <i className="bi bi-telephone me-2" style={{ color: '#00ff41' }}></i>
-                <a href="tel:+16313586777">(631) 358-6777</a>
-              </div>
-              <div className="mb-2">
-                <i className="bi bi-globe me-2" style={{ color: '#00ff41' }}></i>
-                <a href="https://www.computeranything.dev" target="_blank" rel="noopener noreferrer">
-                  computeranything.dev
-                </a>
-              </div>
-            </div>
-          </Col>
-        </Row>
+            </Col>
+          </Row>
 
-        {/* Copyright Section */}
-        <Row className="pt-3" style={{ borderTop: '1px solid #333' }}>
-          <Col className="text-center">
-            <div className="copyright-text">
-              <div className="d-flex flex-wrap align-items-center justify-content-center gap-1">
-                <span>Copyright © {currentYear} Computer Anything - All Rights Reserved</span>
-                <span>- Developed & Designed By:</span>
-                <a
-                  href="https://computeranything.dev"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="d-flex align-items-center gap-1 company-attribution"
-                  style={{ color: 'inherit' }}
-                >
-                  Computer Anything LLC
-                  <img
-                    src="/img/logo_small_nobg.png"
-                    alt="Computer Anything LLC"
-                    className="footer-logo"
-                  />
-                </a>
+          {/* Security Trust Badge Row */}
+          <Row className="py-3" style={{ borderTop: `1px solid ${colors.borderDark}`, borderBottom: `1px solid ${colors.borderDark}` }}>
+            <Col className="text-center">
+              <div className="d-flex flex-wrap justify-content-center align-items-center gap-3 text-white-50 small">
+                <div className="d-flex align-items-center">
+                  <i className="bi bi-shield-check text-success me-2"></i>
+                  <span>Enterprise Security</span>
+                </div>
+                <span className="d-none d-sm-inline">•</span>
+                <div className="d-flex align-items-center">
+                  <i className="bi bi-award text-success me-2 d-sm-none"></i>
+                  <span>OWASP Top 10 Compliant</span>
+                </div>
+                <span className="d-none d-sm-inline">•</span>
+                <div className="d-flex align-items-center">
+                  <i className="bi bi-clipboard-check text-success me-2 d-sm-none"></i>
+                  <span>Secure Authentication</span>
+                </div>
               </div>
-            </div>
-          </Col>
-        </Row>
-      </Container>
+            </Col>
+          </Row>
+
+          {/* Copyright Section */}
+          <Row className="pt-3">
+            <Col className="text-center">
+              <div className="copyright-text">
+                <div className="d-flex flex-wrap align-items-center justify-content-center gap-1">
+                  <span>Copyright © 2025 Computer Anything - All Rights Reserved</span>
+                  <span>- Developed &amp; Designed By:</span>
+                  <a
+                    href="https://www.computeranything.dev"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="d-flex align-items-center gap-1 company-attribution"
+                    style={{ color: 'inherit' }}
+                  >
+                    Computer Anything LLC
+                    <img
+                      src="/img/logo_small_nobg.png"
+                      alt="Computer Anything LLC"
+                      className="footer-logo"
+                    />
+                  </a>
+                </div>
+              </div>
+            </Col>
+          </Row>
+
+        </Container>
       </StyledFooter>
-
-      {toastMessage && (
-        <Toast
-          message={toastMessage}
-          onClose={() => setToastMessage(null)}
-        />
-      )}
     </>
   )
 }

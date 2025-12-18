@@ -1,77 +1,196 @@
+import type { User, BlogPost, Comment } from '../types'
 import axios from 'axios'
-import type {
-  LoginResponse,
-  RegisterResponse,
-  PostsResponse,
-  PostResponse,
-  CommentsResponse,
-  BlogPost,
-  Comment,
-  User,
-} from '../types'
 
-const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+// Create axios instance with base URL
+const api = axios.create({
+  baseURL: (import.meta.env.VITE_API_BASE_URL as string) || '/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true, // Enable sending cookies with requests
 })
 
-// Request interceptor to add auth token
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+// Response interceptor to handle auth errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // If this is just the profile check endpoint, don't redirect
+      // AuthContext will handle by setting user to null
+      // This allows public pages to work without redirecting
+      if (error.config?.url?.includes('/profile')) {
+        return Promise.reject(error)
+      }
+
+      // For any other 401, the session has expired mid-action
+      // Redirect to home with login modal
+      window.location.href = '/?login=true&message=Session expired. Please log in to continue'
+    }
+    return Promise.reject(error)
   }
-  return config
-})
+)
 
-// Auth endpoints
+// Auth API calls
 export const authAPI = {
-  login: (username: string, password: string) =>
-    API.post<LoginResponse>('/login', { username, password }),
+  login: async (identifier: string, password: string, turnstileToken?: string) => {
+    const payload: { identifier: string; password: string; turnstile_token?: string } = {
+      identifier,
+      password
+    }
+    if (turnstileToken) {
+      payload.turnstile_token = turnstileToken
+    }
+    const response = await api.post('/login', payload)
+    // Token is now in httpOnly cookie, just return user data
+    return response.data
+  },
 
-  register: (username: string, email: string, password: string) =>
-    API.post<RegisterResponse>('/register', { username, email, password }),
+  register: async (username: string, email: string, password: string, turnstileToken?: string) => {
+    const payload: {
+      username: string
+      email: string
+      password: string
+      turnstile_token?: string
+    } = {
+      username,
+      email,
+      password
+    }
+    if (turnstileToken) {
+      payload.turnstile_token = turnstileToken
+    }
+    const response = await api.post('/register', payload)
+    return response.data
+  },
 
-  verifyEmail: (token: string) =>
-    API.get(`/verify-email/${token}`),
+  logout: async () => {
+    // Backend should clear the httpOnly cookie
+    const response = await api.post('/logout')
+    return response.data
+  },
+
+  verifyEmail: async (token: string) => {
+    const response = await api.get(`/verify-email/${token}`)
+    return response.data
+  },
+
+  resendVerification: async (identifier: string) => {
+    const response = await api.post('/resend-verification', { identifier })
+    return response.data
+  },
+
+  forgotPassword: async (email: string, turnstileToken?: string) => {
+    const payload: { email: string; turnstile_token?: string } = { email }
+    if (turnstileToken) {
+      payload.turnstile_token = turnstileToken
+    }
+    const response = await api.post('/forgot-password', payload)
+    return response.data
+  },
+
+  resetPassword: async (token: string, password: string) => {
+    const response = await api.post('/reset-password', { token, password })
+    return response.data
+  },
 }
 
-// Blog endpoints
+// Blog API calls
 export const blogAPI = {
-  getAllPosts: () =>
-    API.get<PostsResponse>('/posts'),
+  getAllPosts: async () => {
+    const response = await api.get<BlogPost[]>('/posts')
+    return response.data
+  },
 
-  getPost: (postId: number) =>
-    API.get<PostResponse>(`/posts/${postId}`),
+  getPost: async (postId: number) => {
+    const response = await api.get<BlogPost>(`/posts/${postId}`)
+    return response.data
+  },
 
-  createPost: (title: string, content: string, topic_tags?: string) =>
-    API.post<PostResponse>('/posts', { title, content, topic_tags }),
+  createPost: async (title: string, content: string, topic_tags?: string) => {
+    const response = await api.post<BlogPost>('/posts', { title, content, topic_tags })
+    return response.data
+  },
 
-  updatePost: (postId: number, title: string, content: string, topic_tags?: string) =>
-    API.put<PostResponse>(`/posts/${postId}`, { title, content, topic_tags }),
+  updatePost: async (postId: number, title: string, content: string, topic_tags?: string) => {
+    const response = await api.put<BlogPost>(`/posts/${postId}`, { title, content, topic_tags })
+    return response.data
+  },
 
-  deletePost: (postId: number) =>
-    API.delete(`/posts/${postId}`),
+  deletePost: async (postId: number) => {
+    const response = await api.delete(`/posts/${postId}`)
+    return response.data
+  },
 
-  votePost: (postId: number, voteType: 'upvote' | 'downvote') =>
-    API.post(`/posts/${postId}/vote`, { vote_type: voteType }),
+  upvotePost: async (postId: number) => {
+    const response = await api.post(`/posts/${postId}/upvote`)
+    return response.data
+  },
+
+  downvotePost: async (postId: number) => {
+    const response = await api.post(`/posts/${postId}/downvote`)
+    return response.data
+  },
 }
 
-// Comment endpoints
+// Comment API calls
 export const commentAPI = {
-  getComments: (postId: number) =>
-    API.get<CommentsResponse>(`/posts/${postId}/comments`),
+  getComments: async (postId: number) => {
+    const response = await api.get<Comment[]>(`/posts/${postId}/comments`)
+    return response.data
+  },
 
-  createComment: (postId: number, content: string) =>
-    API.post<{ comment: Comment }>(`/posts/${postId}/comments`, { content }),
+  createComment: async (postId: number, content: string) => {
+    const response = await api.post<Comment>(`/posts/${postId}/comments`, { content })
+    return response.data
+  },
 
-  deleteComment: (postId: number, commentId: number) =>
-    API.delete(`/posts/${postId}/comments/${commentId}`),
+  deleteComment: async (postId: number, commentId: number) => {
+    const response = await api.delete(`/posts/${postId}/comments/${commentId}`)
+    return response.data
+  },
 }
 
-// User endpoints
+// User API calls
 export const userAPI = {
-  getProfile: (userId?: number) =>
-    API.get<{ user: User; posts: BlogPost[] }>(userId ? `/profile/${userId}` : '/profile'),
+  getProfile: async () => {
+    const response = await api.get<User>('/profile')
+    return response.data
+  },
+
+  getAllUsers: async (search?: string, page: number = 1, perPage: number = 100) => {
+    const params = new URLSearchParams()
+    if (search) params.append('search', search)
+    params.append('page', page.toString())
+    params.append('per_page', perPage.toString())
+
+    const response = await api.get<{
+      users: User[]
+      total: number
+      pages: number
+      current_page: number
+    }>(`/users?${params.toString()}`)
+    return response.data
+  },
+
+  getUserByUsername: async (username: string) => {
+    const response = await api.get<User>(`/users/${username}`)
+    return response.data
+  },
+
+  getUserPosts: async (username: string) => {
+    const response = await api.get<BlogPost[]>(`/users/${username}/posts`)
+    return response.data
+  },
+
+  updateProfile: async (username: string, email: string) => {
+    const response = await api.put('/profile', { username, email })
+    return response.data
+  },
+
+  deleteProfile: async () => {
+    const response = await api.delete('/profile')
+    return response.data
+  },
 }
 
-export default API
+export default api

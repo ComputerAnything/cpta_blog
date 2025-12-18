@@ -1,23 +1,25 @@
-import React from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useAppSelector, useAppDispatch } from '../../redux/hooks'
-import { logout, setGuest } from '../../redux/slices/authSlice'
+import { useAuth } from '../../contexts/AuthContext'
+import { colors, shadows, effects, gradients } from '../../theme/colors'
 
 const StyledNavbar = styled.nav`
-  background: rgba(0, 0, 0, 0.95) !important;
-  backdrop-filter: blur(15px);
-  border-bottom: 1px solid rgba(40, 167, 69, 0.2);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  background: ${colors.backgroundDark} !important;
+  box-shadow: ${shadows.navbar};
   position: sticky;
   top: 0;
   z-index: 1030;
   transition: all 0.3s ease;
+  height: 70px;
+  display: flex;
+  align-items: center;
 
+  /* Enhanced sticky behavior */
   &.navbar-scrolled {
-    background: rgba(0, 0, 0, 0.98) !important;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    background: ${colors.backgroundDark} !important;
+    // backdrop-filter: ${effects.backdropBlurStrong};
+    box-shadow: ${shadows.navbarScrolled};
   }
 
   &::after {
@@ -26,87 +28,72 @@ const StyledNavbar = styled.nav`
     bottom: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--computerAnythingPrimary), transparent);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, ${colors.primary}, transparent);
+    box-shadow: 0 0 8px rgba(2, 196, 60, 0.4);
   }
 
   .navbar-brand {
+    display: flex;
+    align-items: center;
     font-weight: 700;
     font-size: 1.5rem;
     color: white !important;
     text-decoration: none;
     transition: all 0.3s ease;
-    background: none;
-    border: none;
-    padding: 0;
-    display: flex;
-    align-items: center;
 
     &:hover {
-      color: var(--computerAnythingPrimary) !important;
+      color: ${colors.primary} !important;
       transform: scale(1.02);
     }
-  }
 
-  .brand-logo {
-    height: 40px;
-    width: auto;
-    margin-right: 12px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 15px rgba(0, 255, 65, 0.3);
-    }
-  }
-
-  &.navbar-scrolled .brand-logo {
-    height: 35px;
-  }
-
-  @media (max-width: 768px) {
     .brand-logo {
-      height: 35px;
-      margin-right: 10px;
-    }
-  }
+      height: 40px;
+      width: auto;
+      margin-right: 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
 
-  @media (max-width: 576px) {
-    .brand-logo {
-      height: 30px;
-      margin-right: 8px;
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px ${colors.border};
+      }
     }
-  }
 
-  @media (max-width: 420px) {
-    .brand-logo {
-      height: 28px;
-      margin-right: 6px;
+    .brand-text {
+      background: ${gradients.text};
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
   }
 
   .navbar-nav {
     .nav-link {
-      color: rgba(255, 255, 255, 0.8) !important;
+      color: ${colors.text.secondary} !important;
       font-weight: 500;
       padding: 0.75rem 1rem !important;
       margin: 0 0.25rem;
       border-radius: 8px;
       transition: all 0.3s ease;
-      text-decoration: none;
+      position: relative;
 
       &:hover {
-        color: var(--computerAnythingPrimary) !important;
-        background: rgba(40, 167, 69, 0.1);
+        color: ${colors.primary} !important;
+        background: ${colors.hover};
         transform: translateY(-1px);
+      }
+
+      &.active {
+        color: ${colors.primary} !important;
+        background: ${colors.hoverDark};
       }
     }
 
     .nav-button {
       background: none;
       border: none;
-      color: rgba(255, 255, 255, 0.8) !important;
+      color: ${colors.text.secondary} !important;
       font-weight: 500;
       padding: 0.75rem 1rem !important;
       margin: 0 0.25rem;
@@ -115,60 +102,25 @@ const StyledNavbar = styled.nav`
       cursor: pointer;
 
       &:hover {
-        color: var(--computerAnythingPrimary) !important;
-        background: rgba(40, 167, 69, 0.1);
+        color: ${colors.primary} !important;
+        background: ${colors.hover};
         transform: translateY(-1px);
       }
     }
   }
 
-  .navbar-toggler {
-    border: 2px solid rgba(40, 167, 69, 0.5);
-    padding: 0.5rem;
-
-    &:focus {
-      box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
-    }
-
-    .navbar-toggler-icon {
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%2328a745' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-    }
+  .user-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
-  .btn-outline-success,
-  .btn-outline-warning,
-  .btn-outline-light {
-    background: linear-gradient(135deg, #28a745 0%, #18b183ff 100%);
-    border: none;
-    color: #fff !important;
-    padding: 0.45rem 0.9rem;
-    font-weight: 700;
-    font-size: 0.95rem;
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.18);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(40, 167, 69, 0.22);
-      opacity: 0.98;
-    }
-  }
-
-  .btn-outline-warning {
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.18);
-
-    &:hover {
-      box-shadow: 0 12px 30px rgba(255, 193, 7, 0.22);
-    }
-  }
-
-  /* User dropdown button styling */
+  /* Make the user controls more prominent */
+  .user-section .btn.btn-outline-success,
   .user-section .btn.btn-outline-success.dropdown-toggle {
-    background: linear-gradient(135deg, #28a745 0%, #18b183ff 100%);
+    background: ${gradients.primary};
     border: none;
-    color: #fff !important;
+    color: ${colors.text.primary} !important;
     padding: 0.45rem 0.9rem;
     font-weight: 700;
     font-size: 0.95rem;
@@ -177,6 +129,8 @@ const StyledNavbar = styled.nav`
     transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
   }
 
+  .user-section .btn.btn-outline-success:hover,
+  .user-section .btn.btn-outline-success:focus,
   .user-section .btn.btn-outline-success.dropdown-toggle:hover,
   .user-section .btn.btn-outline-success.dropdown-toggle:focus {
     transform: translateY(-2px);
@@ -184,106 +138,136 @@ const StyledNavbar = styled.nav`
     opacity: 0.98;
   }
 
-  /* Dropdown menu styling */
+  /* Slightly reduce badge prominence to keep focus on button */
+  .user-section .badge {
+    opacity: 0.95;
+    font-weight: 700;
+  }
+
+  .navbar-toggler {
+    border: 2px solid rgba(40, 167, 69, 0.5);
+    padding: 0.5rem;
+
+    &:focus {
+      box-shadow: ${shadows.focus};
+    }
+
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%2328a745' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+  }
+
+  /* Target dropdown items specifically to avoid blue flash on click/tap */
   .dropdown-menu {
-    background: rgba(0, 0, 0, 0.95);
-    border: 1px solid rgba(40, 167, 69, 0.3);
-    border-radius: 10px;
-    padding: 0.5rem 0;
-    margin-top: 0.5rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    background: ${colors.backgroundDark};
+    border: 1px solid ${colors.borderLight};
+    box-shadow: ${shadows.medium};
   }
 
   .dropdown-menu .dropdown-item {
-    color: rgba(255, 255, 255, 0.9);
-    padding: 0.75rem 1.25rem;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
     -webkit-tap-highlight-color: transparent;
+    transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+    color: ${colors.text.secondary};
 
     i {
-      font-size: 1.1rem;
-      width: 20px;
-      text-align: center;
-    }
-
-    &:hover,
-    &:focus,
-    &:focus-visible {
-      outline: none;
-      background: rgba(40, 167, 69, 0.10) !important;
-      color: #28a745 !important;
-      box-shadow: 0 4px 14px rgba(40,167,69,0.06);
-    }
-
-    &:active {
-      background: rgba(40, 167, 69, 0.14) !important;
-      color: #28a745 !important;
+      margin-right: 0.5rem;
+      color: ${colors.primary};
     }
   }
 
-  .dropdown-divider {
-    border-color: rgba(40, 167, 69, 0.3);
-    margin: 0.5rem 0;
+  .dropdown-menu .dropdown-item:hover,
+  .dropdown-menu .dropdown-item:focus,
+  .dropdown-menu .dropdown-item:focus-visible {
+    outline: none;
+    background: ${colors.hover} !important;
+    color: ${colors.primary} !important;
+    box-shadow: 0 4px 14px rgba(40,167,69,0.06);
+  }
+
+  .dropdown-menu .dropdown-item:active {
+    background: ${colors.hoverDark} !important;
+    color: ${colors.primary} !important;
+  }
+
+  /* Medium screens */
+  @media (max-width: 768px) {
+    .navbar-brand {
+      font-size: 1.25rem;
+
+      .brand-logo {
+        height: 35px;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  /* Small screens */
+  @media (max-width: 576px) {
+    .navbar-brand {
+      font-size: 1.1rem;
+
+      .brand-logo {
+        height: 30px;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  /* Extra small screens */
+  @media (max-width: 420px) {
+    .navbar-brand {
+      font-size: 1rem;
+
+      .brand-logo {
+        height: 28px;
+        margin-right: 6px;
+      }
+
+      .brand-text {
+        /* Optionally truncate or adjust text */
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    }
   }
 
   @media (max-width: 991.98px) {
     .navbar-collapse {
-      background: rgba(0, 0, 0, 0.98);
+      background: ${colors.backgroundDark};
       margin-top: 1rem;
       padding: 1rem;
       border-radius: 12px;
-      border: 1px solid rgba(40, 167, 69, 0.2);
-      backdrop-filter: blur(20px);
+      border: 1px solid ${colors.borderLight};
+      backdrop-filter: ${effects.backdropBlurStrong};
     }
 
-    .navbar-nav {
-      align-items: flex-start !important;
-
-      .nav-item {
-        width: 100%;
-
-        .btn,
-        .nav-button,
-        .nav-link {
-          width: 100%;
-          text-align: left;
-          justify-content: flex-start;
-        }
-      }
-
-      .navbar-text {
-        width: 100%;
-        margin-bottom: 0.5rem;
-      }
-    }
-
-    /* User section in mobile */
-    .user-section {
-      margin-top: 0.6rem;
-      padding-top: 0.5rem;
-      border-top: 1px solid rgba(40, 167, 69, 0.06);
-    }
-
-    /* Dropdown in mobile stacked menu */
+    /* In mobile stacked menu reduce dropdown spacing so items align with non-dropdown items */
     .dropdown-menu {
       margin-bottom: 1rem !important;
       position: static !important;
       transform: none !important;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
     }
+
+    /* Give the user controls some breathing room from nav items when collapsed */
+    .user-section {
+      margin-top: 0.6rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(40, 167, 69, 0.06);
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-start;
+    }
   }
 `
 
-const Navbar: React.FC = () => {
-  const { user, isGuest } = useAppSelector((state) => state.auth)
-  const dispatch = useAppDispatch()
+const Navbar = () => {
+  const { user, isAuthenticated, logout } = useAuth()
   const navigate = useNavigate()
-  const [isScrolled, setIsScrolled] = React.useState(false)
+  // const location = useLocation()
+  const [isScrolled, setIsScrolled] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
     }
@@ -298,33 +282,25 @@ const Navbar: React.FC = () => {
     }
   }
 
-  const handleBlogClick = () => {
-    if (user && !isGuest) {
-      closeNavbar()
-      navigate('/posts')
-    } else {
-      dispatch(setGuest())
-      localStorage.setItem('guest', 'true')
-      localStorage.removeItem('token')
-      localStorage.removeItem('username')
-      localStorage.removeItem('userId')
-      closeNavbar()
-      navigate('/posts')
-    }
-  }
-
-  const handleLogout = () => {
-    dispatch(logout())
-    localStorage.clear()
+  const handleHomeClick = () => {
     closeNavbar()
     navigate('/')
   }
 
-  const handleExitGuest = () => {
-    dispatch(logout())
-    localStorage.clear()
+  const handleLogout = async () => {
+    await logout()
     closeNavbar()
     navigate('/')
+  }
+
+  const handleLogin = () => {
+    closeNavbar()
+    navigate('/?login=true')
+  }
+
+  const handleRegister = () => {
+    closeNavbar()
+    navigate('/?register=true')
   }
 
   return (
@@ -332,7 +308,7 @@ const Navbar: React.FC = () => {
       <div className="container-fluid px-4">
         <button
           className="navbar-brand btn btn-link"
-          onClick={handleBlogClick}
+          onClick={handleHomeClick}
         >
           <img
             src="/img/logo_small_nobg.png"
@@ -359,7 +335,7 @@ const Navbar: React.FC = () => {
             <li className="nav-item">
               <button
                 className="nav-button"
-                onClick={handleBlogClick}
+                onClick={handleHomeClick}
               >
                 <i className="bi bi-journal-text me-2"></i>
                 Blog Posts
@@ -380,7 +356,7 @@ const Navbar: React.FC = () => {
           </ul>
 
           <div className="user-section">
-            {user && !isGuest && (
+            {isAuthenticated && user ? (
               <div className="dropdown">
                 <button
                   className="btn btn-outline-success dropdown-toggle"
@@ -401,6 +377,15 @@ const Navbar: React.FC = () => {
                       My Profile
                     </button>
                   </li>
+                  <li>
+                    <button className="dropdown-item" onClick={() => {
+                      closeNavbar()
+                      navigate('/create-post')
+                    }}>
+                      <i className="bi bi-plus-circle"></i>
+                      Create Post
+                    </button>
+                  </li>
                   <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button className="dropdown-item" onClick={handleLogout}>
@@ -410,31 +395,23 @@ const Navbar: React.FC = () => {
                   </li>
                 </ul>
               </div>
-            )}
-
-            {isGuest && (
-              <button className="btn btn-outline-warning" onClick={handleExitGuest}>
-                <i className="bi bi-box-arrow-right me-2"></i>
-                Exit Guest
-              </button>
-            )}
-
-            {!user && !isGuest && (
-              <button
-                className="btn btn-outline-success"
-                onClick={() => {
-                  dispatch(setGuest())
-                  localStorage.setItem('guest', 'true')
-                  localStorage.removeItem('token')
-                  localStorage.removeItem('username')
-                  localStorage.removeItem('userId')
-                  closeNavbar()
-                  navigate('/posts')
-                }}
-              >
-                <i className="bi bi-person-circle me-2"></i>
-                Continue as Guest
-              </button>
+            ) : (
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-outline-success"
+                  onClick={handleLogin}
+                >
+                  <i className="bi bi-box-arrow-in-right me-2"></i>
+                  Login
+                </button>
+                <button
+                  className="btn btn-outline-success"
+                  onClick={handleRegister}
+                >
+                  <i className="bi bi-person-plus me-2"></i>
+                  Register
+                </button>
+              </div>
             )}
           </div>
         </div>

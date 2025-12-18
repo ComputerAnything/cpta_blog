@@ -7,13 +7,13 @@ Features include user authentication, post creation/editing, voting, comments, a
 
 ## 📸 Screenshots
 
-![Blog Page](assets/Screenshot_Blog_Page.png)
+![Blog Page](docs/assets/Screenshot_Blog_Page.png)
 *Page for viewing and searching all blog posts*
 
-![Post Page](assets/Screenshot_Post_Page.png)
+![Post Page](docs/assets/Screenshot_Post_Page.png)
 *Page for viewing a single blog post with comments*
 
-![Profile Page](assets/Screenshot_Profile_Page.png)
+![Profile Page](docs/assets/Screenshot_Profile_Page.png)
 *User profile page with post history*
 
 ---

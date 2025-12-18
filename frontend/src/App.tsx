@@ -1,71 +1,39 @@
-import { useEffect } from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import { useAppDispatch } from './redux/hooks'
-import { setCredentials, setGuest, setHydrated } from './redux/slices/authSlice'
+import { AuthProvider } from './contexts/AuthContext'
 import Navbar from './components/layout/Navbar'
-import Footer from './components/layout/Footer'
-import LoadingScreen from './components/common/LoadingScreen'
-import ScrollToTop from './components/common/ScrollToTop'
-import LandingPage from './components/landing/LandingPage'
+import ScrollToTop from './components/layout/ScrollToTop'
+import BlogListPage from './components/features/blog/pages/BlogListPage'
+import PostDetailPage from './components/features/blog/pages/PostDetailPage'
+import CreatePostPage from './components/features/blog/pages/CreatePostPage'
+import EditPostPage from './components/features/blog/pages/EditPostPage'
+import ProfilePage from './components/features/blog/pages/ProfilePage'
+import ResetPasswordPage from './components/features/auth/pages/ResetPasswordPage'
+import VerifyEmailPage from './components/features/auth/pages/VerifyEmailPage'
 import ProtectedRoute from './components/common/ProtectedRoute'
-import BlogList from './components/blog/BlogList'
-import PostDetail from './components/blog/PostDetail'
-import CreatePost from './components/blog/CreatePost'
-import EditPost from './components/blog/EditPost'
-import Profile from './components/profile/Profile'
-import ResetPassword from './components/auth/ResetPassword'
-import VerifyEmail from './components/auth/VerifyEmail'
-
-// Hydrate Redux auth state from localStorage on app load
-const AuthHydrator = () => {
-  const dispatch = useAppDispatch()
-
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    const username = localStorage.getItem('username')
-    const userId = localStorage.getItem('userId')
-    const guest = localStorage.getItem('guest')
-
-    if (guest === 'true') {
-      dispatch(setGuest())
-    } else if (token && username && userId) {
-      dispatch(setCredentials({
-        user: { id: parseInt(userId), username },
-        token,
-      }))
-    } else {
-      dispatch(setHydrated())
-    }
-  }, [dispatch])
-
-  return null
-}
 
 function App() {
   return (
     <Router>
-      <AuthHydrator />
-      <ScrollToTop />
-      <LoadingScreen />
-      <Navbar />
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/verify-email/:token" element={<VerifyEmail />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <AuthProvider>
+        <ScrollToTop />
+        <Navbar />
+        <Routes>
+          {/* Public Routes - Anyone can view */}
+          <Route path="/" element={<BlogListPage />} />
+          <Route path="/posts/:postId" element={<PostDetailPage />} />
+          <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
-        {/* Protected Routes */}
-        <Route path="/posts" element={<ProtectedRoute><BlogList /></ProtectedRoute>} />
-        <Route path="/create-post" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
-        <Route path="/posts/:postId/edit" element={<ProtectedRoute><EditPost /></ProtectedRoute>} />
-        <Route path="/posts/:postId" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/profile/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          {/* Protected Routes - Require login */}
+          <Route path="/create-post" element={<ProtectedRoute><CreatePostPage /></ProtectedRoute>} />
+          <Route path="/posts/:postId/edit" element={<ProtectedRoute><EditPostPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
-        {/* Error Route */}
-        <Route path="*" element={<h1>404 Not Found</h1>} />
-      </Routes>
-      <Footer />
+          {/* Error Route */}
+          <Route path="*" element={<h1>404 Not Found</h1>} />
+        </Routes>
+      </AuthProvider>
     </Router>
   )
 }

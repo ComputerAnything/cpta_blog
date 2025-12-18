@@ -1,6 +1,6 @@
 import React from 'react'
 import styled, { keyframes } from 'styled-components'
-import { useAppSelector } from '../../redux/hooks'
+import { useAuth } from '../../contexts/AuthContext'
 
 const spin = keyframes`
   0% {
@@ -43,7 +43,7 @@ const LoadingText = styled.span`
 `
 
 const LoadingScreen: React.FC = () => {
-  const loading = useAppSelector((state) => state.auth.loading)
+  const { loading } = useAuth()
 
   if (!loading) return null
 
