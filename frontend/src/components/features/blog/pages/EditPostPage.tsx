@@ -248,17 +248,6 @@ const LoadingMessage = styled.div`
   font-size: 1.1rem;
 `
 
-const ErrorMessage = styled.div`
-  background: rgba(220, 53, 69, 0.1);
-  border: 1px solid ${colors.danger};
-  color: ${colors.danger};
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-  max-width: 900px;
-  margin: 0 auto;
-`
-
 const EditPostPage: React.FC = () => {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
@@ -398,7 +387,9 @@ const EditPostPage: React.FC = () => {
     return (
       <>
         <PageContainer>
-          <ErrorMessage>{error || 'Post not found'}</ErrorMessage>
+          <div style={{ maxWidth: '900px', margin: '2rem auto' }}>
+            <StyledAlert variant="danger">{error || 'Post not found'}</StyledAlert>
+          </div>
         </PageContainer>
         <Footer />
       </>
@@ -515,8 +506,10 @@ const EditPostPage: React.FC = () => {
                     {content ? (
                       <ReactMarkdown
                         components={{
-                          code({ className, children }) {
+                          code({ className, children, ...props }) {
                             const match = /language-(\w+)/.exec(className || '')
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                            const { ref, ...safeProps } = props as Record<string, unknown> & { ref?: unknown }
                             const isInline = !match
                             return !isInline ? (
                               <SyntaxHighlighter
@@ -527,7 +520,7 @@ const EditPostPage: React.FC = () => {
                                 {String(children).replace(/\n$/, '')}
                               </SyntaxHighlighter>
                             ) : (
-                              <code className={className}>
+                              <code className={className} {...safeProps}>
                                 {children}
                               </code>
                             )

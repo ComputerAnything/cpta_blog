@@ -272,15 +272,6 @@ const LoadingMessage = styled.div`
   font-size: 1.1rem;
 `
 
-const ErrorMessage = styled.div`
-  background: rgba(220, 53, 69, 0.2);
-  border: 1px solid rgba(220, 53, 69, 0.5);
-  color: #ff6b6b;
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-`
-
 const PostDetailPage: React.FC = () => {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
@@ -467,7 +458,9 @@ const PostDetailPage: React.FC = () => {
     return (
       <>
         <PageContainer>
-          <ErrorMessage>{error || 'Post not found'}</ErrorMessage>
+          <div style={{ padding: '2rem' }}>
+            <StyledAlert variant="danger">{error || 'Post not found'}</StyledAlert>
+          </div>
         </PageContainer>
         <Footer />
       </>
@@ -558,6 +551,8 @@ const PostDetailPage: React.FC = () => {
                 components={{
                   code({ className, children, ...props }) {
                     const match = /language-(\w+)/.exec(className || '')
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    const { ref, ...safeProps } = props as Record<string, unknown> & { ref?: unknown }
                     const isInline = !match
                     return !isInline ? (
                       <SyntaxHighlighter
@@ -568,7 +563,7 @@ const PostDetailPage: React.FC = () => {
                         {String(children).replace(/\n$/, '')}
                       </SyntaxHighlighter>
                     ) : (
-                      <code className={className}>
+                      <code className={className} {...safeProps}>
                         {children}
                       </code>
                     )

@@ -5,7 +5,13 @@ import secrets
 
 from app import db, get_real_ip
 from flask import Blueprint, jsonify, make_response, render_template_string, request
-from flask_jwt_extended import create_access_token, set_access_cookies, jwt_required, unset_jwt_cookies
+from flask_jwt_extended import (
+    create_access_token,
+    set_access_cookies,
+    jwt_required,
+    get_jwt_identity,
+    unset_jwt_cookies
+)
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from models import User
 import requests
@@ -18,7 +24,8 @@ from utils.email import (
     get_login_notification_email,
     get_password_reset_request_email,
     get_password_reset_confirmation_email,
-    send_password_reset_admin_alert
+    send_password_reset_admin_alert,
+    get_2fa_code_email
 )
 
 
@@ -206,6 +213,28 @@ def login():
     if not user.is_verified:
         return jsonify({"msg": "Please verify your email before logging in."}), 403
 
+    # Check if 2FA is required for this user
+    if user.twofa_enabled:
+        # Generate and send 2FA code instead of completing login
+        code = user.generate_2fa_code(minutes=5)
+        db.session.commit()
+
+        # Send 2FA code via email
+        try:
+            subject, html = get_2fa_code_email(code)
+            send_email(to=user.email, subject=subject, html=html)
+        except Exception as e:
+            print(f"Failed to send 2FA code email: {e!r}")
+            return jsonify({"msg": "Failed to send verification code. Please try again."}), 500
+
+        # Return response indicating 2FA is required (don't set JWT cookies yet)
+        return jsonify({
+            'requires_2fa': True,
+            'email': user.email,
+            'message': 'Verification code sent to your email'
+        }), 200
+
+    # No 2FA required - complete normal login flow
     # Capture login details for security tracking
     login_ip = get_real_ip()
     user_agent_string = request.headers.get('User-Agent', '')
@@ -346,3 +375,87 @@ def reset_password():
         print(f"Failed to send password reset confirmation email: {e!r}")
 
     return jsonify({"msg": "Password has been reset successfully"}), 200
+
+
+# VERIFY 2FA
+@auth_routes.route('/verify-2fa', methods=['POST'])
+def verify_2fa():
+    """Verify 2FA code and complete login"""
+    data = request.get_json()
+    email = data.get('email')
+    code = data.get('code')
+
+    if not email or not code:
+        return jsonify({"msg": "Email and verification code are required"}), 400
+
+    user = User.query.filter(User.email == email).first()
+    if not user or not user.is_valid_2fa_code(code):
+        return jsonify({"msg": "Invalid or expired verification code"}), 401
+
+    # Clear 2FA code
+    user.clear_2fa_code()
+
+    # Capture login details for security tracking
+    login_ip = get_real_ip()
+    user_agent_string = request.headers.get('User-Agent', '')
+    browser_info, device_info = parse_user_agent(user_agent_string)
+    location_info = get_location_from_ip(login_ip)
+
+    # Record successful login
+    user.record_successful_login(
+        ip_address=login_ip,
+        location=location_info,
+        browser=browser_info,
+        device=device_info
+    )
+    db.session.commit()
+
+    # Send login notification email
+    try:
+        login_time = datetime.now(UTC).strftime('%B %d, %Y at %I:%M %p UTC')
+        subject, html = get_login_notification_email(
+            email=user.email,
+            login_time=login_time,
+            ip_address=login_ip,
+            location=location_info,
+            browser=browser_info,
+            device=device_info
+        )
+        send_email(to=user.email, subject=subject, html=html)
+    except Exception as e:
+        print(f"Failed to send login notification: {e!r}")
+
+    # Create access token
+    access_token = create_access_token(
+        identity=str(user.id),
+        additional_claims={"token_version": user.token_version}
+    )
+
+    # Set httpOnly cookie and return user info
+    response = make_response(jsonify({'user': user.to_dict(), 'message': 'Login successful'}), 200)
+    set_access_cookies(response, access_token)
+    return response
+
+
+# TOGGLE 2FA
+@auth_routes.route('/toggle-2fa', methods=['POST'])
+@jwt_required()
+def toggle_2fa():
+    """Enable or disable 2FA for the current user"""
+
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    data = request.get_json()
+    enable = data.get('enable', False)
+
+    user.twofa_enabled = enable
+    db.session.commit()
+
+    return jsonify({
+        'message': f'2FA {"enabled" if enable else "disabled"} successfully',
+        'twofa_enabled': user.twofa_enabled
+    }), 200

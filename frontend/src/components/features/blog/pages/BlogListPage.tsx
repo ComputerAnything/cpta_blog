@@ -9,6 +9,7 @@ import type { BlogPost, User } from '../../../../types'
 import { colors, shadows, transitions } from '../../../../theme/colors'
 import { PageContainer } from '../../../../theme/sharedComponents'
 import { PrimaryButton } from '../../../common/StyledButton'
+import StyledAlert from '../../../common/StyledAlert'
 import LoginModal from '../../auth/components/LoginModal'
 import RegisterModal from '../../auth/components/RegisterModal'
 import ForgotPasswordModal from '../../auth/components/ForgotPasswordModal'
@@ -281,16 +282,6 @@ const LoadingMessage = styled.div`
   font-size: 1.1rem;
 `
 
-const ErrorMessage = styled.div`
-  background: ${colors.danger}20;
-  border: 1px solid ${colors.danger};
-  color: ${colors.danger};
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-  margin: 2rem;
-`
-
 const PostHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -395,7 +386,9 @@ const BlogListPage = () => {
     return (
       <>
         <BlogListContainer>
-          <ErrorMessage>{error}</ErrorMessage>
+          <div style={{ padding: '2rem' }}>
+            <StyledAlert variant="danger">{error}</StyledAlert>
+          </div>
         </BlogListContainer>
         <Footer />
       </>

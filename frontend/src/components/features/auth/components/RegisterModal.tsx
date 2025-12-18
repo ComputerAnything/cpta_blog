@@ -1,32 +1,14 @@
 import { useState, useRef, type FormEvent } from 'react'
-import { Modal, Button, Form } from 'react-bootstrap'
+import { Form, Modal } from 'react-bootstrap'
 import styled from 'styled-components'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { authAPI } from '../../../../services/api'
 import { colors, shadows, transitions } from '../../../../theme/colors'
-
-const StyledModal = styled(Modal)`
-  .modal-content {
-    background: ${colors.backgroundAlt};
-    backdrop-filter: blur(10px);
-    border: 1px solid ${colors.borderLight};
-    color: ${colors.text.primary};
-  }
-
-  .modal-header {
-    border-bottom: 1px solid ${colors.borderLight};
-  }
-
-  .modal-footer {
-    border-top: 1px solid ${colors.borderLight};
-  }
-
-  .btn-close {
-    filter: invert(1);
-  }
-`
+import { StyledModal } from '../../../common/StyledModal'
+import { PrimaryButton } from '../../../common/StyledButton'
+import StyledAlert from '../../../common/StyledAlert'
 
 const StyledForm = styled(Form)`
   .form-control {
@@ -73,49 +55,6 @@ const StyledForm = styled(Form)`
       padding-right: 50px;
     }
   }
-`
-
-const AuthButton = styled(Button)`
-  background: linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%);
-  border: none;
-  color: #000;
-  font-weight: 600;
-  padding: 0.75rem;
-  transition: ${transitions.fast};
-  box-shadow: ${shadows.button};
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: ${shadows.buttonHover};
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    background: rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.5);
-    cursor: not-allowed;
-  }
-`
-
-const ErrorMessage = styled.div`
-  background: rgba(220, 53, 69, 0.2);
-  border: 1px solid ${colors.danger};
-  color: ${colors.danger};
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-top: 1rem;
-`
-
-const SuccessMessage = styled.div`
-  background: rgba(40, 167, 69, 0.2);
-  border: 1px solid ${colors.success};
-  color: ${colors.success};
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-top: 1rem;
 `
 
 const SwitchLink = styled.button`
@@ -222,7 +161,6 @@ const RegisterModal = () => {
   const [loading, setLoading] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
-  const navigate = useNavigate()
 
   const show = searchParams.get('register') === 'true'
 
@@ -340,9 +278,9 @@ const RegisterModal = () => {
           <SuccessView>
             <h4>Success!</h4>
             <p>{message?.text}</p>
-            <AuthButton onClick={handleGoToLogin} className="w-100">
+            <PrimaryButton onClick={handleGoToLogin} className="w-100">
               Go to Login
-            </AuthButton>
+            </PrimaryButton>
           </SuccessView>
         </Modal.Body>
       </StyledModal>
@@ -465,20 +403,21 @@ const RegisterModal = () => {
             />
           </div>
 
-          <AuthButton
+          <PrimaryButton
             type="submit"
             className="w-100 mb-2"
             disabled={!turnstileToken || loading}
           >
             {loading ? 'Registering...' : 'Register'}
-          </AuthButton>
+          </PrimaryButton>
 
           {message && (
-            message.type === 'success' ? (
-              <SuccessMessage>{message.text}</SuccessMessage>
-            ) : (
-              <ErrorMessage>{message.text}</ErrorMessage>
-            )
+            <StyledAlert
+              variant={message.type === 'success' ? 'success' : 'danger'}
+              style={{ marginTop: '1rem' }}
+            >
+              {message.text}
+            </StyledAlert>
           )}
         </StyledForm>
 

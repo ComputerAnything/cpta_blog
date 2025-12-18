@@ -1,32 +1,14 @@
 import { useState, useRef, type FormEvent } from 'react'
-import { Modal, Button, Form } from 'react-bootstrap'
+import { Form, Modal } from 'react-bootstrap'
 import styled from 'styled-components'
 import { useSearchParams } from 'react-router-dom'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { authAPI } from '../../../../services/api'
-import { colors, shadows, transitions } from '../../../../theme/colors'
-
-const StyledModal = styled(Modal)`
-  .modal-content {
-    background: ${colors.backgroundAlt};
-    backdrop-filter: blur(10px);
-    border: 1px solid ${colors.borderLight};
-    color: ${colors.text.primary};
-  }
-
-  .modal-header {
-    border-bottom: 1px solid ${colors.borderLight};
-  }
-
-  .modal-footer {
-    border-top: 1px solid ${colors.borderLight};
-  }
-
-  .btn-close {
-    filter: invert(1);
-  }
-`
+import { colors, transitions } from '../../../../theme/colors'
+import { StyledModal } from '../../../common/StyledModal'
+import { PrimaryButton } from '../../../common/StyledButton'
+import StyledAlert from '../../../common/StyledAlert'
 
 const StyledForm = styled(Form)`
   .form-control {
@@ -46,49 +28,6 @@ const StyledForm = styled(Form)`
       color: ${colors.text.muted};
     }
   }
-`
-
-const AuthButton = styled(Button)`
-  background: gradients.primary
-  border: none;
-  color: #000;
-  font-weight: 600;
-  padding: 0.75rem;
-  transition: ${transitions.fast};
-  box-shadow: ${shadows.button};
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: ${shadows.buttonHover};
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    background: rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.5);
-    cursor: not-allowed;
-  }
-`
-
-const ErrorMessage = styled.div`
-  background: rgba(220, 53, 69, 0.2);
-  border: 1px solid ${colors.danger};
-  color: ${colors.danger};
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-top: 1rem;
-`
-
-const SuccessMessage = styled.div`
-  background: rgba(40, 167, 69, 0.2);
-  border: 1px solid ${colors.success};
-  color: ${colors.success};
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-top: 1rem;
 `
 
 const SwitchLink = styled.button`
@@ -198,20 +137,21 @@ const ForgotPasswordModal = () => {
             />
           </div>
 
-          <AuthButton
+          <PrimaryButton
             type="submit"
             className="w-100"
             disabled={!turnstileToken || isSuccess || loading}
           >
             {loading ? 'Sending...' : 'Send Reset Link'}
-          </AuthButton>
+          </PrimaryButton>
 
           {message && (
-            isSuccess ? (
-              <SuccessMessage>{message}</SuccessMessage>
-            ) : (
-              <ErrorMessage>{message}</ErrorMessage>
-            )
+            <StyledAlert
+              variant={isSuccess ? 'success' : 'danger'}
+              style={{ marginTop: '1rem' }}
+            >
+              {message}
+            </StyledAlert>
           )}
         </StyledForm>
 

@@ -295,11 +295,19 @@ const Navbar = () => {
 
   const handleLogin = () => {
     closeNavbar()
+    // Force blur any active element to reset hover states
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur()
+    }
     navigate('/?login=true')
   }
 
   const handleRegister = () => {
     closeNavbar()
+    // Force blur any active element to reset hover states
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur()
+    }
     navigate('/?register=true')
   }
 

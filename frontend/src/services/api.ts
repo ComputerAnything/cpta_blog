@@ -92,6 +92,16 @@ export const authAPI = {
     const response = await api.post('/reset-password', { token, password })
     return response.data
   },
+
+  toggle2FA: async (enable: boolean) => {
+    const response = await api.post('/toggle-2fa', { enable })
+    return response.data
+  },
+
+  verify2FA: async (email: string, code: string) => {
+    const response = await api.post('/verify-2fa', { email, code })
+    return response.data
+  },
 }
 
 // Blog API calls
