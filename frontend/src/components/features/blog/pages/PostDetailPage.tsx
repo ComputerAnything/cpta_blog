@@ -336,13 +336,9 @@ const PostDetailPage: React.FC = () => {
     if (!post) return
 
     try {
-      const response = await blogAPI.upvotePost(post.id)
-      setPost({
-        ...post,
-        upvotes: response.upvotes,
-        downvotes: response.downvotes
-      })
-      setUserVote(userVote === 'upvote' ? null : 'upvote')
+      const { upvotes, downvotes } = await blogAPI.upvotePost(post.id)
+      setPost((prev) => prev ? ({ ...prev, upvotes, downvotes }) : prev)
+      setUserVote((prev) => (prev === 'upvote' ? null : 'upvote'))
     } catch (err: unknown) {
       console.error('Upvote error:', err)
       setAlert({ variant: 'danger', message: getErrorMessage(err, 'Failed to upvote') })
@@ -358,15 +354,9 @@ const PostDetailPage: React.FC = () => {
     if (!post) return
 
     try {
-      const response = await blogAPI.downvotePost(post.id)
-      if (post) {
-        setPost({
-          ...post,
-          upvotes: response.data.upvotes,
-          downvotes: response.data.downvotes,
-        })
-        setUserVote(userVote === 'downvote' ? null : 'downvote')
-      }
+      const { upvotes, downvotes } = await blogAPI.downvotePost(post.id)
+      setPost((prev) => prev ? ({ ...prev, upvotes, downvotes }) : prev)
+      setUserVote((prev) => (prev === 'downvote' ? null : 'downvote'))
     } catch (err: unknown) {
       console.error('Downvote error:', err)
       setAlert({ variant: 'danger', message: getErrorMessage(err, 'Failed to downvote') })

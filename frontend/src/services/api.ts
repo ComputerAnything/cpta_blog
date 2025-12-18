@@ -147,13 +147,13 @@ export const blogAPI = {
     return response.data
   },
 
-  upvotePost: async (postId: number) => {
-    const response = await api.post(`/posts/${postId}/upvote`)
+  upvotePost: async (postId: number): Promise<{ upvotes: number; downvotes: number }> => {
+    const response = await api.post<{ upvotes: number; downvotes: number }>(`/posts/${postId}/upvote`)
     return response.data
   },
 
-  downvotePost: async (postId: number) => {
-    const response = await api.post(`/posts/${postId}/downvote`)
+  downvotePost: async (postId: number): Promise<{ upvotes: number; downvotes: number }> => {
+    const response = await api.post<{ upvotes: number; downvotes: number }>(`/posts/${postId}/downvote`)
     return response.data
   },
 }

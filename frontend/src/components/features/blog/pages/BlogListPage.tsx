@@ -287,7 +287,12 @@ const PostHeader = styled.div`
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
+  margin-bottom: -1rem;
   gap: 1rem;
+
+  @media (max-width: 768px) {
+    margin-bottom: 1rem;
+  }
 `
 
 const BlogListPage = () => {
