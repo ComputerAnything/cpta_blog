@@ -12,6 +12,7 @@ import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
 import { useLocalStorage } from '../../../../hooks/useLocalStorage'
 import logger from '../../../../utils/logger'
+import { getErrorMessage, isErrorStatus } from '../../../../utils/errors'
 
 const StyledForm = styled(Form)`
   .form-control {
@@ -180,23 +181,19 @@ const LoginModal = () => {
       logger.error('Login failed:', error)
 
       // Special handling for rate limiting with Retry-After header
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; headers?: { 'retry-after'?: string }; data?: { error?: string } } }
-        if (axiosError.response?.status === 429) {
-          const retryAfter = axiosError.response.headers?.['retry-after']
-          const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 60
-          const limitUntil = Date.now() + waitSeconds * 1000
-          setRateLimitedUntil(limitUntil)
-          setMessage(`Too many login attempts. Please try again in ${waitSeconds} seconds.`)
-        } else {
-          const errMsg = axiosError.response?.data?.error || 'Login failed. Please check your credentials.'
-          setMessage(errMsg)
-          if (errMsg.toLowerCase().includes('verify')) {
-            setShowResend(true)
-          }
-        }
+      if (isErrorStatus(error, 429)) {
+        const axiosError = error as { response?: { headers?: { 'retry-after'?: string } } }
+        const retryAfter = axiosError.response?.headers?.['retry-after']
+        const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 60
+        const limitUntil = Date.now() + waitSeconds * 1000
+        setRateLimitedUntil(limitUntil)
+        setMessage(`Too many login attempts. Please try again in ${waitSeconds} seconds.`)
       } else {
-        setMessage('Login failed. Please check your credentials.')
+        const errMsg = getErrorMessage(error, 'Login failed. Please check your credentials.')
+        setMessage(errMsg)
+        if (errMsg.toLowerCase().includes('verify')) {
+          setShowResend(true)
+        }
       }
 
       // Reset turnstile on error
@@ -234,19 +231,15 @@ const LoginModal = () => {
       setTwoFACode('')
 
       // Special handling for rate limiting
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; headers?: { 'retry-after'?: string }; data?: { error?: string } } }
-        if (axiosError.response?.status === 429) {
-          const retryAfter = axiosError.response.headers?.['retry-after']
-          const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 300  // 5 minutes default
-          const limitUntil = Date.now() + waitSeconds * 1000
-          setRateLimitedUntil(limitUntil)
-          setMessage(`Too many verification attempts. Please try again in ${waitSeconds} seconds.`)
-        } else {
-          setMessage(axiosError.response?.data?.error || 'Invalid or expired verification code. Please try again.')
-        }
+      if (isErrorStatus(error, 429)) {
+        const axiosError = error as { response?: { headers?: { 'retry-after'?: string } } }
+        const retryAfter = axiosError.response?.headers?.['retry-after']
+        const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 300  // 5 minutes default
+        const limitUntil = Date.now() + waitSeconds * 1000
+        setRateLimitedUntil(limitUntil)
+        setMessage(`Too many verification attempts. Please try again in ${waitSeconds} seconds.`)
       } else {
-        setMessage('Invalid or expired verification code. Please try again.')
+        setMessage(getErrorMessage(error, 'Invalid or expired verification code. Please try again.'))
       }
     } finally {
       setLoading(false)

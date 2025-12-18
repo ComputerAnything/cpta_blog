@@ -124,6 +124,21 @@ export const SecondaryButton = styled(PrimaryButton)`
     color: ${colors.text.primary} !important;
     box-shadow: none !important;
   }
+
+  /* Modifier for small-screen preview toggle buttons */
+  &.preview-toggle {
+    .preview-text {
+      margin-left: 0.5rem;
+    }
+
+    @media (max-width: 576px) {
+      padding: 0.2rem 0.5rem;
+      font-size: 0.8rem;
+      .preview-text {
+        display: none;
+      }
+    }
+  }
 `
 
 // ============================================================================

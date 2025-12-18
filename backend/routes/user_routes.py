@@ -2,6 +2,7 @@ from app import db
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from models import BlogPost, Comment, User, Vote
+from sqlalchemy.exc import IntegrityError
 
 
 user_routes = Blueprint('user_routes', __name__)
@@ -35,13 +36,25 @@ def update_profile():
     email = data.get('email')
     if not username or not email:
         return jsonify({"msg": "Username and email are required"}), 400
+
+    # Check if username is taken by another user
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user and existing_user.id != user.id:
+        return jsonify({"msg": "Username is already taken"}), 400
+
     old_email = user.email
     user.username = username
     user.email = email
     if email != old_email:
         user.is_verified = False
         # You may want to import and call send_verification_email here
-    db.session.commit()
+
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"msg": "Username or email is already taken"}), 400
+
     return jsonify({"msg": "Profile updated successfully"}), 200
 
 # DELETE USER PROFILE

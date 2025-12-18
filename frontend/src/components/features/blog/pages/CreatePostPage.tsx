@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { useAuth } from '../../../../contexts/AuthContext'
 import { blogAPI } from '../../../../services/api'
+import { getErrorMessage } from '../../../../utils/errors'
 import StyledAlert from '../../../common/StyledAlert'
 import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import Footer from '../../../layout/Footer'
@@ -298,8 +299,7 @@ const CreatePostPage: React.FC = () => {
       // Navigate to the newly created post
       navigate(`/posts/${post.id}`)
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create post'
-      setAlert({ variant: 'danger', message })
+      setAlert({ variant: 'danger', message: getErrorMessage(error, 'Failed to create post') })
       setSubmitting(false)
     }
   }
@@ -409,9 +409,11 @@ const CreatePostPage: React.FC = () => {
                   </span>
                   <PreviewToggleButton
                     type="button"
+                    className="preview-toggle"
                     onClick={() => setShowPreview(!showPreview)}
                   >
-                    <i className={`bi bi-eye${showPreview ? '-fill' : ''}`}></i> {showPreview ? 'Hide' : 'Show'} Preview
+                    <i className={`bi bi-eye${showPreview ? '-fill' : ''}`}></i>
+                    <span className="preview-text"> {showPreview ? 'Hide' : 'Show'} Preview</span>
                   </PreviewToggleButton>
                 </div>
               </label>

@@ -3,6 +3,7 @@ import { Modal, Form } from 'react-bootstrap'
 import styled from 'styled-components'
 import { authAPI } from '../../../../services/api'
 import logger from '../../../../utils/logger'
+import { getErrorMessage } from '../../../../utils/errors'
 import StyledAlert from '../../../common/StyledAlert'
 import PasswordStrengthMeter from '../../../common/PasswordStrengthMeter'
 import { StyledModal } from '../../../common/StyledModal'
@@ -73,14 +74,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ show, onHide 
       }, 2000)
     } catch (error: unknown) {
       logger.error('Change password error:', error)
-
-      // Extract error message
-      let errorMessage = 'An error occurred. Please try again.'
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { data?: { error?: string } } }
-        errorMessage = axiosError.response?.data?.error || errorMessage
-      }
-      setError(errorMessage)
+      setError(getErrorMessage(error, 'Failed to change password. Please try again.'))
     } finally {
       setLoading(false)
     }

@@ -7,6 +7,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useAuth } from '../../../../contexts/AuthContext'
 import { blogAPI } from '../../../../services/api'
 import type { BlogPost } from '../../../../types'
+import { getErrorMessage } from '../../../../utils/errors'
 import StyledAlert from '../../../common/StyledAlert'
 import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import { colors, shadows, transitions } from '../../../../theme/colors'
@@ -290,8 +291,7 @@ const EditPostPage: React.FC = () => {
       setContent(postData.content)
       setTopicTags(postData.topic_tags || '')
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load post'
-      setError(errorMessage)
+      setError(getErrorMessage(err, 'Failed to load post'))
     } finally {
       setLoading(false)
     }
@@ -343,8 +343,7 @@ const EditPostPage: React.FC = () => {
       // Navigate back to the post detail page
       navigate(`/posts/${postId}`)
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update post'
-      setAlert({ variant: 'danger', message: errorMessage })
+      setAlert({ variant: 'danger', message: getErrorMessage(err, 'Failed to update post') })
       setSubmitting(false)
     }
   }
@@ -485,9 +484,11 @@ const EditPostPage: React.FC = () => {
                   </span>
                   <PreviewToggleButton
                     type="button"
+                    className="preview-toggle"
                     onClick={() => setShowPreview(!showPreview)}
                   >
-                    <i className={`bi bi-eye${showPreview ? '-fill' : ''}`}></i> {showPreview ? 'Hide' : 'Show'} Preview
+                    <i className={`bi bi-eye${showPreview ? '-fill' : ''}`}></i>
+                    <span className="preview-text"> {showPreview ? 'Hide' : 'Show'} Preview</span>
                   </PreviewToggleButton>
                 </div>
               </label>

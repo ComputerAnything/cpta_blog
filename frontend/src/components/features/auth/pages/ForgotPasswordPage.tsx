@@ -6,6 +6,7 @@ import { authAPI } from '../../../../services/api'
 import { useTurnstile } from '../../../../hooks/useTurnstile'
 import StyledAlert from '../../../common/StyledAlert'
 import logger from '../../../../utils/logger'
+import { getErrorMessage } from '../../../../utils/errors'
 import { PrimaryButton } from '../../../common/StyledButton'
 import { colors, gradients, shadows } from '../../../../theme/colors'
 import Footer from '../../../layout/Footer'
@@ -142,14 +143,7 @@ const ForgotPasswordPage = () => {
       setLastName('')
     } catch (error: unknown) {
       logger.error('Forgot password error:', error)
-
-      // Extract error message
-      let errorMessage = 'An error occurred. Please try again.'
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { data?: { error?: string } } }
-        errorMessage = axiosError.response?.data?.error || errorMessage
-      }
-      setError(errorMessage)
+      setError(getErrorMessage(error, 'An error occurred. Please try again.'))
 
       // Reset Turnstile on error
       resetTurnstile()

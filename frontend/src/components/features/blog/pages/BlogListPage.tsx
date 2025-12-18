@@ -6,6 +6,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { useAuth } from '../../../../contexts/AuthContext'
 import { blogAPI, userAPI } from '../../../../services/api'
 import type { BlogPost, User } from '../../../../types'
+import { getErrorMessage } from '../../../../utils/errors'
 import { colors, shadows, transitions } from '../../../../theme/colors'
 import { PageContainer } from '../../../../theme/sharedComponents'
 import { PrimaryButton } from '../../../common/StyledButton'
@@ -318,7 +319,7 @@ const BlogListPage = () => {
       } catch (err) {
         console.error('Failed to fetch posts:', err)
         if (isMounted) {
-          setError('Failed to load blog posts')
+          setError(getErrorMessage(err, 'Failed to load blog posts'))
         }
       } finally {
         if (isMounted) {
@@ -346,6 +347,7 @@ const BlogListPage = () => {
         setUsers(Array.isArray(response.users) ? response.users : [])
       } catch (err) {
         console.error('Failed to fetch users:', err)
+        // Silently fail for user search - just show empty results
         setUsers([])
       } finally {
         setLoadingUsers(false)

@@ -7,6 +7,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useAuth } from '../../../../contexts/AuthContext'
 import { blogAPI, commentAPI } from '../../../../services/api'
 import type { BlogPost, Comment } from '../../../../types'
+import { getErrorMessage } from '../../../../utils/errors'
 import StyledAlert from '../../../common/StyledAlert'
 import { PrimaryButton, ColorButton } from '../../../common/StyledButton'
 import { colors, shadows, transitions } from '../../../../theme/colors'
@@ -310,8 +311,7 @@ const PostDetailPage: React.FC = () => {
       } catch (err: unknown) {
         console.error('Failed to fetch data:', err)
         if (isMounted) {
-          const errorMessage = err instanceof Error ? err.message : 'Failed to load post'
-          setError(errorMessage)
+          setError(getErrorMessage(err, 'Failed to load post'))
         }
       } finally {
         if (isMounted) {
@@ -345,7 +345,7 @@ const PostDetailPage: React.FC = () => {
       setUserVote(userVote === 'upvote' ? null : 'upvote')
     } catch (err: unknown) {
       console.error('Upvote error:', err)
-      setAlert({ variant: 'danger', message: 'Failed to upvote' })
+      setAlert({ variant: 'danger', message: getErrorMessage(err, 'Failed to upvote') })
     }
   }
 
@@ -367,8 +367,9 @@ const PostDetailPage: React.FC = () => {
         })
         setUserVote(userVote === 'downvote' ? null : 'downvote')
       }
-    } catch {
-      setAlert({ variant: 'danger', message: 'Failed to downvote' })
+    } catch (err: unknown) {
+      console.error('Downvote error:', err)
+      setAlert({ variant: 'danger', message: getErrorMessage(err, 'Failed to downvote') })
     }
   }
 
@@ -398,7 +399,7 @@ const PostDetailPage: React.FC = () => {
       setComments(Array.isArray(commentsData) ? commentsData : [])
     } catch (err: unknown) {
       console.error('Comment error:', err)
-      setAlert({ variant: 'danger', message: 'Failed to post comment' })
+      setAlert({ variant: 'danger', message: getErrorMessage(err, 'Failed to post comment') })
     } finally {
       setSubmitting(false)
     }
@@ -419,7 +420,7 @@ const PostDetailPage: React.FC = () => {
       setComments(Array.isArray(commentsData) ? commentsData : [])
     } catch (err: unknown) {
       console.error('Delete comment error:', err)
-      setAlert({ variant: 'danger', message: 'Failed to delete comment' })
+      setAlert({ variant: 'danger', message: getErrorMessage(err, 'Failed to delete comment') })
     }
   }
 
@@ -435,7 +436,7 @@ const PostDetailPage: React.FC = () => {
       navigate('/posts')
     } catch (err: unknown) {
       console.error('Delete post error:', err)
-      setAlert({ variant: 'danger', message: 'Failed to delete post' })
+      setAlert({ variant: 'danger', message: getErrorMessage(err, 'Failed to delete post') })
     }
   }
 

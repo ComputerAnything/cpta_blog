@@ -34,7 +34,7 @@ export function getErrorMessage(error: unknown, fallback: string): string {
   if (isAxiosError(error)) {
     // Try to get message from response data
     const responseData = error.response?.data as Record<string, unknown> | undefined
-    const message = responseData?.message || responseData?.error
+    const message = responseData?.message || responseData?.error || responseData?.msg
     if (message && typeof message === 'string') {
       return message
     }

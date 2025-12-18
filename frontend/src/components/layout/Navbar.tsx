@@ -394,7 +394,7 @@ const Navbar = () => {
                       Create Post
                     </button>
                   </li>
-                  <li><hr className="dropdown-divider" /></li>
+                  <li><hr className="dropdown-divider" style={{ borderColor: colors.border }} /></li>
                   <li>
                     <button className="dropdown-item" onClick={handleLogout}>
                       <i className="bi bi-box-arrow-right"></i>

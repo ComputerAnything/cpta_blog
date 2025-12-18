@@ -12,6 +12,7 @@ import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
 import { useLocalStorage } from '../../../../hooks/useLocalStorage'
 import logger from '../../../../utils/logger'
+import { getErrorMessage, isErrorStatus } from '../../../../utils/errors'
 
 const StyledForm = styled(Form)`
   .form-control {
@@ -283,27 +284,19 @@ const RegisterModal = () => {
       logger.error('Registration failed:', error)
 
       // Special handling for rate limiting with Retry-After header
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; headers?: { 'retry-after'?: string }; data?: { error?: string } } }
-        if (axiosError.response?.status === 429) {
-          const retryAfter = axiosError.response.headers?.['retry-after']
-          const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 60
-          const limitUntil = Date.now() + waitSeconds * 1000
-          setRateLimitedUntil(limitUntil)
-          setMessage({
-            text: `Too many registration attempts. Please try again in ${waitSeconds} seconds.`,
-            type: 'error'
-          })
-        } else {
-          const errMsg = axiosError.response?.data?.error || 'Registration failed. Please try again.'
-          setMessage({
-            text: errMsg,
-            type: 'error'
-          })
-        }
+      if (isErrorStatus(error, 429)) {
+        const axiosError = error as { response?: { headers?: { 'retry-after'?: string } } }
+        const retryAfter = axiosError.response?.headers?.['retry-after']
+        const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 60
+        const limitUntil = Date.now() + waitSeconds * 1000
+        setRateLimitedUntil(limitUntil)
+        setMessage({
+          text: `Too many registration attempts. Please try again in ${waitSeconds} seconds.`,
+          type: 'error'
+        })
       } else {
         setMessage({
-          text: 'Registration failed. Please try again.',
+          text: getErrorMessage(error, 'Registration failed. Please try again.'),
           type: 'error'
         })
       }
@@ -344,26 +337,19 @@ const RegisterModal = () => {
       setVerificationCode('')
 
       // Special handling for rate limiting
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; headers?: { 'retry-after'?: string }; data?: { error?: string } } }
-        if (axiosError.response?.status === 429) {
-          const retryAfter = axiosError.response.headers?.['retry-after']
-          const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 300  // 5 minutes default
-          const limitUntil = Date.now() + waitSeconds * 1000
-          setRateLimitedUntil(limitUntil)
-          setMessage({
-            text: `Too many verification attempts. Please try again in ${waitSeconds} seconds.`,
-            type: 'error'
-          })
-        } else {
-          setMessage({
-            text: axiosError.response?.data?.error || 'Invalid or expired verification code. Please try again.',
-            type: 'error'
-          })
-        }
+      if (isErrorStatus(error, 429)) {
+        const axiosError = error as { response?: { headers?: { 'retry-after'?: string } } }
+        const retryAfter = axiosError.response?.headers?.['retry-after']
+        const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 300  // 5 minutes default
+        const limitUntil = Date.now() + waitSeconds * 1000
+        setRateLimitedUntil(limitUntil)
+        setMessage({
+          text: `Too many verification attempts. Please try again in ${waitSeconds} seconds.`,
+          type: 'error'
+        })
       } else {
         setMessage({
-          text: 'Invalid or expired verification code. Please try again.',
+          text: getErrorMessage(error, 'Invalid or expired verification code. Please try again.'),
           type: 'error'
         })
       }

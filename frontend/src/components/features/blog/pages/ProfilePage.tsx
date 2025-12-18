@@ -4,9 +4,10 @@ import styled from 'styled-components'
 import { useAuth } from '../../../../contexts/AuthContext'
 import { userAPI, authAPI } from '../../../../services/api'
 import type { User, BlogPost } from '../../../../types'
+import { getErrorMessage } from '../../../../utils/errors'
 import { colors, shadows, transitions } from '../../../../theme/colors'
 import { PageContainer } from '../../../../theme/sharedComponents'
-import { PrimaryButton } from '../../../common/StyledButton'
+import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
 import ChangePasswordModal from '../../auth/components/ChangePasswordModal'
 import Footer from '../../../layout/Footer'
@@ -297,7 +298,7 @@ const ProfilePage = () => {
         setPosts(Array.isArray(postsData) ? postsData : [])
       } catch (err) {
         console.error('Failed to load profile:', err)
-        setError('Failed to load profile')
+        setError(getErrorMessage(err, 'Failed to load profile'))
       } finally {
         setLoading(false)
       }
@@ -325,16 +326,9 @@ const ProfilePage = () => {
       })
     } catch (err: unknown) {
       console.error('Failed to update username:', err)
-      let errorMessage = 'Failed to update username. It may already be taken.'
-      if (err && typeof err === 'object' && 'response' in err) {
-        const response = (err as { response?: { data?: { error?: string } } }).response
-        if (response?.data?.error) {
-          errorMessage = response.data.error
-        }
-      }
       setSettingsMessage({
         type: 'error',
-        text: errorMessage
+        text: getErrorMessage(err, 'Failed to update username. It may already be taken.')
       })
     } finally {
       setSettingsLoading(false)
@@ -468,7 +462,7 @@ const ProfilePage = () => {
                     >
                       {settingsLoading ? 'Saving...' : 'Save'}
                     </PrimaryButton>
-                    <PrimaryButton
+                    <SecondaryButton
                       onClick={() => {
                         setEditingUsername(false)
                         setNewUsername('')
@@ -477,7 +471,7 @@ const ProfilePage = () => {
                       disabled={settingsLoading}
                     >
                       Cancel
-                    </PrimaryButton>
+                    </SecondaryButton>
                   </div>
                 )}
               </SettingRow>
@@ -491,7 +485,7 @@ const ProfilePage = () => {
                   Change Password
                 </PrimaryButton>
               </SettingRow>
-              
+
               <SettingRow>
                 <div className="setting-info">
                   <h3>Two-Factor Authentication</h3>
