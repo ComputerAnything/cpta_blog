@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react'
 import { Form, Modal } from 'react-bootstrap'
 import styled from 'styled-components'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { useAuth } from '../../../../contexts/AuthContext'
@@ -139,6 +139,7 @@ const PasswordRequirements = styled.ul`
 
 const RegisterModal = () => {
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const { login } = useAuth()
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
@@ -330,6 +331,7 @@ const RegisterModal = () => {
       setRequiresVerification(false)
       setVerificationEmail('')
       setMessage(null)
+      navigate('/profile')
     } catch (error: unknown) {
       logger.error('Verification error:', error)
 

@@ -11,7 +11,7 @@ import { getErrorMessage } from '../../../../utils/errors'
 import StyledAlert from '../../../common/StyledAlert'
 import { PrimaryButton, ColorButton } from '../../../common/StyledButton'
 import { colors, shadows, transitions } from '../../../../theme/colors'
-import { PageContainer } from '../../../../theme/sharedComponents'
+import { PageContainer, PostContent, PostMeta, TagsContainer, Tag } from '../../../../theme/sharedComponents'
 import Footer from '../../../layout/Footer'
 
 const PostCard = styled.div`
@@ -27,52 +27,14 @@ const PostCard = styled.div`
   }
 `
 
-const PostHeader = styled.div`
-  margin-bottom: 2rem;
-`
-
 const PostTitle = styled.h1`
   color: ${colors.primary};
-  font-size: 2.5rem;
+  font-size: 2.5rem !important;
   margin-bottom: 1rem;
 
   @media (max-width: 768px) {
-    font-size: 2rem;
+    font-size: 2rem !important;
   }
-`
-
-const PostMeta = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  font-size: 0.9rem;
-  color: ${colors.text.muted};
-  margin-bottom: 1rem;
-
-  a {
-    color: ${colors.primary};
-    text-decoration: none;
-    transition: ${transitions.default};
-
-    &:hover {
-      color: ${colors.primaryDark};
-      text-decoration: underline;
-    }
-  }
-`
-const TagsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-`
-
-const Tag = styled.span`
-  background: ${colors.info}20;
-  border: 1px solid ${colors.info};
-  color: ${colors.info};
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
 `
 
 const ActionButtons = styled.div`
@@ -80,6 +42,7 @@ const ActionButtons = styled.div`
   flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
 `
 
 const VotingSection = styled.div`
@@ -127,7 +90,7 @@ const VoteButton = styled.button<{ $active?: boolean; $type: 'up' | 'down' }>`
   }
 `
 
-const VoteStats = styled.div`
+const VoteStats = styled.div<{ $netVotes: number }>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -136,57 +99,15 @@ const VoteStats = styled.div`
   .net-votes {
     font-size: 2rem;
     font-weight: bold;
-    color: ${colors.primary};
+    color: ${props => {
+      if (props.$netVotes === 0) return colors.text.muted
+      return props.$netVotes > 0 ? colors.success : colors.danger
+    }};
   }
 
   .total-votes {
     font-size: 0.9rem;
     color: ${colors.text.muted};
-  }
-`
-
-const PostContent = styled.div`
-  color: ${colors.text.primary};
-  line-height: 1.8;
-  font-size: 1.05rem;
-
-  p {
-    margin-bottom: 1.5rem;
-  }
-
-  code {
-    background: ${colors.primary}20;
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.95em;
-  }
-
-  pre {
-    background: ${colors.backgroundDark};
-    border-radius: 8px;
-    padding: 1rem;
-    overflow-x: auto;
-    margin: 1.5rem 0;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    color: ${colors.primary};
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-  }
-
-  ul, ol {
-    margin-bottom: 1.5rem;
-    padding-left: 2rem;
-    color: ${colors.text.primary};
-  }
-
-  blockquote {
-    border-left: 4px solid ${colors.primary};
-    padding-left: 1rem;
-    margin: 1.5rem 0;
-    color: ${colors.text.secondary};
   }
 `
 
@@ -467,7 +388,7 @@ const PostDetailPage: React.FC = () => {
       <PageContainer>
         <div className="container">
           <PostCard>
-            <PostHeader>
+            <div style={{ marginBottom: '1.5rem' }}>
               <PostTitle>{post.title}</PostTitle>
               <PostMeta>
                 <span>
@@ -508,7 +429,7 @@ const PostDetailPage: React.FC = () => {
                   </ColorButton>
                 </ActionButtons>
               )}
-            </PostHeader>
+            </div>
 
             <VotingSection>
               <VoteButton
@@ -521,7 +442,7 @@ const PostDetailPage: React.FC = () => {
                 Upvote
               </VoteButton>
 
-              <VoteStats>
+              <VoteStats $netVotes={netVotes}>
                 <div className="net-votes">{netVotes > 0 ? '+' : ''}{netVotes}</div>
                 <div className="total-votes">{totalVotes} votes</div>
               </VoteStats>

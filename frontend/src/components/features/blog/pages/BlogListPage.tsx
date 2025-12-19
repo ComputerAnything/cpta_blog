@@ -3,12 +3,25 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useAuth } from '../../../../contexts/AuthContext'
 import { blogAPI, userAPI } from '../../../../services/api'
 import type { BlogPost, User } from '../../../../types'
 import { getErrorMessage } from '../../../../utils/errors'
 import { colors, shadows, transitions } from '../../../../theme/colors'
-import { PageContainer } from '../../../../theme/sharedComponents'
+import {
+  PageContainer,
+  BlogPostCard,
+  PostHeader,
+  PostTitle,
+  VoteDisplay,
+  PostMeta,
+  PostContent,
+  TagsContainer,
+  Tag,
+  NoResults,
+  LoadingMessage,
+} from '../../../../theme/sharedComponents'
 import { PrimaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
 import LoginModal from '../../auth/components/LoginModal'
@@ -157,141 +170,6 @@ const ProfileItem = styled.button`
   &:hover {
     background: ${colors.hover};
     color: ${colors.primary};
-  }
-`
-
-const BlogPostCard = styled.div`
-  background: ${colors.backgroundAlt};
-  border: 1px solid ${colors.borderLight};
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  transition: ${transitions.default};
-  cursor: pointer;
-  box-shadow: ${shadows.medium};
-
-  &:hover {
-    border-color: ${colors.primary};
-    box-shadow: ${shadows.large};
-    transform: translateY(-2px);
-  }
-`
-
-const PostTitle = styled.h2`
-  font-size: 1.5rem;
-  color: ${colors.primary};
-  margin: 0;
-  flex: 1;
-`
-
-const VoteDisplay = styled.div<{ $netVotes: number }>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  background: ${colors.backgroundDark};
-  border-radius: 8px;
-  min-width: 80px;
-
-  .net-votes {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: ${props => {
-      if (props.$netVotes === 0) return colors.text.muted
-      return props.$netVotes > 0 ? colors.success : colors.danger
-    }};
-  }
-
-  .total-votes {
-    font-size: 0.85rem;
-    color: ${colors.text.muted};
-    margin-top: 0.25rem;
-  }
-`
-
-const PostMeta = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  font-size: 0.9rem;
-  color: ${colors.text.muted};
-  margin-bottom: 1rem;
-
-  a {
-    color: ${colors.primary};
-    text-decoration: none;
-    transition: ${transitions.default};
-
-    &:hover {
-      color: ${colors.primaryDark};
-      text-decoration: underline;
-    }
-  }
-`
-
-const PostContent = styled.div`
-  color: ${colors.text.primary};
-  line-height: 1.6;
-  margin-bottom: 1rem;
-
-  p {
-    margin-bottom: 1rem;
-  }
-
-  code {
-    background: ${colors.primary}20;
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-  }
-
-  pre {
-    background: ${colors.backgroundDark};
-    border-radius: 8px;
-    padding: 1rem;
-    overflow-x: auto;
-  }
-`
-
-const TagsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-`
-
-const Tag = styled.span`
-  background: ${colors.info}20;
-  border: 1px solid ${colors.info};
-  color: ${colors.info};
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-`
-
-const NoResults = styled.div`
-  text-align: center;
-  padding: 3rem;
-  color: ${colors.text.muted};
-  font-size: 1.1rem;
-`
-
-const LoadingMessage = styled.div`
-  text-align: center;
-  padding: 3rem;
-  color: ${colors.text.muted};
-  font-size: 1.1rem;
-`
-
-const PostHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  margin-bottom: -1rem;
-  gap: 1rem;
-
-  @media (max-width: 768px) {
-    margin-bottom: 1rem;
   }
 `
 
@@ -522,15 +400,20 @@ const BlogListPage = () => {
                 <PostMeta>
                   <span>
                     By{' '}
-                    <a
-                      href={`/profile/${post.author}`}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        navigate(`/profile/${post.author}`)
-                      }}
-                    >
-                      @{post.author || 'Unknown'}
-                    </a>
+                    {post.author ? (
+                      <a
+                        href={`/profile/${post.author}`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          navigate(`/profile/${post.author}`)
+                        }}
+                      >
+                        @{post.author}
+                      </a>
+                    ) : (
+                      <span>@Unknown</span>
+                    )}
                   </span>
                   <span>•</span>
                   <span>{new Date(post.created_at).toLocaleDateString()}</span>
@@ -545,6 +428,7 @@ const BlogListPage = () => {
                         const { ref, ...safeProps } = props as Record<string, unknown> & { ref?: unknown }
                         return match ? (
                           <SyntaxHighlighter
+                            style={vscDarkPlus}
                             language={match[1]}
                             PreTag="div"
                           >

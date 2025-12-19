@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useAuth } from '../../../../contexts/AuthContext'
 import { blogAPI } from '../../../../services/api'
 import { getErrorMessage } from '../../../../utils/errors'
@@ -10,7 +11,7 @@ import StyledAlert from '../../../common/StyledAlert'
 import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import Footer from '../../../layout/Footer'
 import { colors, shadows, transitions } from '../../../../theme/colors'
-import { PageContainer } from '../../../../theme/sharedComponents'
+import { PageContainer, PostContent } from '../../../../theme/sharedComponents'
 
 const PostForm = styled.form`
   background: ${colors.backgroundAlt};
@@ -168,8 +169,8 @@ const ContentEditor = styled.div<{ $showPreview: boolean }>`
 `
 
 const PreviewPane = styled.div`
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: ${colors.backgroundDark};
+  border: 1px solid ${colors.borderLight};
   border-radius: 8px;
   padding: 1rem;
   min-height: 400px;
@@ -186,53 +187,12 @@ const PreviewPane = styled.div`
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #00ff41;
+    background: ${colors.primary};
     border-radius: 4px;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    color: #00ff41;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
-  }
-
-  p {
-    color: rgba(255, 255, 255, 0.9);
-    line-height: 1.8;
-    margin-bottom: 1rem;
-  }
-
-  code {
-    background: rgba(0, 255, 65, 0.1);
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.95em;
-  }
-
-  pre {
-    background: #1e1e1e;
-    border-radius: 8px;
-    padding: 1rem;
-    overflow-x: auto;
-    margin: 1.5rem 0;
-  }
-
-  ul, ol {
-    margin-bottom: 1.5rem;
-    padding-left: 2rem;
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  blockquote {
-    border-left: 4px solid #00ff41;
-    padding-left: 1rem;
-    margin: 1.5rem 0;
-    color: rgba(255, 255, 255, 0.7);
   }
 
   .empty-preview {
-    color: rgba(255, 255, 255, 0.5);
+    color: ${colors.text.muted};
     text-align: center;
     padding: 3rem 1rem;
     font-style: italic;
@@ -430,29 +390,32 @@ const CreatePostPage: React.FC = () => {
                 {showPreview && (
                   <PreviewPane>
                     {content ? (
-                      <ReactMarkdown
-                        components={{
-                          code({ className, children, ...props }) {
-                            const match = /language-(\w+)/.exec(className || '')
-                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                            const { ref, ...safeProps } = props as Record<string, unknown> & { ref?: unknown }
-                            return match ? (
-                              <SyntaxHighlighter
-                                language={match[1]}
-                                PreTag="div"
-                              >
-                                {String(children).replace(/\n$/, '')}
-                              </SyntaxHighlighter>
-                            ) : (
-                              <code className={className} {...safeProps}>
-                                {children}
-                              </code>
-                            )
-                          },
-                        }}
-                      >
-                        {content}
-                      </ReactMarkdown>
+                      <PostContent>
+                        <ReactMarkdown
+                          components={{
+                            code({ className, children, ...props }) {
+                              const match = /language-(\w+)/.exec(className || '')
+                              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                              const { ref, ...safeProps } = props as Record<string, unknown> & { ref?: unknown }
+                              return match ? (
+                                <SyntaxHighlighter
+                                  style={vscDarkPlus}
+                                  language={match[1]}
+                                  PreTag="div"
+                                >
+                                  {String(children).replace(/\n$/, '')}
+                                </SyntaxHighlighter>
+                              ) : (
+                                <code className={className} {...safeProps}>
+                                  {children}
+                                </code>
+                              )
+                            },
+                          }}
+                        >
+                          {content}
+                        </ReactMarkdown>
+                      </PostContent>
                     ) : (
                       <div className="empty-preview">
                         Preview will appear here as you type...

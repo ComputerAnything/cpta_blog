@@ -1,12 +1,26 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import ReactMarkdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useAuth } from '../../../../contexts/AuthContext'
 import { userAPI, authAPI } from '../../../../services/api'
 import type { User, BlogPost } from '../../../../types'
 import { getErrorMessage } from '../../../../utils/errors'
-import { colors, shadows, transitions } from '../../../../theme/colors'
-import { PageContainer } from '../../../../theme/sharedComponents'
+import { colors, shadows } from '../../../../theme/colors'
+import {
+  PageContainer,
+  BlogPostCard,
+  PostHeader,
+  PostTitle,
+  VoteDisplay,
+  PostMeta,
+  PostContent,
+  TagsContainer,
+  Tag,
+  LoadingMessage,
+} from '../../../../theme/sharedComponents'
 import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
 import ChangePasswordModal from '../../auth/components/ChangePasswordModal'
@@ -90,70 +104,11 @@ const StatItem = styled.div`
 `
 
 const PostsSection = styled.div`
-  h2 {
+  > h2 {
     color: ${colors.primary};
     margin-bottom: 1.5rem;
     font-size: 1.5rem;
   }
-`
-
-const PostCard = styled.div`
-  background: ${colors.backgroundAlt};
-  border: 1px solid ${colors.borderLight};
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  transition: ${transitions.default};
-  cursor: pointer;
-  box-shadow: ${shadows.small};
-
-  &:hover {
-    border-color: ${colors.border};
-    box-shadow: ${shadows.medium};
-    transform: translateY(-2px);
-  }
-
-  h3 {
-    color: ${colors.primary};
-    margin-bottom: 1rem;
-    font-size: 1.3rem;
-  }
-
-  .post-meta {
-    display: flex;
-    gap: 1rem;
-    color: ${colors.text.muted};
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-  }
-
-  .post-content {
-    color: ${colors.text.secondary};
-    line-height: 1.6;
-  }
-
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 1rem;
-  }
-
-  .tag {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid ${colors.borderLight};
-    color: ${colors.primary};
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-  }
-`
-
-const LoadingMessage = styled.div`
-  text-align: center;
-  padding: 3rem;
-  color: ${colors.text.muted};
-  font-size: 1.1rem;
 `
 
 const SettingRow = styled.div`
@@ -518,29 +473,67 @@ const ProfilePage = () => {
                 {isOwnProfile ? "You haven't created any posts yet." : "This user hasn't created any posts yet."}
               </LoadingMessage>
             ) : (
-              posts.map((post) => (
-                <PostCard key={post.id} onClick={() => navigate(`/posts/${post.id}`)}>
-                  <h3>{post.title}</h3>
-                  <div className="post-meta">
-                    <span>{new Date(post.created_at).toLocaleDateString()}</span>
-                    <span>•</span>
-                    <span>{post.upvotes - post.downvotes} votes</span>
-                  </div>
-                  <div className="post-content">
-                    {post.content.substring(0, 200)}
-                    {post.content.length > 200 ? '...' : ''}
-                  </div>
-                  {post.topic_tags && (
-                    <div className="tags">
-                      {post.topic_tags.split(',').map((tag, idx) => (
-                        <span key={idx} className="tag">
-                          {tag.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </PostCard>
-              ))
+              posts.map((post) => {
+                const netVotes = (post.upvotes || 0) - (post.downvotes || 0)
+                const totalVotes = (post.upvotes || 0) + (post.downvotes || 0)
+
+                return (
+                  <BlogPostCard key={post.id} onClick={() => navigate(`/posts/${post.id}`)}>
+                    <PostHeader>
+                      <PostTitle>{post.title}</PostTitle>
+                      <VoteDisplay $netVotes={netVotes}>
+                        <div className="net-votes">
+                          {netVotes > 0 ? '+' : ''}{netVotes}
+                        </div>
+                        <div className="total-votes">
+                          {totalVotes} {totalVotes === 1 ? 'vote' : 'votes'}
+                        </div>
+                      </VoteDisplay>
+                    </PostHeader>
+
+                    <PostMeta>
+                      <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                    </PostMeta>
+
+                    <PostContent>
+                      <ReactMarkdown
+                        components={{
+                          code({ className, children, ...props }) {
+                            const match = /language-(\w+)/.exec(className || '')
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                            const { ref, ...safeProps } = props as Record<string, unknown> & { ref?: unknown }
+                            return match ? (
+                              <SyntaxHighlighter
+                                style={vscDarkPlus}
+                                language={match[1]}
+                                PreTag="div"
+                              >
+                                {String(children).replace(/\n$/, '')}
+                              </SyntaxHighlighter>
+                            ) : (
+                              <code className={className} {...safeProps}>
+                                {children}
+                              </code>
+                            )
+                          },
+                        }}
+                      >
+                        {post.content.length > 300
+                          ? `${post.content.substring(0, 300)}...`
+                          : post.content}
+                      </ReactMarkdown>
+                    </PostContent>
+
+                    {post.topic_tags && (
+                      <TagsContainer>
+                        {post.topic_tags.split(',').map((tag, idx) => (
+                          <Tag key={idx}>{tag.trim()}</Tag>
+                        ))}
+                      </TagsContainer>
+                    )}
+                  </BlogPostCard>
+                )
+              })
             )}
           </PostsSection>
 

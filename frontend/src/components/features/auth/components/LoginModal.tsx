@@ -137,6 +137,13 @@ const LoginModal = () => {
     params.delete('message')
     setSearchParams(params)
 
+    // Reset form fields
+    setIdentifier('')
+    setPassword('')
+    setMessage('')
+    setShowResend(false)
+    setResendStatus('')
+
     // Reset 2FA state
     setRequires2FA(false)
     setTwoFAEmail('')
@@ -176,7 +183,7 @@ const LoginModal = () => {
 
       setMessage('')
       handleClose()
-      navigate('/')
+      navigate('/profile')
     } catch (error: unknown) {
       logger.error('Login failed:', error)
 
@@ -223,7 +230,7 @@ const LoginModal = () => {
       setRequires2FA(false)
       setTwoFAEmail('')
       setMessage('')
-      navigate('/')
+      navigate('/profile')
     } catch (error: unknown) {
       logger.error('2FA verification error:', error)
 
@@ -276,6 +283,46 @@ const LoginModal = () => {
         <Modal.Title>Login</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        {/* Password changed success alert - matches cpta_app gold standard */}
+        {searchParams.get('message') === 'password-changed' && !requires2FA && (
+          <StyledAlert variant="success" className="mb-3">
+            <strong><i className="bi bi-check-circle me-2"></i>Password Changed Successfully!</strong>
+            <div>Please log in with your new password.</div>
+          </StyledAlert>
+        )}
+
+        {/* Error alert at the top - matches cpta_app gold standard */}
+        {message && (
+          <StyledAlert variant="danger" className="mb-3">
+            <strong>{countdown > 0 ? 'Rate Limited' : requires2FA ? 'Verification Failed' : 'Login Failed'}</strong>
+            {countdown > 0
+              ? ` Too many ${requires2FA ? 'verification' : 'login'} attempts. Please try again in ${countdown} seconds.`
+              : ` ${message}`
+            }
+            {showResend && !countdown && (
+              <>
+                <br /><br />
+                <PrimaryButton
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={!identifier || loading}
+                  style={{ width: '100%' }}
+                >
+                  Resend Verification Email
+                </PrimaryButton>
+              </>
+            )}
+          </StyledAlert>
+        )}
+
+        {showResend && resendStatus && (
+          resendStatus.includes('sent') ? (
+            <StyledAlert variant="success" className="mb-3">{resendStatus}</StyledAlert>
+          ) : (
+            <StyledAlert variant="danger" className="mb-3">{resendStatus}</StyledAlert>
+          )
+        )}
+
         {!requires2FA ? (
           // Regular login form
           <StyledForm onSubmit={handleLogin}>
@@ -349,33 +396,6 @@ const LoginModal = () => {
                 Forgot Password?
               </Link>
             </div>
-
-            {message && (
-              <StyledAlert variant="danger">
-                {message}
-                {showResend && (
-                  <>
-                    <br /><br />
-                    <PrimaryButton
-                      type="button"
-                      onClick={handleResendVerification}
-                      disabled={!identifier || loading}
-                      style={{ width: '100%' }}
-                    >
-                      Resend Verification Email
-                    </PrimaryButton>
-                  </>
-                )}
-              </StyledAlert>
-            )}
-
-            {showResend && resendStatus && (
-              resendStatus.includes('sent') ? (
-                <StyledAlert variant="success">{resendStatus}</StyledAlert>
-              ) : (
-                <StyledAlert variant="danger">{resendStatus}</StyledAlert>
-              )
-            )}
           </StyledForm>
         ) : (
           // 2FA verification form
@@ -411,8 +431,6 @@ const LoginModal = () => {
               />
               <Form.Text>Enter the 6-digit code from your email</Form.Text>
             </Form.Group>
-
-            {message && <StyledAlert variant="danger">{message}</StyledAlert>}
 
             <div className="d-grid gap-2">
               <PrimaryButton

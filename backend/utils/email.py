@@ -377,6 +377,27 @@ def get_password_reset_confirmation_email(email: str) -> tuple[str, str]:
     return subject, BASE_STYLE.format(content=content)
 
 
+def get_password_change_confirmation_email(email: str) -> tuple[str, str]:
+    """Email sent after user changes password via settings"""
+    subject = "Password Changed Successfully"
+    content = f"""
+        {HEADER}
+        <h2 style="color: #28a745;">Password Changed</h2>
+        <p>Hello,</p>
+        <div style="{ALERT_SUCCESS}">
+            <strong>✓ Your password has been successfully changed</strong>
+        </div>
+        <p>Your password for <strong>{escape(email)}</strong> was changed at {datetime.now(timezone.utc).strftime('%B %d, %Y at %I:%M %p UTC')}.</p>
+        <div style="{ALERT_DANGER}">
+            <strong>⚠️ Didn't make this change?</strong><br>
+            If you didn't change your password, your account may be compromised. Please contact our support team immediately at
+            <a href="mailto:admin@computeranything.dev" style="color: #dc3545;">admin@computeranything.dev</a>
+        </div>
+        <p style="margin-top: 30px;">Best regards,<br>The Computer Anything Blog Team</p>
+    """
+    return subject, BASE_STYLE.format(content=content)
+
+
 def get_2fa_code_email(code: str) -> tuple[str, str]:
     """Email sent with 2FA code for login"""
     subject = "Your Login Verification Code"

@@ -18,9 +18,10 @@ api.interceptors.response.use(
       // Don't redirect for login/auth endpoints - these are expected to return 401 on wrong credentials
       // Also don't redirect for profile check (used by AuthContext)
       const url = error.config?.url || ''
-      if (url.includes('/user/profile') ||
-          url.includes('/auth/login') ||
-          url.includes('/auth/verify-2fa')) {
+      if (url.includes('/profile') ||
+          url.includes('/login') ||
+          url.includes('/verify-2fa') ||
+          url.includes('/register')) {
         return Promise.reject(error)
       }
 

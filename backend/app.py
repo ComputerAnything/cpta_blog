@@ -8,6 +8,7 @@ from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 
 
 # Docker container path
@@ -26,6 +27,7 @@ def get_real_ip():
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
+csrf = CSRFProtect()
 limiter = Limiter(
     key_func=get_real_ip,
     default_limits=[],  # No default limits
@@ -63,13 +65,18 @@ def create_app(testing=False):
     # Don't set cookie domain - allows cookies to work on any domain
     app.config['JWT_COOKIE_DOMAIN'] = False
 
-    # Configure CORS with frontend URL
-    CORS(app, origins=[app.config.get('FRONTEND_URL', '*')], supports_credentials=True)
+    # Configure CORS with credentials support for cookies
+    CORS(app,
+         origins=[app.config['FRONTEND_URL']],
+         supports_credentials=True,
+         allow_headers=['Content-Type', 'Authorization', 'X-CSRF-Token'],
+         expose_headers=['Set-Cookie'])
 
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    csrf.init_app(app)
     limiter.init_app(app)
 
     # JWT token version validation for security (invalidate tokens on password change)
@@ -101,6 +108,19 @@ def create_app(testing=False):
     app.register_blueprint(user_routes, url_prefix='/api')
     app.register_blueprint(post_routes, url_prefix='/api')
 
+    # Exempt JWT-authenticated endpoints from CSRF (they use JWT cookies with SameSite=Lax)
+    # SameSite=Lax prevents CSRF attacks by not sending cookies on cross-site requests
+    csrf.exempt(auth_routes)
+    csrf.exempt(user_routes)
+    csrf.exempt(post_routes)
+
+    # CSRF token endpoint
+    @app.route('/api/csrf-token', methods=['GET'])
+    def get_csrf_token():
+        """Get CSRF token for client-side requests"""
+        token = generate_csrf()
+        return {'csrf_token': token}
+
     # Security headers
     @app.after_request
     def set_security_headers(response):
@@ -114,6 +134,18 @@ def create_app(testing=False):
         # Add HSTS only in production (when using HTTPS)
         if not app.config.get('TESTING'):
             response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+
+        # Only add CSP for non-API routes (HTML responses)
+        if not request.path.startswith('/api'):
+            response.headers['Content-Security-Policy'] = (
+                "default-src 'self'; "
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com; "
+                "connect-src 'self'; "
+                "frame-src https://challenges.cloudflare.com; "
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+                "img-src 'self' data: https:; "
+                "font-src 'self' data: https://cdn.jsdelivr.net;"
+            )
 
         return response
 

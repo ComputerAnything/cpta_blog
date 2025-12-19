@@ -55,6 +55,7 @@ export const PrimaryButton = styled(Button)`
   text-decoration: none !important;
   transition: ${transitions.default};
   color: ${colors.text.primary};
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     background: ${gradients.primaryReverse};
@@ -104,6 +105,7 @@ export const PrimaryButton = styled(Button)`
 export const SecondaryButton = styled(PrimaryButton)`
   background: ${gradients.gray};
   font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     background: ${gradients.grayReverse};
@@ -151,6 +153,7 @@ export const SubmitButton = styled(Button)`
   font-weight: 600;
   transition: ${transitions.default};
   width: 100%;
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     background: ${gradients.primaryReverse};
@@ -183,6 +186,7 @@ export const AddCardButton = styled(Button)`
   font-weight: 600;
   transition: ${transitions.default};
   color: ${colors.text.primary};
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     background: ${gradients.primaryReverse};
@@ -214,6 +218,7 @@ export const OutlineButton = styled(Button)`
   line-height: inherit !important;
   text-decoration: none !important;
   transition: ${transitions.default};
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     background: rgba(255, 255, 255, 0.1) !important;
@@ -287,6 +292,7 @@ export const PrimaryLinkButton = styled.a`
   transition: ${transitions.default};
   color: ${colors.text.primary};
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     background: ${gradients.primaryReverse};
@@ -338,6 +344,7 @@ export const OutlineLinkButton = styled.a`
   text-decoration: none !important;
   transition: ${transitions.default};
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     background: rgba(255, 255, 255, 0.1) !important;
@@ -402,6 +409,7 @@ export const ColorButton = styled(Button).withConfig({
   text-decoration: none !important;
   transition: ${transitions.default};
   color: ${(props) => colorMap[props.color as keyof typeof colorMap || 'gray'].color};
+  -webkit-tap-highlight-color: transparent;
 
   /* Action button styling when used with action-button class */
   &.action-button {
@@ -476,6 +484,7 @@ export const ColorLinkButton = styled.a.withConfig({
   transition: ${transitions.default};
   color: ${(props) => colorMap[props.color || 'gray'].color};
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     background: ${(props) => colorMap[props.color || 'gray'].background};

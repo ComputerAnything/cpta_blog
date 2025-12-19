@@ -3,7 +3,7 @@ import os
 import re
 import secrets
 
-from app import db, get_real_ip
+from app import db, get_real_ip, limiter
 from flask import Blueprint, jsonify, make_response, render_template_string, request
 from flask_jwt_extended import (
     create_access_token,
@@ -24,6 +24,7 @@ from utils.email import (
     get_login_notification_email,
     get_password_reset_request_email,
     get_password_reset_confirmation_email,
+    get_password_change_confirmation_email,
     send_password_reset_admin_alert,
     get_2fa_code_email,
     get_registration_code_email
@@ -202,6 +203,7 @@ def register():
 
 # LOGIN
 @auth_routes.route('/login', methods=['POST'])
+@limiter.limit("5 per minute")
 def login():
     data = request.get_json()
 
@@ -310,6 +312,7 @@ def logout():
 
 # FORGOT PASSWORD - Request password reset
 @auth_routes.route('/forgot-password', methods=['POST'])
+@limiter.limit("3 per hour")
 def forgot_password():
     data = request.get_json()
 
@@ -393,6 +396,7 @@ def reset_password():
 
 # VERIFY 2FA
 @auth_routes.route('/verify-2fa', methods=['POST'])
+@limiter.limit("5 per 5 minutes")
 def verify_2fa():
     """Verify 2FA code and complete login"""
     data = request.get_json()
@@ -544,3 +548,51 @@ def toggle_2fa():
         'message': f'2FA {"enabled" if enable else "disabled"} successfully',
         'twofa_enabled': user.twofa_enabled
     }), 200
+
+
+# CHANGE PASSWORD
+@auth_routes.route('/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+    """Change password for the current user"""
+    try:
+        data = request.get_json()
+
+        if not data or not data.get('current_password') or not data.get('new_password'):
+            return jsonify({'error': 'Current password and new password are required'}), 400
+
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        # Verify current password
+        if not user.check_password(data['current_password']):
+            return jsonify({'error': 'Current password is incorrect'}), 400
+
+        # Validate new password strength
+        new_password = data['new_password']
+        is_valid, error_msg = validate_password(new_password)
+        if not is_valid:
+            return jsonify({'error': error_msg}), 400
+
+        # Set new password and invalidate all existing tokens
+        user.set_password(new_password)
+        user.invalidate_tokens()  # Invalidate all existing JWT tokens
+        db.session.commit()
+
+        # Send password change confirmation email
+        try:
+            subject, html = get_password_change_confirmation_email(user.email)
+            send_email(to=user.email, subject=subject, html=html)
+        except Exception as e:
+            print(f"Failed to send password change confirmation email: {e!r}")
+            # Don't fail the request if email fails
+
+        return jsonify({'message': 'Password changed successfully'}), 200
+
+    except Exception as e:
+        print(f"Change password error: {e!s}")
+        db.session.rollback()
+        return jsonify({'error': 'An error occurred while changing password'}), 500
