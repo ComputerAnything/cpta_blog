@@ -80,20 +80,27 @@ class XSSTester:
         print("SECURITY HEADERS TEST")
         print("=" * 60)
 
-        url = f"{self.base_url}/api/posts"
+        # Test API route (should have all headers except CSP)
+        api_url = f"{self.base_url}/api/posts"
+        # Test HTML route (should have CSP)
+        html_url = f"{self.base_url}/"
 
         try:
-            response = requests.get(url, timeout=5)
+            # Check API headers
+            print("\n📋 Checking API route headers...")
+            response = requests.get(api_url, timeout=5)
 
-            headers_to_check = {
+            api_headers_to_check = {
                 'X-Content-Type-Options': 'nosniff',
                 'X-Frame-Options': 'DENY',
                 'X-XSS-Protection': '1; mode=block',
+                'Referrer-Policy': 'strict-origin-when-cross-origin',
+                'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
             }
 
             all_present = True
 
-            for header, expected_value in headers_to_check.items():
+            for header, expected_value in api_headers_to_check.items():
                 actual_value = response.headers.get(header)
                 if actual_value == expected_value:
                     print(f"✅ {header}: {actual_value}")
@@ -101,15 +108,37 @@ class XSSTester:
                     print(f"❌ {header}: {actual_value} (expected: {expected_value})")
                     all_present = False
 
-            if all_present:
-                print("\n✅ All security headers present")
+            # Check CSP on HTML routes
+            print("\n📋 Checking CSP header on HTML route...")
+            try:
+                html_response = requests.get(html_url, timeout=5)
+                csp_header = html_response.headers.get('Content-Security-Policy')
+                if csp_header and "default-src 'self'" in csp_header:
+                    print(f"✅ Content-Security-Policy: Present (XSS protection)")
+                    print(f"   • default-src, script-src, frame-src configured")
+                else:
+                    print(f"❌ Content-Security-Policy: Missing or incorrect")
+                    all_present = False
+            except requests.exceptions.RequestException:
+                print(f"⚠️  Could not check CSP on HTML route (may not exist)")
+
+            # Check HSTS (only in production)
+            hsts = response.headers.get('Strict-Transport-Security')
+            if hsts:
+                print(f"✅ Strict-Transport-Security: {hsts}")
             else:
-                print("\n⚠️  Some security headers missing")
+                print(f"ℹ️  Strict-Transport-Security: Not set (expected in development)")
+
+            if all_present:
+                print("\n✅ All critical security headers present")
+            else:
+                print("\n⚠️  Some security headers missing or incorrect")
 
             return all_present
 
         except requests.exceptions.RequestException as e:
             print(f"❌ Request failed: {e}")
+            print("   (Make sure the server is running)")
             return False
 
 

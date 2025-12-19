@@ -295,11 +295,19 @@ const Navbar = () => {
 
   const handleLogin = () => {
     closeNavbar()
+    // Force blur any active element to reset hover states
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur()
+    }
     navigate('/?login=true')
   }
 
   const handleRegister = () => {
     closeNavbar()
+    // Force blur any active element to reset hover states
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur()
+    }
     navigate('/?register=true')
   }
 
@@ -386,7 +394,7 @@ const Navbar = () => {
                       Create Post
                     </button>
                   </li>
-                  <li><hr className="dropdown-divider" /></li>
+                  <li><hr className="dropdown-divider" style={{ borderColor: colors.border }} /></li>
                   <li>
                     <button className="dropdown-item" onClick={handleLogout}>
                       <i className="bi bi-box-arrow-right"></i>

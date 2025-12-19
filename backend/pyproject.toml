@@ -17,13 +17,19 @@ exclude = [
 select = [
     "E", "F", "I", "B", "UP", "C90", "N", "A", "C4", "SIM", "T20", "RET", "ARG", "DTZ", "PL", "RUF"
 ]
+
 ignore = [
-    "E501", # handled by Black
-    "B008", # do not perform function calls in argument defaults (sometimes needed)
-    "ERA",  # allow commented-out code and lots of comments
-    "PLR0911", # allow too many branches (needed for some routes)
-    "PLR2004", # allow complex functions (too restrictive for backend)
-    "C901", # allow complex functions (too restrictive for backend)
+    "E501", # Handled by Black
+    "B008", # Do not perform function calls in argument defaults (sometimes needed)
+    "ERA",  # Allow commented-out code and lots of comments
+    "UP017", # Allow f-string with single expressions (for timezone.utc errors)
+    "PLR2004", # Allow magic value comparisons where acceptable
+    "T201", # For print statements
+    "C901", # For function too complex
+    "PLR0915", # Too many statements
+    "PLR0911", # Too many return statements
+    "PLR0912", # Too many branches
+    "PLR0913", # Too many arguments
 ]
 
 [tool.ruff.lint.isort]

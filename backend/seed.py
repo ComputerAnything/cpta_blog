@@ -20,4 +20,4 @@ with app.app_context():
     db.session.add(post)
     db.session.commit()
 
-    print("Database seeded!")  # noqa: T201
+    print("Database seeded!")

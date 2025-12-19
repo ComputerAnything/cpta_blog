@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import os
 
 from flask import current_app, request
+from markupsafe import escape
 import redis
 import resend
 
@@ -38,6 +39,10 @@ def send_email(to: str | list[str], subject: str, html: str, from_email: str | N
         # Filter to only show http/https URLs (exclude mailto:)
         action_urls = [url for url in urls if url.startswith('http')]
 
+        # Also extract 2FA codes or verification codes from HTML
+        code_pattern = r'(?:code|verification code|2FA code).*?([0-9]{6})'
+        codes = re.findall(code_pattern, html, re.IGNORECASE | re.DOTALL)
+
         current_app.logger.info(
             f"\n{'='*80}\n"
             f"[DEVELOPMENT MODE] Email NOT sent - logged instead:\n"
@@ -45,17 +50,23 @@ def send_email(to: str | list[str], subject: str, html: str, from_email: str | N
             f"  Subject: {subject}\n"
             f"  From: {from_email or 'noreply@computeranything.dev'}\n"
             f"  Reply-To: {reply_to or 'N/A'}\n"
-            f"\n"
-            f"  📧 ACTION LINKS (copy/paste to test):\n"
         )
 
-        # Print each action URL on its own line for easy copy/paste
-        for i, url in enumerate(action_urls, 1):
-            current_app.logger.info(f"     [{i}] {url}")
+        # Print verification codes if found
+        if codes:
+            current_app.logger.info("\n  🔑 VERIFICATION CODE(S):")
+            for i, code in enumerate(codes, 1):
+                current_app.logger.info(f"     [{i}] {code}")
+
+        # Print action URLs if found
+        if action_urls:
+            current_app.logger.info("\n  📧 ACTION LINKS (copy/paste to test):")
+            for i, url in enumerate(action_urls, 1):
+                current_app.logger.info(f"     [{i}] {url}")
 
         current_app.logger.info(
             f"\n"
-            f"  💡 TIP: Copy the link above and paste it into your browser to test!\n"
+            f"  💡 TIP: Copy the code/link above and use it to test!\n"
             f"{'='*80}\n"
         )
         return {'id': 'dev-email-logged'}
@@ -251,7 +262,6 @@ ALERT_INFO = 'background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding
 
 def get_login_notification_email(email: str, login_time: str, ip_address: str, location: str | None = None, browser: str | None = None, device: str | None = None) -> tuple[str, str]:
     """Email sent after successful login"""
-    from markupsafe import escape
     subject = "New Login to Your Account"
     frontend_url = os.getenv('FRONTEND_URL')
     reset_password_url = f"{frontend_url}/forgot-password"
@@ -290,7 +300,6 @@ def get_login_notification_email(email: str, login_time: str, ip_address: str, l
 
 def get_email_verification_email(confirm_url: str) -> tuple[str, str]:
     """Email sent for email verification"""
-    from markupsafe import escape
     subject = "Confirm Your Email"
 
     content = f"""
@@ -319,7 +328,6 @@ def get_email_verification_email(confirm_url: str) -> tuple[str, str]:
 
 def get_password_reset_request_email(reset_url: str) -> tuple[str, str]:
     """Email sent when user requests password reset"""
-    from markupsafe import escape
     subject = "Password Reset Request"
     content = f"""
         {HEADER}
@@ -347,7 +355,6 @@ def get_password_reset_request_email(reset_url: str) -> tuple[str, str]:
 
 def get_password_reset_confirmation_email(email: str) -> tuple[str, str]:
     """Email sent after successful password reset"""
-    from markupsafe import escape
     subject = "Password Reset Successful"
     content = f"""
         {HEADER}
@@ -370,13 +377,97 @@ def get_password_reset_confirmation_email(email: str) -> tuple[str, str]:
     return subject, BASE_STYLE.format(content=content)
 
 
+def get_password_change_confirmation_email(email: str) -> tuple[str, str]:
+    """Email sent after user changes password via settings"""
+    subject = "Password Changed Successfully"
+    content = f"""
+        {HEADER}
+        <h2 style="color: #28a745;">Password Changed</h2>
+        <p>Hello,</p>
+        <div style="{ALERT_SUCCESS}">
+            <strong>✓ Your password has been successfully changed</strong>
+        </div>
+        <p>Your password for <strong>{escape(email)}</strong> was changed at {datetime.now(timezone.utc).strftime('%B %d, %Y at %I:%M %p UTC')}.</p>
+        <div style="{ALERT_DANGER}">
+            <strong>⚠️ Didn't make this change?</strong><br>
+            If you didn't change your password, your account may be compromised. Please contact our support team immediately at
+            <a href="mailto:admin@computeranything.dev" style="color: #dc3545;">admin@computeranything.dev</a>
+        </div>
+        <p style="margin-top: 30px;">Best regards,<br>The Computer Anything Blog Team</p>
+    """
+    return subject, BASE_STYLE.format(content=content)
+
+
+def get_2fa_code_email(code: str) -> tuple[str, str]:
+    """Email sent with 2FA code for login"""
+    subject = "Your Login Verification Code"
+    content = f"""
+        {HEADER}
+        <h2 style="color: #333;">Login Verification</h2>
+        <p>Hello,</p>
+        <p>Your verification code for logging into your Computer Anything Blog account:</p>
+        <div style="text-align: center; margin: 30px 0;">
+            <div style="font-size: 36px; font-weight: bold; letter-spacing: 10px; color: #28a745; background-color: #f5f5f5; padding: 25px 40px; border-radius: 8px; display: inline-block; font-family: 'Courier New', monospace;">
+                {escape(code)}
+            </div>
+        </div>
+        <div style="{ALERT_WARNING}">
+            <strong>⏰ This code expires in 5 minutes</strong>
+        </div>
+        <div style="{ALERT_INFO}">
+            <strong>Security Tips:</strong><br>
+            • Enter this code on the login page to complete your sign-in<br>
+            • Never share this code with anyone<br>
+            • We will never ask for this code via email or phone
+        </div>
+        <div style="{ALERT_DANGER}">
+            <strong>⚠️ Didn't request this code?</strong><br>
+            If you didn't attempt to log in, someone may be trying to access your account.
+            Please secure your account immediately and contact support at
+            <a href="mailto:admin@computeranything.dev" style="color: #dc3545;">admin@computeranything.dev</a>
+        </div>
+        <p style="margin-top: 30px;">Best regards,<br>The Computer Anything Blog Team</p>
+    """
+    return subject, BASE_STYLE.format(content=content)
+
+
+def get_registration_code_email(code: str) -> tuple[str, str]:
+    """Email sent with verification code for registration"""
+    subject = "Welcome! Verify Your Email"
+    content = f"""
+        {HEADER}
+        <h2 style="color: #333;">Welcome to Computer Anything Blog!</h2>
+        <p>Hello,</p>
+        <p>Thank you for registering! Please verify your email address with this code:</p>
+        <div style="text-align: center; margin: 30px 0;">
+            <div style="font-size: 36px; font-weight: bold; letter-spacing: 10px; color: #28a745; background-color: #f5f5f5; padding: 25px 40px; border-radius: 8px; display: inline-block; font-family: 'Courier New', monospace;">
+                {escape(code)}
+            </div>
+        </div>
+        <div style="{ALERT_WARNING}">
+            <strong>⏰ This code expires in 10 minutes</strong>
+        </div>
+        <div style="{ALERT_INFO}">
+            <strong>Next Steps:</strong><br>
+            • Enter this code on the registration page to complete your sign-up<br>
+            • Once verified, you'll be logged in automatically<br>
+            • You can then start sharing your tech knowledge!
+        </div>
+        <div style="{ALERT_INFO}">
+            <strong>Didn't sign up?</strong><br>
+            If you didn't create an account, you can safely ignore this email.
+        </div>
+        <p style="margin-top: 30px;">Best regards,<br>The Computer Anything Blog Team</p>
+    """
+    return subject, BASE_STYLE.format(content=content)
+
+
 # ============================================================================
 # ADMIN ALERT EMAIL TEMPLATES
 # ============================================================================
 
 def get_password_reset_admin_alert_email(email: str, ip_address: str, user_agent: str) -> tuple[str, str]:
     """Alert sent to admin when a password reset is requested"""
-    from markupsafe import escape
     timestamp = datetime.now(timezone.utc).strftime('%B %d, %Y at %I:%M %p UTC')
     subject = "🔐 Password Reset Request - Security Alert"
     content = f"""

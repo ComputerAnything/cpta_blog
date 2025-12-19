@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import secrets
 
 from app import db
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -21,6 +22,11 @@ class User(db.Model):
     # Password reset
     reset_token = db.Column(db.String(100), unique=True)
     reset_token_expiry = db.Column(db.DateTime)
+
+    # Two-factor authentication
+    twofa_code = db.Column(db.String(6))
+    twofa_expires_at = db.Column(db.DateTime)
+    twofa_enabled = db.Column(db.Boolean, default=False, nullable=False)
 
     # Timestamps
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=timezone.utc).replace(tzinfo=None))
@@ -83,12 +89,43 @@ class User(db.Model):
 
         return expires_at > now_utc
 
+    def generate_2fa_code(self, minutes=5):
+        """Generate a 6-digit 2FA code that expires in X minutes"""
+        self.twofa_code = str(secrets.randbelow(900000) + 100000)  # Cryptographically secure 6-digit code
+        self.twofa_expires_at = datetime.now(tz=timezone.utc).replace(tzinfo=None) + timedelta(minutes=minutes)
+        # Don't commit here - let the caller handle the commit
+        return self.twofa_code
+
+    def is_valid_2fa_code(self, code):
+        """Check if the 2FA code is valid and not expired"""
+        if not self.twofa_code or not self.twofa_expires_at:
+            return False
+
+        # Compare naive UTC datetimes (database stores as naive UTC)
+        now_utc = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+
+        # twofa_expires_at should be naive UTC from database
+        # If for some reason it has timezone, remove it for comparison
+        expires_at = self.twofa_expires_at
+        if expires_at.tzinfo is not None:
+            # Convert to naive UTC
+            expires_at = expires_at.replace(tzinfo=None)
+
+        return self.twofa_code == code and expires_at > now_utc
+
+    def clear_2fa_code(self):
+        """Clear the 2FA code after use"""
+        self.twofa_code = None
+        self.twofa_expires_at = None
+        db.session.commit()
+
     def to_dict(self, include_sensitive=False):
         data = {
             'id': self.id,
             'username': self.username,
             'email': self.email,
             'is_verified': self.is_verified,
+            'twofa_enabled': self.twofa_enabled,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'last_login': self.last_login.isoformat() if self.last_login else None,
             'token_version': self.token_version

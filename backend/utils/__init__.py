@@ -5,9 +5,9 @@ from .password_validator import validate_password
 
 
 __all__ = [
+    'get_location_from_ip',
+    'parse_user_agent',
     'send_email',
     'send_rate_limit_alert',
-    'validate_password',
-    'parse_user_agent',
-    'get_location_from_ip'
+    'validate_password'
 ]

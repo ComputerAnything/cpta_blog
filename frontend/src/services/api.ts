@@ -15,10 +15,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // If this is just the profile check endpoint, don't redirect
-      // AuthContext will handle by setting user to null
-      // This allows public pages to work without redirecting
-      if (error.config?.url?.includes('/profile')) {
+      // Don't redirect for login/auth endpoints - these are expected to return 401 on wrong credentials
+      // Also don't redirect for profile check (used by AuthContext)
+      const url = error.config?.url || ''
+      if (url.includes('/profile') ||
+          url.includes('/login') ||
+          url.includes('/verify-2fa') ||
+          url.includes('/register')) {
         return Promise.reject(error)
       }
 
@@ -79,17 +82,41 @@ export const authAPI = {
     return response.data
   },
 
-  forgotPassword: async (email: string, turnstileToken?: string) => {
-    const payload: { email: string; turnstile_token?: string } = { email }
-    if (turnstileToken) {
-      payload.turnstile_token = turnstileToken
-    }
-    const response = await api.post('/forgot-password', payload)
+  forgotPassword: async (email: string, firstName: string, lastName: string, turnstileToken: string) => {
+    const response = await api.post('/forgot-password', {
+      email,
+      first_name: firstName,
+      last_name: lastName,
+      turnstile_token: turnstileToken
+    })
     return response.data
   },
 
   resetPassword: async (token: string, password: string) => {
     const response = await api.post('/reset-password', { token, password })
+    return response.data
+  },
+
+  toggle2FA: async (enable: boolean) => {
+    const response = await api.post('/toggle-2fa', { enable })
+    return response.data
+  },
+
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    const response = await api.post('/change-password', {
+      current_password: currentPassword,
+      new_password: newPassword
+    })
+    return response.data
+  },
+
+  verify2FA: async (email: string, code: string) => {
+    const response = await api.post('/verify-2fa', { email, code })
+    return response.data
+  },
+
+  verifyRegistration: async (email: string, code: string) => {
+    const response = await api.post('/verify-registration', { email, code })
     return response.data
   },
 }
@@ -121,13 +148,13 @@ export const blogAPI = {
     return response.data
   },
 
-  upvotePost: async (postId: number) => {
-    const response = await api.post(`/posts/${postId}/upvote`)
+  upvotePost: async (postId: number): Promise<{ upvotes: number; downvotes: number }> => {
+    const response = await api.post<{ upvotes: number; downvotes: number }>(`/posts/${postId}/upvote`)
     return response.data
   },
 
-  downvotePost: async (postId: number) => {
-    const response = await api.post(`/posts/${postId}/downvote`)
+  downvotePost: async (postId: number): Promise<{ upvotes: number; downvotes: number }> => {
+    const response = await api.post<{ upvotes: number; downvotes: number }>(`/posts/${postId}/downvote`)
     return response.data
   },
 }

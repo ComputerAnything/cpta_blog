@@ -1,32 +1,18 @@
-import { useState, useRef, type FormEvent } from 'react'
-import { Modal, Button, Form } from 'react-bootstrap'
+import { useState, useRef, useEffect, type FormEvent } from 'react'
+import { Form, Modal } from 'react-bootstrap'
 import styled from 'styled-components'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
+import { useAuth } from '../../../../contexts/AuthContext'
 import { authAPI } from '../../../../services/api'
 import { colors, shadows, transitions } from '../../../../theme/colors'
-
-const StyledModal = styled(Modal)`
-  .modal-content {
-    background: ${colors.backgroundAlt};
-    backdrop-filter: blur(10px);
-    border: 1px solid ${colors.borderLight};
-    color: ${colors.text.primary};
-  }
-
-  .modal-header {
-    border-bottom: 1px solid ${colors.borderLight};
-  }
-
-  .modal-footer {
-    border-top: 1px solid ${colors.borderLight};
-  }
-
-  .btn-close {
-    filter: invert(1);
-  }
-`
+import { StyledModal } from '../../../common/StyledModal'
+import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
+import StyledAlert from '../../../common/StyledAlert'
+import { useLocalStorage } from '../../../../hooks/useLocalStorage'
+import logger from '../../../../utils/logger'
+import { getErrorMessage, isErrorStatus } from '../../../../utils/errors'
 
 const StyledForm = styled(Form)`
   .form-control {
@@ -73,49 +59,6 @@ const StyledForm = styled(Form)`
       padding-right: 50px;
     }
   }
-`
-
-const AuthButton = styled(Button)`
-  background: linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%);
-  border: none;
-  color: #000;
-  font-weight: 600;
-  padding: 0.75rem;
-  transition: ${transitions.fast};
-  box-shadow: ${shadows.button};
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: ${shadows.buttonHover};
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    background: rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.5);
-    cursor: not-allowed;
-  }
-`
-
-const ErrorMessage = styled.div`
-  background: rgba(220, 53, 69, 0.2);
-  border: 1px solid ${colors.danger};
-  color: ${colors.danger};
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-top: 1rem;
-`
-
-const SuccessMessage = styled.div`
-  background: rgba(40, 167, 69, 0.2);
-  border: 1px solid ${colors.success};
-  color: ${colors.success};
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-top: 1rem;
 `
 
 const SwitchLink = styled.button`
@@ -194,23 +137,10 @@ const PasswordRequirements = styled.ul`
   }
 `
 
-const SuccessView = styled.div`
-  text-align: center;
-  padding: 2rem;
-
-  h4 {
-    color: ${colors.primary};
-    margin-bottom: 1.5rem;
-  }
-
-  p {
-    color: ${colors.text.secondary};
-    margin-bottom: 2rem;
-  }
-`
-
 const RegisterModal = () => {
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const { login } = useAuth()
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -218,11 +148,18 @@ const RegisterModal = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
   const [honeypot, setHoneypot] = useState('')
-  const [registered, setRegistered] = useState(false)
   const [loading, setLoading] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
-  const navigate = useNavigate()
+
+  // Verification state (replacing "registered")
+  const [requiresVerification, setRequiresVerification] = useState(false)
+  const [verificationEmail, setVerificationEmail] = useState('')
+  const [verificationCode, setVerificationCode] = useState('')
+
+  // Rate limiting state
+  const [rateLimitedUntil, setRateLimitedUntil, removeRateLimit] = useLocalStorage<number | null>('registration_rate_limit_until', null)
+  const [countdown, setCountdown] = useState<number>(0)
 
   const show = searchParams.get('register') === 'true'
 
@@ -266,11 +203,49 @@ const RegisterModal = () => {
 
   const { strength: passwordStrength, label, requirements } = calculatePasswordStrength(password)
 
+  // Countdown timer for rate limiting
+  useEffect(() => {
+    if (!rateLimitedUntil) {
+      setCountdown(0)
+      return
+    }
+
+    const updateCountdown = () => {
+      const now = Date.now()
+      const remaining = Math.ceil((rateLimitedUntil - now) / 1000)
+
+      if (remaining <= 0) {
+        setCountdown(0)
+        removeRateLimit()
+        setMessage(null)
+      } else {
+        setCountdown(remaining)
+        if (!message) {
+          setMessage({
+            text: `Too many attempts. Please try again in ${remaining} seconds.`,
+            type: 'error'
+          })
+        }
+      }
+    }
+
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+
+    return () => clearInterval(interval)
+  }, [rateLimitedUntil, message, removeRateLimit])
+
   const handleClose = () => {
     const params = new URLSearchParams(searchParams)
     params.delete('register')
     params.delete('message')
     setSearchParams(params)
+
+    // Reset verification state
+    setRequiresVerification(false)
+    setVerificationEmail('')
+    setVerificationCode('')
+    // Note: DO NOT reset rateLimitedUntil - rate limit persists across modal close/open
   }
 
   const handleRegister = async (e: FormEvent) => {
@@ -295,17 +270,38 @@ const RegisterModal = () => {
 
     try {
       await authAPI.register(username, email, password, turnstileToken)
-      setRegistered(true)
-      setMessage({
-        text: 'Registration successful! Please check your email to verify your account.',
-        type: 'success'
-      })
-    } catch (error) {
-      console.error('Registration failed:', error)
-      setMessage({
-        text: 'Registration failed. Please try again.',
-        type: 'error'
-      })
+
+      // Transition to verification step
+      setRequiresVerification(true)
+      setVerificationEmail(email)
+      setPassword('')  // SECURITY: Clear password from memory
+      setConfirmPassword('')
+      setMessage(null)
+      setLoading(false)
+      setTurnstileToken(null)
+      turnstileRef.current?.reset()
+      return  // Stay in modal, show verification input
+    } catch (error: unknown) {
+      logger.error('Registration failed:', error)
+
+      // Special handling for rate limiting with Retry-After header
+      if (isErrorStatus(error, 429)) {
+        const axiosError = error as { response?: { headers?: { 'retry-after'?: string } } }
+        const retryAfter = axiosError.response?.headers?.['retry-after']
+        const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 60
+        const limitUntil = Date.now() + waitSeconds * 1000
+        setRateLimitedUntil(limitUntil)
+        setMessage({
+          text: `Too many registration attempts. Please try again in ${waitSeconds} seconds.`,
+          type: 'error'
+        })
+      } else {
+        setMessage({
+          text: getErrorMessage(error, 'Registration failed. Please try again.'),
+          type: 'error'
+        })
+      }
+
       // Reset turnstile on error
       setTurnstileToken(null)
       turnstileRef.current?.reset()
@@ -314,11 +310,54 @@ const RegisterModal = () => {
     }
   }
 
-  const handleGoToLogin = () => {
-    const params = new URLSearchParams(searchParams)
-    params.delete('register')
-    params.set('login', 'true')
-    setSearchParams(params)
+  const handleVerifyCode = async (e: FormEvent) => {
+    e.preventDefault()
+    setMessage(null)
+    setLoading(true)
+
+    try {
+      const response = await authAPI.verifyRegistration(verificationEmail, verificationCode)
+
+      // Success - complete registration and log user in
+      await login(response.user)
+
+      // Close modal and reset all state
+      handleClose()
+      setUsername('')
+      setEmail('')
+      setPassword('')
+      setConfirmPassword('')
+      setVerificationCode('')
+      setRequiresVerification(false)
+      setVerificationEmail('')
+      setMessage(null)
+      navigate('/profile')
+    } catch (error: unknown) {
+      logger.error('Verification error:', error)
+
+      // Clear code on error (force re-entry)
+      setVerificationCode('')
+
+      // Special handling for rate limiting
+      if (isErrorStatus(error, 429)) {
+        const axiosError = error as { response?: { headers?: { 'retry-after'?: string } } }
+        const retryAfter = axiosError.response?.headers?.['retry-after']
+        const waitSeconds = retryAfter ? parseInt(retryAfter, 10) : 300  // 5 minutes default
+        const limitUntil = Date.now() + waitSeconds * 1000
+        setRateLimitedUntil(limitUntil)
+        setMessage({
+          text: `Too many verification attempts. Please try again in ${waitSeconds} seconds.`,
+          type: 'error'
+        })
+      } else {
+        setMessage({
+          text: getErrorMessage(error, 'Invalid or expired verification code. Please try again.'),
+          type: 'error'
+        })
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSwitchToLogin = () => {
@@ -330,31 +369,14 @@ const RegisterModal = () => {
 
   if (!show) return null
 
-  if (registered) {
-    return (
-      <StyledModal show onHide={handleClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Registration Complete</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <SuccessView>
-            <h4>Success!</h4>
-            <p>{message?.text}</p>
-            <AuthButton onClick={handleGoToLogin} className="w-100">
-              Go to Login
-            </AuthButton>
-          </SuccessView>
-        </Modal.Body>
-      </StyledModal>
-    )
-  }
-
   return (
     <StyledModal show onHide={handleClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Register</Modal.Title>
+        <Modal.Title>{requiresVerification ? 'Verify Your Email' : 'Register'}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        {!requiresVerification ? (
+        // Regular registration form
         <StyledForm onSubmit={handleRegister}>
           {/* Honeypot field - hidden from users */}
           <input
@@ -465,29 +487,104 @@ const RegisterModal = () => {
             />
           </div>
 
-          <AuthButton
+          <PrimaryButton
             type="submit"
             className="w-100 mb-2"
-            disabled={!turnstileToken || loading}
+            disabled={!turnstileToken || loading || countdown > 0}
           >
-            {loading ? 'Registering...' : 'Register'}
-          </AuthButton>
+            {loading ? (
+              'Registering...'
+            ) : countdown > 0 ? (
+              <>
+                <i className="bi bi-hourglass-split me-2"></i>
+                Try again in {countdown}s
+              </>
+            ) : (
+              'Register'
+            )}
+          </PrimaryButton>
 
           {message && (
-            message.type === 'success' ? (
-              <SuccessMessage>{message.text}</SuccessMessage>
-            ) : (
-              <ErrorMessage>{message.text}</ErrorMessage>
-            )
+            <StyledAlert variant={message.type === 'success' ? 'success' : 'danger'}>
+              {message.text}
+            </StyledAlert>
           )}
         </StyledForm>
+        ) : (
+          // Email verification form
+          <StyledForm onSubmit={handleVerifyCode}>
+            <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(23, 162, 184, 0.1)', border: '1px solid #17a2b8', borderRadius: '8px' }}>
+              <strong><i className="bi bi-envelope-check" style={{ marginRight: '0.5rem' }}></i>Verification Required</strong>
+              <div style={{ marginTop: '0.5rem' }}>
+                A 6-digit verification code has been sent to <strong>{verificationEmail}</strong>
+              </div>
+              <div style={{ marginTop: '0.25rem', fontSize: '0.9rem', color: '#ccc' }}>
+                The code expires in 10 minutes.
+              </div>
+            </div>
 
-        <div className="text-center mt-3">
-          Already have an account?{' '}
-          <SwitchLink type="button" onClick={handleSwitchToLogin}>
-            Login here
-          </SwitchLink>
-        </div>
+            <Form.Group className="mb-3">
+              <Form.Label>Verification Code</Form.Label>
+              <Form.Control
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+                placeholder="000000"
+                required
+                autoFocus
+                style={{
+                  fontSize: '1.5rem',
+                  letterSpacing: '0.5rem',
+                  textAlign: 'center',
+                  fontFamily: 'monospace'
+                }}
+              />
+              <Form.Text>Enter the 6-digit code from your email</Form.Text>
+            </Form.Group>
+
+            {message && (
+              <StyledAlert variant={message.type === 'success' ? 'success' : 'danger'} className="mb-3">
+                {message.text}
+              </StyledAlert>
+            )}
+
+            <div className="d-grid gap-2">
+              <PrimaryButton
+                type="submit"
+                disabled={loading || countdown > 0 || verificationCode.length !== 6}
+              >
+                {loading ? (
+                  'Verifying...'
+                ) : countdown > 0 ? (
+                  <>
+                    <i className="bi bi-hourglass-split me-2"></i>
+                    Try again in {countdown}s
+                  </>
+                ) : (
+                  'Verify & Complete Registration'
+                )}
+              </PrimaryButton>
+              <SecondaryButton
+                onClick={handleClose}
+                disabled={loading}
+              >
+                Cancel & Start Over
+              </SecondaryButton>
+            </div>
+          </StyledForm>
+        )}
+
+        {!requiresVerification && (
+          <div className="text-center mt-3">
+            Already have an account?{' '}
+            <SwitchLink type="button" onClick={handleSwitchToLogin}>
+              Login here
+            </SwitchLink>
+          </div>
+        )}
       </Modal.Body>
     </StyledModal>
   )

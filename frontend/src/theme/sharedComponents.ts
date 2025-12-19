@@ -50,7 +50,7 @@ export const BlogPostCard = styled.div`
 `
 
 export const PostTitle = styled.h2`
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   color: ${colors.primary};
   margin: 0;
   flex: 1;
@@ -105,6 +105,20 @@ export const PostContent = styled.div`
   color: ${colors.text.primary};
   line-height: 1.6;
   margin-bottom: 1rem;
+
+  h1, h2, h3, h4, h5, h6 {
+    color: #ffffff !important;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.2rem; }
+  h4 { font-size: 1.1rem; }
+  h5 { font-size: 1rem; }
+  h6 { font-size: 0.9rem; }
 
   p {
     margin-bottom: 1rem;
@@ -168,9 +182,13 @@ export const PostHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: -1rem;
   flex-wrap: wrap;
   gap: 1rem;
+
+  @media (max-width: 768px) {
+    margin-bottom: 1rem;
+  }
 `
 
 export const ActionButton = styled.button`

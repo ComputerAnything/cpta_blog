@@ -7,10 +7,11 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useAuth } from '../../../../contexts/AuthContext'
 import { blogAPI } from '../../../../services/api'
 import type { BlogPost } from '../../../../types'
+import { getErrorMessage } from '../../../../utils/errors'
 import StyledAlert from '../../../common/StyledAlert'
 import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import { colors, shadows, transitions } from '../../../../theme/colors'
-import { PageContainer } from '../../../../theme/sharedComponents'
+import { PageContainer, PostContent } from '../../../../theme/sharedComponents'
 import Footer from '../../../layout/Footer'
 
 const PostForm = styled.form`
@@ -183,7 +184,7 @@ const PreviewPane = styled.div`
   }
 
   &::-webkit-scrollbar-track {
-    background: ${colors.backgroundDark};
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 4px;
   }
 
@@ -192,49 +193,8 @@ const PreviewPane = styled.div`
     border-radius: 4px;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    color: ${colors.primary};
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
-  }
-
-  p {
-    color: ${colors.text.primary};
-    line-height: 1.8;
-    margin-bottom: 1rem;
-  }
-
-  code {
-    background: ${colors.focus};
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.95em;
-  }
-
-  pre {
-    background: ${colors.backgroundDark};
-    border-radius: 8px;
-    padding: 1rem;
-    overflow-x: auto;
-    margin: 1.5rem 0;
-  }
-
-  ul, ol {
-    margin-bottom: 1.5rem;
-    padding-left: 2rem;
-    color: ${colors.text.primary};
-  }
-
-  blockquote {
-    border-left: 4px solid ${colors.primary};
-    padding-left: 1rem;
-    margin: 1.5rem 0;
-    color: ${colors.text.secondary};
-  }
-
   .empty-preview {
-    color: ${colors.text.secondary};
+    color: ${colors.text.muted};
     text-align: center;
     padding: 3rem 1rem;
     font-style: italic;
@@ -246,17 +206,6 @@ const LoadingMessage = styled.div`
   padding: 3rem;
   color: ${colors.text.secondary};
   font-size: 1.1rem;
-`
-
-const ErrorMessage = styled.div`
-  background: rgba(220, 53, 69, 0.1);
-  border: 1px solid ${colors.danger};
-  color: ${colors.danger};
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-  max-width: 900px;
-  margin: 0 auto;
 `
 
 const EditPostPage: React.FC = () => {
@@ -301,8 +250,7 @@ const EditPostPage: React.FC = () => {
       setContent(postData.content)
       setTopicTags(postData.topic_tags || '')
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load post'
-      setError(errorMessage)
+      setError(getErrorMessage(err, 'Failed to load post'))
     } finally {
       setLoading(false)
     }
@@ -354,8 +302,7 @@ const EditPostPage: React.FC = () => {
       // Navigate back to the post detail page
       navigate(`/posts/${postId}`)
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update post'
-      setAlert({ variant: 'danger', message: errorMessage })
+      setAlert({ variant: 'danger', message: getErrorMessage(err, 'Failed to update post') })
       setSubmitting(false)
     }
   }
@@ -398,7 +345,9 @@ const EditPostPage: React.FC = () => {
     return (
       <>
         <PageContainer>
-          <ErrorMessage>{error || 'Post not found'}</ErrorMessage>
+          <div style={{ maxWidth: '900px', margin: '2rem auto' }}>
+            <StyledAlert variant="danger">{error || 'Post not found'}</StyledAlert>
+          </div>
         </PageContainer>
         <Footer />
       </>
@@ -494,9 +443,11 @@ const EditPostPage: React.FC = () => {
                   </span>
                   <PreviewToggleButton
                     type="button"
+                    className="preview-toggle"
                     onClick={() => setShowPreview(!showPreview)}
                   >
-                    <i className={`bi bi-eye${showPreview ? '-fill' : ''}`}></i> {showPreview ? 'Hide' : 'Show'} Preview
+                    <i className={`bi bi-eye${showPreview ? '-fill' : ''}`}></i>
+                    <span className="preview-text"> {showPreview ? 'Hide' : 'Show'} Preview</span>
                   </PreviewToggleButton>
                 </div>
               </label>
@@ -513,29 +464,33 @@ const EditPostPage: React.FC = () => {
                 {showPreview && (
                   <PreviewPane>
                     {content ? (
-                      <ReactMarkdown
-                        components={{
-                          code({ className, children }) {
-                            const match = /language-(\w+)/.exec(className || '')
-                            const isInline = !match
-                            return !isInline ? (
-                              <SyntaxHighlighter
-                                style={vscDarkPlus as { [key: string]: React.CSSProperties }}
-                                language={match[1]}
-                                PreTag="div"
-                              >
-                                {String(children).replace(/\n$/, '')}
-                              </SyntaxHighlighter>
-                            ) : (
-                              <code className={className}>
-                                {children}
-                              </code>
-                            )
-                          },
-                        }}
-                      >
-                        {content}
-                      </ReactMarkdown>
+                      <PostContent>
+                        <ReactMarkdown
+                          components={{
+                            code({ className, children, ...props }) {
+                              const match = /language-(\w+)/.exec(className || '')
+                              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                              const { ref, ...safeProps } = props as Record<string, unknown> & { ref?: unknown }
+                              const isInline = !match
+                              return !isInline ? (
+                                <SyntaxHighlighter
+                                  style={vscDarkPlus as { [key: string]: React.CSSProperties }}
+                                  language={match[1]}
+                                  PreTag="div"
+                                >
+                                  {String(children).replace(/\n$/, '')}
+                                </SyntaxHighlighter>
+                              ) : (
+                                <code className={className} {...safeProps}>
+                                  {children}
+                                </code>
+                              )
+                            },
+                          }}
+                        >
+                          {content}
+                        </ReactMarkdown>
+                      </PostContent>
                     ) : (
                       <div className="empty-preview">
                         Preview will appear here as you type...
