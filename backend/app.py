@@ -101,8 +101,8 @@ def create_app(testing=False):
 
     # Register all blueprints from routes
     from routes.auth_routes import auth_routes  # noqa: PLC0415
-    from routes.user_routes import user_routes  # noqa: PLC0415
     from routes.post_routes import post_routes  # noqa: PLC0415
+    from routes.user_routes import user_routes  # noqa: PLC0415
 
     app.register_blueprint(auth_routes, url_prefix='/api')
     app.register_blueprint(user_routes, url_prefix='/api')

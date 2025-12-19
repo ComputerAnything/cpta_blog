@@ -125,7 +125,7 @@ def get_all_users():
             'current_page': page
         }), 200
 
-    except Exception as e:
+    except Exception:
         return jsonify({'error': 'An error occurred'}), 500
 
 # GET USER POSTS BY USERNAME

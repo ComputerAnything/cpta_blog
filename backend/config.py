@@ -21,7 +21,7 @@ class Config:
 
     # JWT Configuration
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
-    JWT_ACCESS_TOKEN_EXPIRES = int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRES', 43200))  # 12 hours default
+    JWT_ACCESS_TOKEN_EXPIRES = int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRES', 43200))  # 12 hours default  # noqa: PLW1508
 
     # Email Configuration (Resend API)
     RESEND_API_KEY = os.environ.get('RESEND_API_KEY')

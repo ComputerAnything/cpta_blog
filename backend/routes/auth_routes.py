@@ -7,28 +7,28 @@ from app import db, get_real_ip, limiter
 from flask import Blueprint, jsonify, make_response, render_template_string, request
 from flask_jwt_extended import (
     create_access_token,
-    set_access_cookies,
-    jwt_required,
     get_jwt_identity,
-    unset_jwt_cookies
+    jwt_required,
+    set_access_cookies,
+    unset_jwt_cookies,
 )
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from models import User
 import requests
 from sqlalchemy.exc import IntegrityError
 from utils import validate_password
-from utils.login_details import parse_user_agent, get_location_from_ip
 from utils.email import (
-    send_email,
+    get_2fa_code_email,
     get_email_verification_email,
     get_login_notification_email,
-    get_password_reset_request_email,
-    get_password_reset_confirmation_email,
     get_password_change_confirmation_email,
+    get_password_reset_confirmation_email,
+    get_password_reset_request_email,
+    get_registration_code_email,
+    send_email,
     send_password_reset_admin_alert,
-    get_2fa_code_email,
-    get_registration_code_email
 )
+from utils.login_details import get_location_from_ip, parse_user_agent
 
 
 auth_routes = Blueprint('auth_routes', __name__)

@@ -16,9 +16,9 @@ def reset_votes(post_id):
             post.upvotes = 0
             post.downvotes = 0
             db.session.commit()
-            print(f"Votes reset for post ID {post_id}")  # noqa: T201
+            print(f"Votes reset for post ID {post_id}")
         else:
-            print(f"Post with ID {post_id} not found.")  # noqa: T201
+            print(f"Post with ID {post_id} not found.")
 
 if __name__ == "__main__":
     reset_votes(12)  # Replace 12 with the actual post ID
