@@ -171,6 +171,7 @@ const StyledNavbar = styled.nav`
     color: ${colors.text.secondary} !important;
 
     i {
+      margin-right: 0.5rem;
       color: ${colors.primary};
     }
   }

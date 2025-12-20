@@ -407,7 +407,8 @@ const ProfilePage = () => {
                     <input
                       type="text"
                       value={newUsername}
-                      onChange={(e) => setNewUsername(e.target.value)}
+                      onChange={(e) => setNewUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                      maxLength={20}
                       disabled={settingsLoading}
                       placeholder="New username"
                     />

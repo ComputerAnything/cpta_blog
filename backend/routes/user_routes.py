@@ -1,3 +1,4 @@
+import re
 from app import db
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -32,10 +33,18 @@ def update_profile():
     if not user:
         return jsonify({"msg": "User not found"}), 404
     data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
+    username = data.get('username', '').strip().lower()
+    email = data.get('email', '').strip()
+
     if not username or not email:
         return jsonify({"msg": "Username and email are required"}), 400
+
+    # Username validation
+    if len(username) < 3 or len(username) > 20:
+        return jsonify({"msg": "Username must be 3-20 characters long"}), 400
+
+    if not re.match(r'^[a-z0-9_]+$', username):
+        return jsonify({"msg": "Username can only contain lowercase letters, numbers, and underscores"}), 400
 
     # Check if username is taken by another user
     existing_user = User.query.filter_by(username=username).first()
