@@ -3,14 +3,17 @@ import re
 from app import db
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from models import BlogPost, Comment, User, Vote
+from models.comment import Comment
+from models.post import BlogPost
+from models.user import User
+from models.vote import Vote
 from sqlalchemy.exc import IntegrityError
 
 
-user_routes = Blueprint('user_routes', __name__)
+user_bp = Blueprint('user', __name__)
 
 # GET CURRENT USER PROFILE
-@user_routes.route('/profile', methods=['GET'])
+@user_bp.route('/profile', methods=['GET'])
 @jwt_required()
 def get_profile():
     user_id = get_jwt_identity()
@@ -26,7 +29,7 @@ def get_profile():
     }), 200
 
 # UPDATE USER PROFILE
-@user_routes.route('/profile', methods=['PUT'])
+@user_bp.route('/profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
     user_id = get_jwt_identity()
@@ -68,7 +71,7 @@ def update_profile():
     return jsonify({"msg": "Profile updated successfully"}), 200
 
 # DELETE USER PROFILE
-@user_routes.route('/profile', methods=['DELETE'])
+@user_bp.route('/profile', methods=['DELETE'])
 @jwt_required()
 def delete_profile():
     user_id = get_jwt_identity()
@@ -83,7 +86,7 @@ def delete_profile():
     return jsonify({"msg": "Account and all related data deleted successfully"}), 200
 
 # GET USER PROFILE BY USERNAME
-@user_routes.route('/users/<string:username>', methods=['GET'])
+@user_bp.route('/users/<string:username>', methods=['GET'])
 def get_user_profile(username):
     user = User.query.filter_by(username=username).first()
     if not user:
@@ -97,7 +100,7 @@ def get_user_profile(username):
     }), 200
 
 # GET ALL USERS (with pagination and search)
-@user_routes.route('/users', methods=['GET'])
+@user_bp.route('/users', methods=['GET'])
 @jwt_required()
 def get_all_users():
     """Get all users with pagination and search (authenticated users only)"""
@@ -139,7 +142,7 @@ def get_all_users():
         return jsonify({'error': 'An error occurred'}), 500
 
 # GET USER POSTS BY USERNAME
-@user_routes.route('/users/<string:username>/posts', methods=['GET'])
+@user_bp.route('/users/<string:username>/posts', methods=['GET'])
 def get_user_posts(username):
     user = User.query.filter_by(username=username).first()
     if not user:
@@ -148,7 +151,7 @@ def get_user_posts(username):
     return jsonify([post.to_dict() for post in posts]), 200
 
 # GET USER VOTES COUNT BY USERNAME
-@user_routes.route('/users/<string:username>/votes/count', methods=['GET'])
+@user_bp.route('/users/<string:username>/votes/count', methods=['GET'])
 def get_user_votes_count(username):
     user = User.query.filter_by(username=username).first()
     if not user:
@@ -157,7 +160,7 @@ def get_user_votes_count(username):
     return jsonify({"count": count}), 200
 
 # GET USER COMMENTS COUNT BY USERNAME
-@user_routes.route('/users/<string:username>/comments/count', methods=['GET'])
+@user_bp.route('/users/<string:username>/comments/count', methods=['GET'])
 def get_user_comments_count(username):
     user = User.query.filter_by(username=username).first()
     if not user:

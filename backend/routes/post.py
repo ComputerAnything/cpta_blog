@@ -1,13 +1,15 @@
 from app import db
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from models import BlogPost, Comment, Vote
+from models.comment import Comment
+from models.post import BlogPost
+from models.vote import Vote
 
 
-post_routes = Blueprint('post_routes', __name__)
+post_bp = Blueprint('post', __name__)
 
 # GET ALL POSTS
-@post_routes.route('/posts', methods=['GET'])
+@post_bp.route('/posts', methods=['GET'])
 def get_posts():
     try:
         posts = BlogPost.query.all()
@@ -16,7 +18,7 @@ def get_posts():
         return jsonify({'msg': str(e)}), 500
 
 # GET POST BY ID
-@post_routes.route('/posts/<int:post_id>', methods=['GET'])
+@post_bp.route('/posts/<int:post_id>', methods=['GET'])
 def get_post(post_id):
     post = BlogPost.query.get(post_id)
     if not post:
@@ -24,7 +26,7 @@ def get_post(post_id):
     return jsonify(post.to_dict()), 200
 
 # CREATE POST
-@post_routes.route('/posts', methods=['POST'])
+@post_bp.route('/posts', methods=['POST'])
 @jwt_required()
 def create_post():
     data = request.get_json()
@@ -62,7 +64,7 @@ def create_post():
     return jsonify(new_post.to_dict()), 201
 
 # UPDATE POST
-@post_routes.route('/posts/<int:post_id>', methods=['PUT'])
+@post_bp.route('/posts/<int:post_id>', methods=['PUT'])
 @jwt_required()
 def update_post(post_id):
     user_id = get_jwt_identity()
@@ -107,7 +109,7 @@ def update_post(post_id):
     return jsonify({"msg": "Post updated successfully", "post": post.to_dict()}), 200
 
 # DELETE POST
-@post_routes.route('/posts/<int:post_id>', methods=['DELETE'])
+@post_bp.route('/posts/<int:post_id>', methods=['DELETE'])
 @jwt_required()
 def delete_post(post_id):
     user_id = get_jwt_identity()
@@ -121,7 +123,7 @@ def delete_post(post_id):
     return jsonify({"msg": "Post deleted successfully"}), 200
 
 # UPVOTE POST
-@post_routes.route('/posts/<int:post_id>/upvote', methods=['POST'])
+@post_bp.route('/posts/<int:post_id>/upvote', methods=['POST'])
 @jwt_required()
 def upvote_post(post_id):
     user_id = get_jwt_identity()
@@ -145,7 +147,7 @@ def upvote_post(post_id):
     return jsonify({"msg": "Post upvoted successfully", "upvotes": post.upvotes, "downvotes": post.downvotes}), 200
 
 # DOWNVOTE POST
-@post_routes.route('/posts/<int:post_id>/downvote', methods=['POST'])
+@post_bp.route('/posts/<int:post_id>/downvote', methods=['POST'])
 @jwt_required()
 def downvote_post(post_id):
     user_id = get_jwt_identity()
@@ -169,7 +171,7 @@ def downvote_post(post_id):
     return jsonify({"msg": "Post downvoted successfully", "upvotes": post.upvotes, "downvotes": post.downvotes}), 200
 
 # COMMENT ON POST
-@post_routes.route('/posts/<int:post_id>/comments', methods=['POST'])
+@post_bp.route('/posts/<int:post_id>/comments', methods=['POST'])
 @jwt_required()
 def add_comment(post_id):
     user_id = get_jwt_identity()
@@ -192,7 +194,7 @@ def add_comment(post_id):
     return jsonify(comment.to_dict()), 201
 
 # GET COMMENTS FOR POST
-@post_routes.route('/posts/<int:post_id>/comments', methods=['GET'])
+@post_bp.route('/posts/<int:post_id>/comments', methods=['GET'])
 def get_comments(post_id):
     post = BlogPost.query.get(post_id)
     if not post:
@@ -201,7 +203,7 @@ def get_comments(post_id):
     return jsonify([comment.to_dict() for comment in comments]), 200
 
 # DELETE COMMENT
-@post_routes.route('/posts/<int:post_id>/comments/<int:comment_id>', methods=['DELETE'])
+@post_bp.route('/posts/<int:post_id>/comments/<int:comment_id>', methods=['DELETE'])
 @jwt_required()
 def delete_comment(post_id, comment_id):
     user_id = get_jwt_identity()

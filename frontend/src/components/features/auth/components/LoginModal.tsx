@@ -101,6 +101,30 @@ const LoginModal = () => {
 
   const show = searchParams.get('login') === 'true'
 
+  // If a one-time flash message was set (by api interceptor), show it when modal opens.
+  // Derive urlMessage to avoid using the unstable searchParams object directly in deps.
+  const urlMessage = searchParams.get('message')
+  const [flashKey, setFlashKey] = useState<string | null>(null)
+  const [flashMessage, setFlashMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!show) return
+    try {
+      const raw = sessionStorage.getItem('flash')
+      if (raw && !message && !urlMessage) {
+        const parsed = JSON.parse(raw)
+        if (parsed) {
+          if (parsed.key) setFlashKey(parsed.key)
+          if (parsed.message) setFlashMessage(parsed.message)
+        }
+      }
+    } catch (e) {
+      // ignore JSON errors
+    } finally {
+      try { sessionStorage.removeItem('flash') } catch (e) { /* ignore */ }
+    }
+  }, [show, message, urlMessage])
+
   // Countdown timer for rate limiting
   useEffect(() => {
     if (!rateLimitedUntil) {
@@ -148,6 +172,9 @@ const LoginModal = () => {
     setRequires2FA(false)
     setTwoFAEmail('')
     setTwoFACode('')
+    // Clear any one-time flash
+    setFlashKey(null)
+    setFlashMessage(null)
     // Note: DO NOT reset rateLimitedUntil or countdown - rate limit persists across modal close/open
   }
 
@@ -179,7 +206,9 @@ const LoginModal = () => {
       }
 
       // Normal login flow (non-2FA)
-      await login(response.user)
+      // Token is now in httpOnly cookie, no need to store in localStorage
+      // Call parent component with user data and session expiry
+      await login(response.user, response.sessionExpiresAt)
 
       setMessage('')
       handleClose()
@@ -219,8 +248,8 @@ const LoginModal = () => {
     try {
       const response = await authAPI.verify2FA(twoFAEmail, twoFACode)
 
-      // Success - complete login
-      await login(response.user)
+      // Success - complete login with session expiry
+      await login(response.user, response.sessionExpiresAt)
 
       // Close modal and reset all state
       handleClose()
@@ -284,10 +313,22 @@ const LoginModal = () => {
       </Modal.Header>
       <Modal.Body>
         {/* Password changed success alert - matches cpta_app gold standard */}
-        {searchParams.get('message') === 'password-changed' && !requires2FA && (
+        {(urlMessage === 'password-changed' || flashKey === 'password-changed') && !requires2FA && (
           <StyledAlert variant="success" className="mb-3">
             <strong><i className="bi bi-check-circle me-2"></i>Password Changed Successfully!</strong>
-            <div>Please log in with your new password.</div>
+            <div>{flashMessage ?? 'Please log in with your new password.'}</div>
+          </StyledAlert>
+        )}
+
+        {/* Generic message from query param or flash (e.g. session-expired) */}
+        {((urlMessage && urlMessage !== 'password-changed') || (flashMessage && flashKey !== 'password-changed')) && !requires2FA && !message && (
+          <StyledAlert variant="warning" className="mb-3" aria-live="polite">
+            <strong>Session Expired</strong>
+            <div>
+              {urlMessage === 'session-expired' || flashMessage === 'Session expired'
+                ? 'Session expired. Please log in to continue.'
+                : (urlMessage ? decodeURIComponent(urlMessage) : flashMessage)}
+            </div>
           </StyledAlert>
         )}
 

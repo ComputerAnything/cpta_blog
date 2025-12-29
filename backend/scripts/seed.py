@@ -1,5 +1,6 @@
 from app import app, db
-from models import BlogPost, User
+from models.post import BlogPost
+from models.user import User
 
 
 # Push the application context

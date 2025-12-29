@@ -7,7 +7,7 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def mock_send_email():
-    with patch("backend.routes.auth_routes.send_verification_email") as mock:
+    with patch("backend.routes.auth.send_verification_email") as mock:
         yield mock
 
 @pytest.fixture

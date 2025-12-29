@@ -1,5 +1,6 @@
 from app import create_app, db  # Import your Flask app factory
-from models import BlogPost, Vote
+from models.post import BlogPost
+from models.vote import Vote
 
 
 # Create the Flask app

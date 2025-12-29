@@ -2,7 +2,10 @@
 import os
 
 from app import create_app, db
-from models import BlogPost, Comment, User, Vote
+from models.comment import Comment
+from models.post import BlogPost
+from models.user import User
+from models.vote import Vote
 
 
 app = create_app()

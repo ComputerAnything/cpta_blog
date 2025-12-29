@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -173,9 +173,25 @@ const ProfileItem = styled.button`
   }
 `
 
+const BannerAlertWrapper = styled.div`
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  .alert {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    margin: 0;
+    text-align: center;
+  }
+`
+
 const BlogListPage = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const bannerType = searchParams.get('banner')
 
   // State management
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -185,6 +201,17 @@ const BlogListPage = () => {
   const [error, setError] = useState<string | null>(null)
   const [blogSearch, setBlogSearch] = useState('')
   const [userSearch, setUserSearch] = useState('')
+
+  // Auto-dismiss success banners after 5 seconds (but NOT session-expired)
+  useEffect(() => {
+    if (bannerType === 'logout-success') {
+      const timer = setTimeout(() => {
+        setSearchParams({})
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+    // session-expired banner stays until manually dismissed (industry standard)
+  }, [bannerType, setSearchParams])
 
   // Fetch posts on mount (only once)
   useEffect(() => {
@@ -281,6 +308,33 @@ const BlogListPage = () => {
 
   return (
     <>
+      {/* Session Expired Banner - Yellow Warning */}
+      {bannerType === 'session-expired' && (
+        <BannerAlertWrapper>
+          <StyledAlert
+            variant="warning"
+            dismissible
+            onClose={() => setSearchParams({})}
+          >
+            <strong>Session Expired</strong>
+            <div>Your session has expired. Please log in again to continue.</div>
+          </StyledAlert>
+        </BannerAlertWrapper>
+      )}
+
+      {/* Logout Success Banner - Green Success */}
+      {bannerType === 'logout-success' && (
+        <BannerAlertWrapper>
+          <StyledAlert
+            variant="success"
+            dismissible
+            onClose={() => setSearchParams({})}
+          >
+            <strong>Logged Out Successfully</strong>
+            <div>You've been logged out. Come back soon!</div>
+          </StyledAlert>
+        </BannerAlertWrapper>
+      )}
       <BlogListContainer>
       <Sidebar>
         <SidebarSection>

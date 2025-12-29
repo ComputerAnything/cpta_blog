@@ -69,12 +69,12 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ show, onHide 
       // Redirect to login after 2 seconds
       // Backend has already invalidated all tokens
       setTimeout(() => {
-        // Redirect to home page with login modal open
+        // Redirect to home page with login modal open and message
         window.location.href = '/?login=true&message=password-changed'
       }, 2000)
     } catch (error: unknown) {
       logger.error('Change password error:', error)
-      setError(getErrorMessage(error, 'Failed to change password. Please try again.'))
+      setError(getErrorMessage(error, 'An error occurred. Please try again.'))
     } finally {
       setLoading(false)
     }

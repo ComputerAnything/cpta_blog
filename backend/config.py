@@ -31,7 +31,7 @@ class Config:
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
 
     # Cloudflare Turnstile
-    TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY')
+    TURNSTILE_SECRET_KEY = os.environ.get('CF_TURNSTILE_SECRET_KEY')
 
     # Frontend URL (for CORS and email links)
     FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://blog.computeranything.dev')

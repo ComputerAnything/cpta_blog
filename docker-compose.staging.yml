@@ -4,7 +4,7 @@ services:
   nginx-proxy:
     image: nginx:alpine
     container_name: blog_nginx_staging
-    restart: always
+    restart: unless-stopped
     ports:
       - "127.0.0.1:8002:80"  # Only accessible from localhost (8002 to avoid conflict with cpta_app)
     volumes:
@@ -18,7 +18,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: blog_redis_staging
-    restart: always
+    restart: unless-stopped
     command: >
       redis-server
       --requirepass ${REDIS_PASSWORD:-changeme}
@@ -47,7 +47,7 @@ services:
     container_name: blog_backend_staging
     env_file:
       - ./backend/.env.staging
-    restart: always
+    restart: unless-stopped
     depends_on:
       - redis
     environment:
@@ -76,7 +76,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: blog_frontend_staging
-    restart: always
+    restart: unless-stopped
     depends_on:
       - blog-backend
     networks:

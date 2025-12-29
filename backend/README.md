@@ -24,8 +24,8 @@ backend/
 ├── extensions.py       # Flask extensions (db, jwt, migrate)
 ├── routes/             # API endpoints
 │   ├── __init__.py
-│   ├── auth_routes.py  # Authentication & registration
-│   ├── post_routes.py  # Blog post CRUD & voting
+│   ├── auth.py  # Authentication & registration
+│   ├── post.py  # Blog post CRUD & voting
 │   └── user_routes.py  # User profile & settings
 ├── migrations/         # Database migrations (Alembic)
 └── tests/              # Unit & integration tests

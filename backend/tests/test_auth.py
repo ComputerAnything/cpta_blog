@@ -16,7 +16,7 @@ def client():
 # Automatically mock send_verification_email for all tests in this file
 @pytest.fixture(autouse=True)
 def mock_send_email():
-    with patch("backend.routes.auth_routes.send_verification_email") as mock:
+    with patch("backend.routes.auth.send_verification_email") as mock:
         yield mock
 
 def test_register_and_login(client):

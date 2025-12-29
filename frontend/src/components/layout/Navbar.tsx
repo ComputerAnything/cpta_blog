@@ -19,7 +19,6 @@ const StyledNavbar = styled.nav`
   /* Enhanced sticky behavior */
   &.navbar-scrolled {
     background: ${colors.backgroundDark} !important;
-    // backdrop-filter: ${effects.backdropBlurStrong};
     box-shadow: ${shadows.navbarScrolled};
   }
 
@@ -269,7 +268,6 @@ const StyledNavbar = styled.nav`
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth()
   const navigate = useNavigate()
-  // const location = useLocation()
   const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
@@ -295,7 +293,8 @@ const Navbar = () => {
   const handleLogout = async () => {
     await logout()
     closeNavbar()
-    navigate('/')
+    // Force full page reload with logout success parameter
+    window.location.href = '/?logout=success'
   }
 
   const handleLogin = () => {

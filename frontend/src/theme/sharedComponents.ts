@@ -168,16 +168,6 @@ export const LoadingMessage = styled.div`
   font-size: 1.1rem;
 `
 
-export const ErrorMessage = styled.div`
-  background: ${colors.danger}20;
-  border: 1px solid ${colors.danger};
-  color: ${colors.danger};
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-  margin: 2rem;
-`
-
 export const PostHeader = styled.div`
   display: flex;
   justify-content: space-between;
