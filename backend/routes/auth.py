@@ -4,10 +4,9 @@ import re
 import secrets
 
 from app import db, get_real_ip, limiter
-from flask import Blueprint, jsonify, make_response, render_template_string, request
+from flask import Blueprint, current_app, jsonify, make_response, render_template_string, request
 from flask_jwt_extended import (
     create_access_token,
-    current_app,
     get_jwt,
     get_jwt_identity,
     jwt_required,

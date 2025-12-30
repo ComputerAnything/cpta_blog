@@ -1,4 +1,4 @@
-# Staging environment - localhost:8001 for testing before production
+# Staging environment - localhost:3000 for testing before production
 services:
   # Reverse proxy (internal only)
   nginx-proxy:
@@ -6,7 +6,7 @@ services:
     container_name: blog_nginx_staging
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8002:80"  # Only accessible from localhost (8002 to avoid conflict with cpta_app)
+      - "127.0.0.1:3000:80"  # Only accessible from localhost (same port as cpta_app since they run separately)
     volumes:
       - ./deployment/nginx/staging-proxy.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -57,7 +57,7 @@ services:
       - frontend_network
       - backend_network
     expose:
-      - "8000"
+      - "8001"
     # Security hardening
     read_only: true
     tmpfs:
