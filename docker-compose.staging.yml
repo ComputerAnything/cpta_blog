@@ -30,10 +30,11 @@ services:
       --auto-aof-rewrite-min-size 64mb
     volumes:
       - redis_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
     networks:
       - backend_network
-    expose:
-      - "6379"
+    # Exposed to localhost for development mode (4-terminal workflow)
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-changeme}", "ping"]
       interval: 10s
@@ -107,9 +108,11 @@ networks:
     driver: bridge
     internal: false
 
+  # Internal network for backend-redis communication
+  # Note: internal: false allows port mapping for development mode (4-terminal workflow)
   backend_network:
     driver: bridge
-    internal: true
+    internal: false
 
 volumes:
   redis_data:
