@@ -9,6 +9,7 @@ import { blogAPI, commentAPI } from '../../../../services/api'
 import type { BlogPost, Comment } from '../../../../types'
 import { getErrorMessage } from '../../../../utils/errors'
 import StyledAlert from '../../../common/StyledAlert'
+import ConfirmModal from '../../../common/ConfirmModal'
 import { PrimaryButton, ColorButton } from '../../../common/StyledButton'
 import { colors, shadows, transitions } from '../../../../theme/colors'
 import { PageContainer, PostContent, PostMeta, TagsContainer, Tag } from '../../../../theme/sharedComponents'
@@ -208,6 +209,14 @@ const PostDetailPage: React.FC = () => {
   const [alert, setAlert] = useState<{ variant: 'success' | 'danger' | 'warning' | 'info'; message: string } | null>(null)
   const [userVote, setUserVote] = useState<'upvote' | 'downvote' | null>(null)
 
+  // Validation limit for comments
+  const COMMENT_MAX = 2000
+
+  // Confirm modals
+  const [showDeletePostModal, setShowDeletePostModal] = useState(false)
+  const [showDeleteCommentModal, setShowDeleteCommentModal] = useState(false)
+  const [commentToDelete, setCommentToDelete] = useState<number | null>(null)
+
   // Component unmount protection
   useEffect(() => {
     let isMounted = true
@@ -316,35 +325,38 @@ const PostDetailPage: React.FC = () => {
     }
   }
 
-  const handleDeleteComment = async (commentId: number) => {
-    if (!confirm('Are you sure you want to delete this comment?')) {
-      return
-    }
+  const handleDeleteComment = (commentId: number) => {
+    setCommentToDelete(commentId)
+    setShowDeleteCommentModal(true)
+  }
+
+  const confirmDeleteComment = async () => {
+    if (!commentToDelete || !post) return
 
     try {
-      if (!post) return
-
-      await commentAPI.deleteComment(post.id, commentId)
+      await commentAPI.deleteComment(post.id, commentToDelete)
 
       // Refresh comments
       const commentsData = await commentAPI.getComments(post.id)
       setComments(Array.isArray(commentsData) ? commentsData : [])
+
+      setCommentToDelete(null)
     } catch (err: unknown) {
       console.error('Delete comment error:', err)
       setAlert({ variant: 'danger', message: getErrorMessage(err, 'Failed to delete comment') })
     }
   }
 
-  const handleDeletePost = async () => {
-    if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-      return
-    }
+  const handleDeletePost = () => {
+    setShowDeletePostModal(true)
+  }
 
+  const confirmDeletePost = async () => {
     try {
       if (!post) return
 
       await blogAPI.deletePost(post.id)
-      navigate('/posts')
+      navigate('/')
     } catch (err: unknown) {
       console.error('Delete post error:', err)
       setAlert({ variant: 'danger', message: getErrorMessage(err, 'Failed to delete post') })
@@ -492,10 +504,19 @@ const PostDetailPage: React.FC = () => {
 
             {user && (
               <CommentForm onSubmit={handleCommentSubmit}>
+                <div style={{ marginBottom: '0.5rem', textAlign: 'right' }}>
+                  <span style={{
+                    fontSize: '0.85rem',
+                    color: commentContent.length > COMMENT_MAX ? colors.danger : colors.text.muted
+                  }}>
+                    {commentContent.length}/{COMMENT_MAX}
+                  </span>
+                </div>
                 <textarea
                   placeholder="Write a comment..."
                   value={commentContent}
                   onChange={(e) => setCommentContent(e.target.value)}
+                  maxLength={COMMENT_MAX}
                   disabled={submitting}
                 />
                 <PrimaryButton type="submit" disabled={submitting || !commentContent.trim()}>
@@ -546,6 +567,28 @@ const PostDetailPage: React.FC = () => {
         )}
       </PageContainer>
       <Footer />
+
+      {/* Delete Post Confirmation */}
+      <ConfirmModal
+        show={showDeletePostModal}
+        onHide={() => setShowDeletePostModal(false)}
+        onConfirm={confirmDeletePost}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmText="Delete Post"
+        cancelText="Cancel"
+      />
+
+      {/* Delete Comment Confirmation */}
+      <ConfirmModal
+        show={showDeleteCommentModal}
+        onHide={() => setShowDeleteCommentModal(false)}
+        onConfirm={confirmDeleteComment}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment?"
+        confirmText="Delete Comment"
+        cancelText="Cancel"
+      />
     </>
   )
 }

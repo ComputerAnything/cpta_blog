@@ -8,6 +8,7 @@ import { useAuth } from '../../../../contexts/AuthContext'
 import { blogAPI } from '../../../../services/api'
 import { getErrorMessage } from '../../../../utils/errors'
 import StyledAlert from '../../../common/StyledAlert'
+import ConfirmModal from '../../../common/ConfirmModal'
 import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import Footer from '../../../layout/Footer'
 import { colors, shadows, transitions } from '../../../../theme/colors'
@@ -209,6 +210,7 @@ const CreatePostPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false)
   const [alert, setAlert] = useState<{ variant: 'success' | 'danger' | 'warning' | 'info'; message: string } | null>(null)
   const [showPreview, setShowPreview] = useState(true)
+  const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false)
 
   // Validation limits
   const TITLE_MAX = 200
@@ -266,11 +268,14 @@ const CreatePostPage: React.FC = () => {
 
   const handleCancel = () => {
     if (title || content || topicTags) {
-      if (!confirm('You have unsaved changes. Are you sure you want to leave?')) {
-        return
-      }
+      setShowUnsavedChangesModal(true)
+    } else {
+      navigate('/')
     }
-    navigate('/posts')
+  }
+
+  const confirmLeave = () => {
+    navigate('/')
   }
 
   // Redirect if not authenticated
@@ -451,6 +456,18 @@ const CreatePostPage: React.FC = () => {
         )}
       </PageContainer>
       <Footer />
+
+      {/* Unsaved Changes Confirmation */}
+      <ConfirmModal
+        show={showUnsavedChangesModal}
+        onHide={() => setShowUnsavedChangesModal(false)}
+        onConfirm={confirmLeave}
+        title="Unsaved Changes"
+        message="You have unsaved changes. Are you sure you want to leave?"
+        confirmText="Leave"
+        cancelText="Stay"
+        variant="warning"
+      />
     </>
   )
 }

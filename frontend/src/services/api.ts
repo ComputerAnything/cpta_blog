@@ -218,6 +218,16 @@ export const userAPI = {
     return response.data
   },
 
+  getUserVotesCount: async (username: string) => {
+    const response = await api.get<{ count: number }>(`/users/${username}/votes/count`)
+    return response.data.count
+  },
+
+  getUserCommentsCount: async (username: string) => {
+    const response = await api.get<{ count: number }>(`/users/${username}/comments/count`)
+    return response.data.count
+  },
+
   updateProfile: async (username: string, email: string) => {
     const response = await api.put('/profile', { username, email })
     return response.data
