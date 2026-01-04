@@ -24,6 +24,7 @@ import {
 import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
 import ChangePasswordModal from '../../auth/components/ChangePasswordModal'
+import ConfirmModal from '../../../common/ConfirmModal'
 import Footer from '../../../layout/Footer'
 
 const ProfileHeader = styled.div`
@@ -271,6 +272,7 @@ const ProfilePage = () => {
   const [settingsMessage, setSettingsMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [settingsLoading, setSettingsLoading] = useState(false)
   const [showChangePassword, setShowChangePassword] = useState(false)
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false)
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -385,6 +387,29 @@ const ProfilePage = () => {
       setSettingsMessage({
         type: 'error',
         text: 'Failed to update two-factor authentication setting. Please try again.'
+      })
+    } finally {
+      setSettingsLoading(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!currentUser) return
+
+    setSettingsLoading(true)
+    setSettingsMessage(null)
+
+    try {
+      await userAPI.deleteProfile()
+
+      // Log out and redirect to home
+      await authAPI.logout()
+      navigate('/')
+    } catch (err) {
+      console.error('Failed to delete account:', err)
+      setSettingsMessage({
+        type: 'error',
+        text: getErrorMessage(err, 'Failed to delete account. Please try again.')
       })
     } finally {
       setSettingsLoading(false)
@@ -545,6 +570,22 @@ const ProfilePage = () => {
                 </ToggleSwitch>
               </SettingRow>
 
+              <SettingRow style={{ borderColor: colors.danger }}>
+                <div className="setting-info">
+                  <h3 style={{ color: colors.danger }}>Delete Account</h3>
+                  <p>
+                    Permanently delete your account and all associated data. This action cannot be undone.
+                  </p>
+                </div>
+                <PrimaryButton
+                  onClick={() => setShowDeleteAccount(true)}
+                  style={{ background: colors.danger }}
+                  disabled={settingsLoading}
+                >
+                  Delete Account
+                </PrimaryButton>
+              </SettingRow>
+
             </PostsSection>
           )}
 
@@ -624,6 +665,18 @@ const ProfilePage = () => {
           <ChangePasswordModal
             show={showChangePassword}
             onHide={() => setShowChangePassword(false)}
+          />
+
+          {/* Delete Account Modal */}
+          <ConfirmModal
+            show={showDeleteAccount}
+            onHide={() => setShowDeleteAccount(false)}
+            onConfirm={handleDeleteAccount}
+            title="Delete Account"
+            message="Are you sure you want to delete your account? This will permanently delete all your posts, comments, and votes. This action cannot be undone."
+            confirmText="Delete Account"
+            cancelText="Cancel"
+            variant="danger"
           />
         </div>
       </PageContainer>

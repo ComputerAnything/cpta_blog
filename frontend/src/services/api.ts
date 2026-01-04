@@ -26,17 +26,8 @@ api.interceptors.response.use(
       }
 
       // For any other 401, the session has expired mid-action
-      // Set a one-time flash message in sessionStorage and redirect to the home login modal
-      try {
-        sessionStorage.setItem('flash', JSON.stringify({ key: 'session-expired', message: 'Session expired. Please log in to continue' }))
-      } catch {
-        // sessionStorage may be unavailable in some environments; fall back to query param
-        console.warn('sessionStorage unavailable, falling back to URL message')
-        window.location.href = '/?login=true&message=session-expired'
-        return Promise.reject(error)
-      }
-
-      window.location.href = '/?login=true'
+      // Redirect to home with session expired banner
+      window.location.href = '/?banner=session-expired'
     }
     return Promise.reject(error)
   }

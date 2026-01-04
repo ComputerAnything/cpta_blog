@@ -293,8 +293,8 @@ const Navbar = () => {
   const handleLogout = async () => {
     await logout()
     closeNavbar()
-    // Force full page reload with logout success parameter
-    window.location.href = '/?logout=success'
+    // Force full page reload with logout success banner
+    window.location.href = '/?banner=logout-success'
   }
 
   const handleLogin = () => {

@@ -185,6 +185,16 @@ const BannerAlertWrapper = styled.div`
     margin: 0;
     text-align: center;
   }
+
+  /* Make close button light/white on both banners */
+  .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
 `
 
 const BlogListPage = () => {

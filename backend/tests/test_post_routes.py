@@ -1,45 +1,6 @@
-from unittest.mock import patch
-
-from backend.app import create_app, db
-from backend.models import User
-import pytest
-
-
-@pytest.fixture(autouse=True)
-def mock_send_email():
-    with patch("backend.routes.auth.send_verification_email") as mock:
-        yield mock
-
-@pytest.fixture
-def client():
-    app = create_app(testing=True)
-    with app.test_client() as client, app.app_context():
-        db.create_all()
-        yield client
-        db.drop_all()
-
-def create_verified_user(client, username="blogger", email="blogger@dev.com", password="testpass"):
-    client.post('/api/register', json={
-        'username': username,
-        'email': email,
-        'password': password
-    })
-    user = User.query.filter_by(username=username).first()
-    if user is not None:
-        user.is_verified = True
-        db.session.commit()
-    return user
-
-def get_token(client, username="blogger", password="testpass"):
-    response = client.post('/api/login', json={
-        'identifier': username,
-        'password': password
-    })
-    return response.get_json()["access_token"]
-
-def test_create_and_get_blog_post(client):
-    create_verified_user(client)
-    token = get_token(client)
+def test_create_and_get_blog_post(create_verified_user, get_auth_token, client):
+    create_verified_user(username="blogger", email="blogger@dev.com", password="Test@Pass123")
+    token = get_auth_token(username="blogger", password="Test@Pass123")
     # Create a post
     response = client.post('/api/posts', json={
         'title': 'Test Post',
@@ -60,9 +21,9 @@ def test_create_and_get_blog_post(client):
 
 # ...existing code...
 
-def test_update_blog_post(client):
-    create_verified_user(client)
-    token = get_token(client)
+def test_update_blog_post(create_verified_user, get_auth_token, client):
+    create_verified_user(username="blogger", email="blogger@dev.com", password="Test@Pass123")
+    token = get_auth_token(username="blogger", password="Test@Pass123")
     # Create a post
     response = client.post('/api/posts', json={
         'title': 'Old Title',
@@ -81,9 +42,9 @@ def test_update_blog_post(client):
     assert data["title"] == "New Title"
     assert data["content"] == "New content."
 
-def test_delete_blog_post(client):
-    create_verified_user(client)
-    token = get_token(client)
+def test_delete_blog_post(create_verified_user, get_auth_token, client):
+    create_verified_user(username="blogger", email="blogger@dev.com", password="Test@Pass123")
+    token = get_auth_token(username="blogger", password="Test@Pass123")
     # Create a post
     response = client.post('/api/posts', json={
         'title': 'Delete Me',
@@ -100,9 +61,9 @@ def test_delete_blog_post(client):
     response = client.get(f'/api/posts/{post_id}')
     assert response.status_code == 404
 
-def test_get_all_blog_posts(client):
-    create_verified_user(client)
-    token = get_token(client)
+def test_get_all_blog_posts(create_verified_user, get_auth_token, client):
+    create_verified_user(username="blogger", email="blogger@dev.com", password="Test@Pass123")
+    token = get_auth_token(username="blogger", password="Test@Pass123")
     # Create two posts
     client.post('/api/posts', json={
         'title': 'First Post',
@@ -120,10 +81,10 @@ def test_get_all_blog_posts(client):
     assert isinstance(data, list)
     assert len(data) >= 2
 
-def test_cannot_edit_or_delete_others_post(client):
+def test_cannot_edit_or_delete_others_post(create_verified_user, get_auth_token, client):
     # User 1 creates a post
-    create_verified_user(client, username="user1", email="user1@dev.com")
-    token1 = get_token(client, username="user1")
+    create_verified_user(username="user1", email="user1@dev.com", password="Test@Pass123")
+    token1 = get_auth_token(username="user1", password="Test@Pass123")
     response = client.post('/api/posts', json={
         'title': 'User1 Post',
         'content': 'Owned by user1.'
@@ -131,8 +92,8 @@ def test_cannot_edit_or_delete_others_post(client):
     post_id = response.get_json()["id"]
 
     # User 2 tries to edit/delete User 1's post
-    create_verified_user(client, username="user2", email="user2@dev.com")
-    token2 = get_token(client, username="user2")
+    create_verified_user(username="user2", email="user2@dev.com", password="Test@Pass123")
+    token2 = get_auth_token(username="user2", password="Test@Pass123")
 
     # Try to update
     response = client.put(f'/api/posts/{post_id}', json={
@@ -145,9 +106,9 @@ def test_cannot_edit_or_delete_others_post(client):
     response = client.delete(f'/api/posts/{post_id}', headers={"Authorization": f"Bearer {token2}"})
     assert response.status_code == 403
 
-def test_create_post_missing_fields(client):
-    create_verified_user(client)
-    token = get_token(client)
+def test_create_post_missing_fields(create_verified_user, get_auth_token, client):
+    create_verified_user(username="blogger", email="blogger@dev.com", password="Test@Pass123")
+    token = get_auth_token(username="blogger", password="Test@Pass123")
     # Missing title
     response = client.post('/api/posts', json={
         'content': 'No title here.'

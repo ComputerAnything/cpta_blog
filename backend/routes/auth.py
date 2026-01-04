@@ -20,10 +20,9 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
-from models import User
+from models.user import User
 import requests
 from sqlalchemy.exc import IntegrityError
-from utils import validate_password
 from utils.email import (
     get_2fa_code_email,
     get_email_verification_email,
@@ -36,6 +35,7 @@ from utils.email import (
     send_password_reset_admin_alert,
 )
 from utils.login_details import get_location_from_ip, parse_user_agent
+from utils.password_validator import validate_password
 
 
 auth_bp = Blueprint('auth', __name__)

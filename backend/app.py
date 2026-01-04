@@ -51,6 +51,7 @@ def create_app(testing=False):
     app.logger.setLevel(logging.INFO)
 
     # JWT Configuration for httpOnly cookies
+    # Cookies: Secure httpOnly for web browsers (XSS-proof)
     app.config['JWT_TOKEN_LOCATION'] = ['cookies']
     # Only require HTTPS for cookies in production (allow HTTP in development)
     is_development = (
@@ -154,7 +155,7 @@ def create_app(testing=False):
     def rate_limit_handler(e):  # noqa: ARG001
         """Handle rate limit exceeded - send admin alert and return error"""
         from models.user import User  # noqa: PLC0415
-        from utils import send_rate_limit_alert  # noqa: PLC0415
+        from utils.email import send_rate_limit_alert  # noqa: PLC0415
 
         # Get request details
         ip_address = get_real_ip()
@@ -231,6 +232,3 @@ def create_app(testing=False):
         return send_file(os.path.join(REACT_BUILD_DIR, 'index.html'))
 
     return app
-
-# For development/production servers that expect `app`
-app = create_app()

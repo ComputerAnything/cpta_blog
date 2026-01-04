@@ -100,30 +100,7 @@ const LoginModal = () => {
   const [countdown, setCountdown] = useState<number>(0)
 
   const show = searchParams.get('login') === 'true'
-
-  // If a one-time flash message was set (by api interceptor), show it when modal opens.
-  // Derive urlMessage to avoid using the unstable searchParams object directly in deps.
   const urlMessage = searchParams.get('message')
-  const [flashKey, setFlashKey] = useState<string | null>(null)
-  const [flashMessage, setFlashMessage] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!show) return
-    try {
-      const raw = sessionStorage.getItem('flash')
-      if (raw && !message && !urlMessage) {
-        const parsed = JSON.parse(raw)
-        if (parsed) {
-          if (parsed.key) setFlashKey(parsed.key)
-          if (parsed.message) setFlashMessage(parsed.message)
-        }
-      }
-    } catch {
-      // ignore JSON errors
-    } finally {
-      try { sessionStorage.removeItem('flash') } catch { /* ignore */ }
-    }
-  }, [show, message, urlMessage])
 
   // Countdown timer for rate limiting
   useEffect(() => {
@@ -172,9 +149,6 @@ const LoginModal = () => {
     setRequires2FA(false)
     setTwoFAEmail('')
     setTwoFACode('')
-    // Clear any one-time flash
-    setFlashKey(null)
-    setFlashMessage(null)
     // Note: DO NOT reset rateLimitedUntil or countdown - rate limit persists across modal close/open
   }
 
@@ -312,23 +286,11 @@ const LoginModal = () => {
         <Modal.Title>Login</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {/* Password changed success alert - matches cpta_app gold standard */}
-        {(urlMessage === 'password-changed' || flashKey === 'password-changed') && !requires2FA && (
+        {/* Password changed success alert */}
+        {urlMessage === 'password-changed' && !requires2FA && (
           <StyledAlert variant="success" className="mb-3">
             <strong><i className="bi bi-check-circle me-2"></i>Password Changed Successfully!</strong>
-            <div>{flashMessage ?? 'Please log in with your new password.'}</div>
-          </StyledAlert>
-        )}
-
-        {/* Generic message from query param or flash (e.g. session-expired) */}
-        {((urlMessage && urlMessage !== 'password-changed') || (flashMessage && flashKey !== 'password-changed')) && !requires2FA && !message && (
-          <StyledAlert variant="warning" className="mb-3" aria-live="polite">
-            <strong>Session Expired</strong>
-            <div>
-              {urlMessage === 'session-expired' || flashMessage === 'Session expired'
-                ? 'Session expired. Please log in to continue.'
-                : (urlMessage ? decodeURIComponent(urlMessage) : flashMessage)}
-            </div>
+            <div>Please log in with your new password.</div>
           </StyledAlert>
         )}
 
