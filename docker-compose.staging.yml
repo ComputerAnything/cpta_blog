@@ -58,7 +58,7 @@ services:
       - frontend_network
       - backend_network
     expose:
-      - "8001"
+      - "8000"
     # Security hardening
     read_only: true
     tmpfs:
@@ -102,18 +102,22 @@ services:
 
 networks:
   proxy_network:
+    name: blog_staging_proxy_network
     driver: bridge
 
   frontend_network:
+    name: blog_staging_frontend_network
     driver: bridge
     internal: false
 
   # Internal network for backend-redis communication
   # Note: internal: false allows port mapping for development mode (4-terminal workflow)
   backend_network:
+    name: blog_staging_backend_network
     driver: bridge
     internal: false
 
 volumes:
   redis_data:
+    name: blog_staging_redis_data
     driver: local

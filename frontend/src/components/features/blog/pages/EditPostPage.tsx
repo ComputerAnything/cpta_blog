@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import ReactMarkdown from 'react-markdown'
@@ -233,11 +233,7 @@ const EditPostPage: React.FC = () => {
 
   const tagCount = topicTags ? topicTags.split(',').filter(t => t.trim()).length : 0
 
-  useEffect(() => {
-    fetchPost()
-  }, [postId])
-
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     setLoading(true)
     setError(null)
 
@@ -256,7 +252,11 @@ const EditPostPage: React.FC = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [postId])
+
+  useEffect(() => {
+    fetchPost()
+  }, [fetchPost])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

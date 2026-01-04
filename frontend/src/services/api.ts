@@ -29,7 +29,7 @@ api.interceptors.response.use(
       // Set a one-time flash message in sessionStorage and redirect to the home login modal
       try {
         sessionStorage.setItem('flash', JSON.stringify({ key: 'session-expired', message: 'Session expired. Please log in to continue' }))
-      } catch (e) {
+      } catch {
         // sessionStorage may be unavailable in some environments; fall back to query param
         console.warn('sessionStorage unavailable, falling back to URL message')
         window.location.href = '/?login=true&message=session-expired'

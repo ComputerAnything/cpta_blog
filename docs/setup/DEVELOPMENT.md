@@ -454,7 +454,7 @@ Before deploying to production, you should test in a production-like environment
 **Quick summary:**
 - Staging uses `docker-compose.yml` with production-like architecture
 - Network segmentation, security hardening
-- Runs on http://localhost:8001
+- Runs on http://localhost:3000
 - Uses production database (Neon) in staging mode
 
 **Quick start:**

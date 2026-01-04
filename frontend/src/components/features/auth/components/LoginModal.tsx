@@ -118,10 +118,10 @@ const LoginModal = () => {
           if (parsed.message) setFlashMessage(parsed.message)
         }
       }
-    } catch (e) {
+    } catch {
       // ignore JSON errors
     } finally {
-      try { sessionStorage.removeItem('flash') } catch (e) { /* ignore */ }
+      try { sessionStorage.removeItem('flash') } catch { /* ignore */ }
     }
   }, [show, message, urlMessage])
 

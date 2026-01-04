@@ -1,6 +1,6 @@
 import { Modal } from 'react-bootstrap'
 import styled from 'styled-components'
-import { colors, shadows, transitions } from '../../theme/colors'
+import { colors, shadows } from '../../theme/colors'
 import { PrimaryButton, SecondaryButton } from './StyledButton'
 
 const StyledConfirmModal = styled(Modal)`
