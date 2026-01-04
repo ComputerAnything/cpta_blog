@@ -1332,7 +1332,7 @@ Before deploying to production, verify:
 
 ### Contact
 
-Security issues: admin@computeranything.dev
+Security issues: support@computeranything.dev
 
 ---
 
