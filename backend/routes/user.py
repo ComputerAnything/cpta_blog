@@ -68,7 +68,15 @@ def update_profile():
         db.session.rollback()
         return jsonify({"msg": "Username or email is already taken"}), 400
 
-    return jsonify({"msg": "Profile updated successfully"}), 200
+    # Return the updated user object (matches GET /profile pattern)
+    return jsonify({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "created_at": user.created_at.isoformat(),
+        "is_verified": user.is_verified,
+        "twofa_enabled": user.twofa_enabled
+    }), 200
 
 # DELETE USER PROFILE
 @user_bp.route('/profile', methods=['DELETE'])

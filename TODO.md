@@ -1,4 +1,4 @@
-1. Error when successfully updating profile.
+1. Error when successfully changing profile name
   - ```sh
       index-DdzFJXWj.js:2236 Uncaught TypeError: Cannot read properties of undefined (reading 'charAt')
       at J1 (index-DdzFJXWj.js:2236:2454)
@@ -14,3 +14,4 @@
     ```
 2. Delete Account logout banner is showing Session Expired (we need to add a Delete Account logout banner)
 
+3. Setup ci.yml in .github/workflows

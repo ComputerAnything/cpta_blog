@@ -12,7 +12,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   loading: boolean
   login: (userData: User, sessionExpiresAt?: number) => void
-  logout: () => void
+  logout: (skipRedirect?: boolean) => void
   updateUser: (userData: User) => void
 }
 
@@ -154,7 +154,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   // Handle logout - call backend to clear httpOnly cookie
-  const logout = async () => {
+  const logout = async (skipRedirect = false) => {
     // Clear session timer
     clearSession()
     try {
@@ -165,8 +165,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
     setUser(null)
     setIsAuthenticated(false)
-    // Redirect to landing page with success banner
-    window.location.href = '/?banner=logout-success'
+    // Redirect to landing page with success banner (unless caller wants to handle redirect)
+    if (!skipRedirect) {
+      window.location.href = '/?banner=logout-success'
+    }
   }
 
   // Update user data (e.g., after profile update)

@@ -149,6 +149,7 @@ def resend_verification():
 
 # REGISTER
 @auth_bp.route('/register', methods=['POST'])
+@limiter.limit("5 per minute")
 def register():
     data = request.get_json()
 
@@ -233,26 +234,28 @@ def login():
         db.session.commit()
         return jsonify({"msg": "Incorrect password"}), 401
 
-    if not user.is_verified:
-        return jsonify({"msg": "Please verify your email before logging in."}), 403
-
-    # Check if 2FA is required for this user
-    if user.twofa_enabled:
-        # Generate and send 2FA code instead of completing login
-        code = user.generate_2fa_code(minutes=5)
+    # Handle unverified users OR 2FA users - both use same 6-digit code flow
+    if not user.is_verified or user.twofa_enabled:
+        # Generate and send code (10 min for unverified, 5 min for 2FA)
+        code_expiry_minutes = 10 if not user.is_verified else 5
+        code = user.generate_2fa_code(minutes=code_expiry_minutes)
         db.session.commit()
 
-        # Send 2FA code via email
+        # Send appropriate email based on verification status
         try:
-            subject, html = get_2fa_code_email(code)
+            if not user.is_verified:
+                subject, html = get_registration_code_email(code)
+            else:
+                subject, html = get_2fa_code_email(code)
             send_email(to=user.email, subject=subject, html=html)
         except Exception as e:
-            print(f"Failed to send 2FA code email: {e!r}")
+            print(f"Failed to send verification code email: {e!r}")
             return jsonify({"msg": "Failed to send verification code. Please try again."}), 500
 
-        # Return response indicating 2FA is required (don't set JWT cookies yet)
+        # Return unified response (frontend treats both the same)
         return jsonify({
             'requires_2fa': True,
+            'is_verified': user.is_verified,  # Let frontend know which verification endpoint to use
             'email': user.email,
             'message': 'Verification code sent to your email'
         }), 200
@@ -444,11 +447,11 @@ def reset_password():
     return jsonify({"msg": "Password has been reset successfully"}), 200
 
 
-# VERIFY 2FA
+# VERIFY 2FA - Unified endpoint for both registration verification and 2FA login
 @auth_bp.route('/verify-2fa', methods=['POST'])
 @limiter.limit("5 per 5 minutes")
 def verify_2fa():
-    """Verify 2FA code and complete login"""
+    """Verify 6-digit code for either registration completion or 2FA login"""
     data = request.get_json()
     email = data.get('email')
     code = data.get('code')
@@ -457,10 +460,18 @@ def verify_2fa():
         return jsonify({"msg": "Email and verification code are required"}), 400
 
     user = User.query.filter(User.email == email).first()
-    if not user or not user.is_valid_2fa_code(code):
+    if not user:
+        return jsonify({"msg": "Invalid verification code"}), 401
+
+    # Verify the code
+    if not user.is_valid_2fa_code(code):
         return jsonify({"msg": "Invalid or expired verification code"}), 401
 
-    # Clear 2FA code
+    # If user is unverified, mark them as verified (registration flow)
+    if not user.is_verified:
+        user.is_verified = True
+
+    # Clear verification code
     user.clear_2fa_code()
 
     # Capture login details for security tracking
@@ -507,85 +518,6 @@ def verify_2fa():
     response = make_response(jsonify({
         'user': user.to_dict(),
         'message': 'Login successful',
-        'sessionExpiresAt': session_expires_at
-    }), 200)
-    set_access_cookies(response, access_token)
-    return response
-
-
-# VERIFY REGISTRATION
-@auth_bp.route('/verify-registration', methods=['POST'])
-def verify_registration():
-    """Verify registration code and complete account setup"""
-    data = request.get_json()
-    email = data.get('email')
-    code = data.get('code')
-
-    if not email or not code:
-        return jsonify({"msg": "Email and verification code are required"}), 400
-
-    user = User.query.filter(User.email == email).first()
-    if not user:
-        return jsonify({"msg": "Invalid verification code"}), 401
-
-    # Check if already verified
-    if user.is_verified:
-        return jsonify({"msg": "Email already verified. Please login."}), 400
-
-    # Verify the code
-    if not user.is_valid_2fa_code(code):
-        return jsonify({"msg": "Invalid or expired verification code"}), 401
-
-    # Mark user as verified
-    user.is_verified = True
-
-    # Clear verification code
-    user.clear_2fa_code()
-
-    # Capture login details for security tracking (auto-login after verification)
-    login_ip = get_real_ip()
-    user_agent_string = request.headers.get('User-Agent', '')
-    browser_info, device_info = parse_user_agent(user_agent_string)
-    location_info = get_location_from_ip(login_ip)
-
-    # Record successful login
-    user.record_successful_login(
-        ip_address=login_ip,
-        location=location_info,
-        browser=browser_info,
-        device=device_info
-    )
-    db.session.commit()
-
-    # Send login notification email (optional - user just verified)
-    try:
-        login_time = datetime.now(timezone.utc).strftime('%B %d, %Y at %I:%M %p UTC')
-        subject, html = get_login_notification_email(
-            email=user.email,
-            login_time=login_time,
-            ip_address=login_ip,
-            location=location_info,
-            browser=browser_info,
-            device=device_info
-        )
-        send_email(to=user.email, subject=subject, html=html)
-    except Exception as e:
-        print(f"Failed to send login notification: {e!r}")
-
-    # Create access token
-    access_token = create_access_token(
-        identity=str(user.id),
-        additional_claims={"token_version": user.token_version}
-    )
-
-    # Calculate session expiry timestamp (Unix timestamp in seconds)
-    jwt_expires_seconds = current_app.config.get('JWT_ACCESS_TOKEN_EXPIRES', 14400)
-    session_expires_at = int(datetime.now(timezone.utc).timestamp()) + jwt_expires_seconds
-
-    # Set httpOnly cookie and return user info with session expiry
-    response = make_response(jsonify({
-        'user': user.to_dict(),
-        'message': 'Email verified successfully! Welcome!',
         'sessionExpiresAt': session_expires_at
     }), 200)
     set_access_cookies(response, access_token)

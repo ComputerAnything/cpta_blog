@@ -90,8 +90,9 @@ const LoginModal = () => {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  // 2FA state
+  // 2FA state (handles both unverified users and 2FA users with same code flow)
   const [requires2FA, setRequires2FA] = useState(false)
+  const [isVerifiedUser, setIsVerifiedUser] = useState(true)  // Determines which verification endpoint to call
   const [twoFAEmail, setTwoFAEmail] = useState('')
   const [twoFACode, setTwoFACode] = useState('')
 
@@ -147,6 +148,7 @@ const LoginModal = () => {
 
     // Reset 2FA state
     setRequires2FA(false)
+    setIsVerifiedUser(true)
     setTwoFAEmail('')
     setTwoFACode('')
     // Note: DO NOT reset rateLimitedUntil or countdown - rate limit persists across modal close/open
@@ -167,16 +169,17 @@ const LoginModal = () => {
     try {
       const response = await authAPI.login(identifier, password, turnstileToken)
 
-      // Check if 2FA is required
+      // Check if 2FA/verification is required (handles both unverified and 2FA users)
       if (response.requires_2fa) {
         setRequires2FA(true)
+        setIsVerifiedUser(response.is_verified ?? true)  // Track if user is verified or not
         setTwoFAEmail(response.email || identifier)
         setPassword('')  // SECURITY: Clear password from memory
         setMessage('')
         setLoading(false)
         turnstileRef.current?.reset()
         setTurnstileToken(null)
-        return  // Stay in modal, show 2FA input
+        return  // Stay in modal, show code input
       }
 
       // Normal login flow (non-2FA)
@@ -220,6 +223,7 @@ const LoginModal = () => {
     setLoading(true)
 
     try {
+      // Unified verification endpoint handles both unverified and 2FA users
       const response = await authAPI.verify2FA(twoFAEmail, twoFACode)
 
       // Success - complete login with session expiry
@@ -231,11 +235,12 @@ const LoginModal = () => {
       setPassword('')
       setTwoFACode('')
       setRequires2FA(false)
+      setIsVerifiedUser(true)
       setTwoFAEmail('')
       setMessage('')
       navigate('/profile')
     } catch (error: unknown) {
-      logger.error('2FA verification error:', error)
+      logger.error('Verification error:', error)
 
       // Clear code on error (force re-entry)
       setTwoFACode('')
@@ -272,6 +277,21 @@ const LoginModal = () => {
   }
 
   const handleSwitchToRegister = () => {
+    // Reset all state before switching (except rate limiting which persists)
+    setIdentifier('')
+    setPassword('')
+    setMessage('')
+    setShowPassword(false)
+    setShowResend(false)
+    setResendStatus('')
+    setRequires2FA(false)
+    setIsVerifiedUser(true)
+    setTwoFAEmail('')
+    setTwoFACode('')
+    setTurnstileToken(null)
+    turnstileRef.current?.reset()
+
+    // Switch to register modal
     const params = new URLSearchParams(searchParams)
     params.delete('login')
     params.set('register', 'true')
@@ -401,16 +421,29 @@ const LoginModal = () => {
             </div>
           </StyledForm>
         ) : (
-          // 2FA verification form
+          // Verification form (both email verification and 2FA use same UI)
           <StyledForm onSubmit={handleVerify2FA}>
             <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(23, 162, 184, 0.1)', border: '1px solid #17a2b8', borderRadius: '8px' }}>
-              <strong><i className="bi bi-envelope-check" style={{ marginRight: '0.5rem' }}></i>Verification Required</strong>
+              <strong>
+                <i className="bi bi-envelope-check" style={{ marginRight: '0.5rem' }}></i>
+                {isVerifiedUser ? 'Login Verification Required' : 'Email Verification Required'}
+              </strong>
               <div style={{ marginTop: '0.5rem' }}>
-                A 6-digit verification code has been sent to <strong>{twoFAEmail}</strong>
+                {isVerifiedUser
+                  ? `A 6-digit verification code has been sent to verify your login attempt.`
+                  : `A 6-digit verification code has been sent to complete your registration.`
+                }
+                {' '}Code sent to <strong>{twoFAEmail}</strong>
               </div>
               <div style={{ marginTop: '0.25rem', fontSize: '0.9rem', color: '#ccc' }}>
-                The code expires in 5 minutes.
+                The code expires in {isVerifiedUser ? '5' : '10'} minutes.
               </div>
+              {!isVerifiedUser && (
+                <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#aaa', borderTop: '1px solid rgba(23, 162, 184, 0.2)', paddingTop: '0.75rem' }}>
+                  <i className="bi bi-info-circle" style={{ marginRight: '0.4rem' }}></i>
+                  After registering, you can toggle 2FA on/off from your profile page.
+                </div>
+              )}
             </div>
 
             <Form.Group className="mb-3">
@@ -432,7 +465,7 @@ const LoginModal = () => {
                   fontFamily: 'monospace'
                 }}
               />
-              <Form.Text>Enter the 6-digit code from your email</Form.Text>
+              <Form.Text style={{ color: '#a8a8a8ff' }}>Enter the 6-digit code from your email</Form.Text>
             </Form.Group>
 
             <div className="d-grid gap-2">

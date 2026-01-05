@@ -254,7 +254,7 @@ const ToggleSwitch = styled.label`
 const ProfilePage = () => {
   const { username } = useParams<{ username: string }>()
   const navigate = useNavigate()
-  const { user: currentUser, updateUser } = useAuth()
+  const { user: currentUser, updateUser, logout } = useAuth()
 
   const [profile, setProfile] = useState<User | null>(null)
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -402,9 +402,11 @@ const ProfilePage = () => {
     try {
       await userAPI.deleteProfile()
 
-      // Log out and redirect to home
-      await authAPI.logout()
-      navigate('/')
+      // Clear user state from AuthContext (skip auto-redirect so we can show account-deleted banner)
+      await logout(true)
+
+      // Force full page reload to home with account deleted success banner
+      window.location.href = '/?banner=account-deleted-success'
     } catch (err) {
       console.error('Failed to delete account:', err)
       setSettingsMessage({
