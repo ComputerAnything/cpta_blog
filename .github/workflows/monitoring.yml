@@ -1,0 +1,87 @@
+name: Blog Health Monitoring
+
+on:
+  # Run once daily at 10 AM UTC (super lightweight - it's just a blog!)
+  schedule:
+    - cron: '0 10 * * *'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    name: Check Blog Health
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Run monitoring script
+        run: |
+          ssh -i ~/.ssh/id_ed25519 cheloniixd@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /opt/blog_app
+            bash deployment/monitoring.sh
+          EOF
+
+      # Discord notification ONLY on failure (no spam when healthy!)
+      - name: Discord notification - Alert on failure
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" \
+               -d '{
+                 "embeds": [{
+                   "title": "🚨 Blog Health Check FAILED",
+                   "description": "The blog health check has failed. Immediate attention required!",
+                   "color": 15158332,
+                   "fields": [
+                     {"name": "Time", "value": "'"$(date -u)"'", "inline": true},
+                     {"name": "Blog", "value": "blog.computeranything.dev", "inline": true},
+                     {"name": "Status", "value": "❌ UNHEALTHY", "inline": false},
+                     {"name": "Actions", "value": "[View Logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})", "inline": false}
+                   ]
+                 }]
+               }' \
+               ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Health check summary
+        if: success()
+        run: |
+          echo "## ✅ Health Check Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** All checks passed (no notification sent)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Checks Performed:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Docker containers running" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Disk space healthy" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Blog accessible (https://blog.computeranything.dev)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Failure summary
+        if: failure()
+        run: |
+          echo "## ❌ Health Check Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ Discord notification sent!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The blog health check has failed. Please investigate immediately." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Quick Actions:**" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "# SSH to server" >> $GITHUB_STEP_SUMMARY
+          echo "ssh cheloniixd@${{ secrets.SERVER_IP }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Check container status" >> $GITHUB_STEP_SUMMARY
+          echo "cd /opt/blog_app" >> $GITHUB_STEP_SUMMARY
+          echo "docker compose -f docker-compose.prod.yml ps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Check logs" >> $GITHUB_STEP_SUMMARY
+          echo "docker compose -f docker-compose.prod.yml logs --tail=50" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Restart services if needed" >> $GITHUB_STEP_SUMMARY
+          echo "docker compose -f docker-compose.prod.yml restart" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

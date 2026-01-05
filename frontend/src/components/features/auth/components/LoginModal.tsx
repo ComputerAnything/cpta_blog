@@ -100,6 +100,7 @@ const LoginModal = () => {
   const [countdown, setCountdown] = useState<number>(0)
 
   const show = searchParams.get('login') === 'true'
+  const urlMessage = searchParams.get('message')
 
   // Countdown timer for rate limiting
   useEffect(() => {
@@ -179,7 +180,9 @@ const LoginModal = () => {
       }
 
       // Normal login flow (non-2FA)
-      await login(response.user)
+      // Token is now in httpOnly cookie, no need to store in localStorage
+      // Call parent component with user data and session expiry
+      await login(response.user, response.sessionExpiresAt)
 
       setMessage('')
       handleClose()
@@ -219,8 +222,8 @@ const LoginModal = () => {
     try {
       const response = await authAPI.verify2FA(twoFAEmail, twoFACode)
 
-      // Success - complete login
-      await login(response.user)
+      // Success - complete login with session expiry
+      await login(response.user, response.sessionExpiresAt)
 
       // Close modal and reset all state
       handleClose()
@@ -283,8 +286,8 @@ const LoginModal = () => {
         <Modal.Title>Login</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {/* Password changed success alert - matches cpta_app gold standard */}
-        {searchParams.get('message') === 'password-changed' && !requires2FA && (
+        {/* Password changed success alert */}
+        {urlMessage === 'password-changed' && !requires2FA && (
           <StyledAlert variant="success" className="mb-3">
             <strong><i className="bi bi-check-circle me-2"></i>Password Changed Successfully!</strong>
             <div>Please log in with your new password.</div>

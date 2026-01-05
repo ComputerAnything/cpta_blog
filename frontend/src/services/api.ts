@@ -26,8 +26,8 @@ api.interceptors.response.use(
       }
 
       // For any other 401, the session has expired mid-action
-      // Redirect to home with login modal
-      window.location.href = '/?login=true&message=Session expired. Please log in to continue'
+      // Redirect to home with session expired banner
+      window.location.href = '/?banner=session-expired'
     }
     return Promise.reject(error)
   }
@@ -207,6 +207,16 @@ export const userAPI = {
   getUserPosts: async (username: string) => {
     const response = await api.get<BlogPost[]>(`/users/${username}/posts`)
     return response.data
+  },
+
+  getUserVotesCount: async (username: string) => {
+    const response = await api.get<{ count: number }>(`/users/${username}/votes/count`)
+    return response.data.count
+  },
+
+  getUserCommentsCount: async (username: string) => {
+    const response = await api.get<{ count: number }>(`/users/${username}/comments/count`)
+    return response.data.count
   },
 
   updateProfile: async (username: string, email: string) => {

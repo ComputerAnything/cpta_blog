@@ -89,7 +89,7 @@ app.config['JWT_COOKIE_DOMAIN'] = False  # Works on any domain
 
 **Backend - Setting Cookies:**
 ```python
-# backend/routes/auth_routes.py:275-290
+# backend/routes/auth.py:275-290
 response = make_response(jsonify({
     'user': user.to_dict(),
     'message': 'Login successful'
@@ -100,8 +100,8 @@ return response
 
 **Backend - Clearing Cookies:**
 ```python
-# backend/routes/auth_routes.py:298-310
-@auth_routes.route('/logout', methods=['POST'])
+# backend/routes/auth.py:298-310
+@auth.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
     response = make_response(jsonify({'message': 'Logged out successfully'}), 200)
@@ -119,7 +119,7 @@ const api = axios.create({
 
 ### Files Involved
 - `backend/app.py` - JWT cookie configuration
-- `backend/routes/auth_routes.py` - Login/logout endpoints
+- `backend/routes/auth.py` - Login/logout endpoints
 - `frontend/src/services/api.ts` - API client configuration
 - `frontend/src/contexts/AuthContext.tsx` - Authentication state
 
@@ -146,7 +146,7 @@ Users can enable 2FA for email-based verification during login:
 
 **Implementation:**
 ```python
-# backend/routes/auth_routes.py:232-251 (Login with 2FA check)
+# backend/routes/auth.py:232-251 (Login with 2FA check)
 if user.twofa_enabled:
     code = user.generate_2fa_code(minutes=5)
     subject, html = get_2fa_code_email(code)
@@ -160,8 +160,8 @@ if user.twofa_enabled:
 
 **2FA Verification:**
 ```python
-# backend/routes/auth_routes.py:397-455 (Verify 2FA code)
-@auth_routes.route('/verify-2fa', methods=['POST'])
+# backend/routes/auth.py:397-455 (Verify 2FA code)
+@auth.route('/verify-2fa', methods=['POST'])
 @limiter.limit("5 per 5 minutes")  # Stricter limit for 2FA
 def verify_2fa():
     # Verify code matches and hasn't expired
@@ -178,7 +178,7 @@ def generate_2fa_code(self, minutes=5):
 ```
 
 **Files Involved:**
-- `backend/routes/auth_routes.py:397-455` - 2FA verification endpoint
+- `backend/routes/auth.py:397-455` - 2FA verification endpoint
 - `backend/models/user.py:92-107` - 2FA code generation/verification
 - `frontend/src/components/features/auth/components/LoginModal.tsx:94-96` - 2FA state
 - `backend/utils/email.py:401-430` - 2FA email template
@@ -228,9 +228,9 @@ def get_csrf_token():
 ```python
 # backend/app.py:111-115
 # Exempt JWT-authenticated endpoints from CSRF (they use SameSite protection)
-csrf.exempt(auth_routes)
+csrf.exempt(auth)
 csrf.exempt(user_routes)
-csrf.exempt(post_routes)
+csrf.exempt(post)
 ```
 
 **CORS Configuration:**
@@ -358,7 +358,7 @@ limiter = Limiter(
 
 **Authentication Endpoints:**
 ```python
-# backend/routes/auth_routes.py
+# backend/routes/auth.py
 
 @limiter.limit("5 per minute")
 def login():  # Line 206
@@ -425,7 +425,7 @@ def get_real_ip():
 
 ### Files Involved
 - `backend/app.py:17-35,136-187` - Limiter setup and handler
-- `backend/routes/auth_routes.py:206,315,398` - Rate limit decorators
+- `backend/routes/auth.py:206,315,398` - Rate limit decorators
 - `backend/.env` - Redis URL configuration
 - `docker-compose.*.yml` - Redis container setup
 - `security_tests/test_rate_limiting.py` - Automated testing
@@ -450,7 +450,7 @@ cd security_tests
 
 **Backend Validation:**
 ```python
-# Example: Blog post creation (backend/routes/post_routes.py:30-57)
+# Example: Blog post creation (backend/routes/post.py:30-57)
 title = data.get('title', '').strip()
 if not title:
     return jsonify({"msg": "Title is required"}), 400
@@ -572,7 +572,7 @@ def record_failed_login(self):
 
 **Password Change Invalidates Tokens:**
 ```python
-# backend/routes/auth_routes.py:579-582
+# backend/routes/auth.py:579-582
 user.set_password(new_password)
 user.invalidate_tokens()  # Logout from all devices
 db.session.commit()
@@ -581,7 +581,7 @@ db.session.commit()
 ### Files Involved
 - `backend/models/user.py:51-78` - Password hashing and tracking
 - `backend/utils/password_validator.py` - Strength validation
-- `backend/routes/auth_routes.py:553-597` - Change password endpoint
+- `backend/routes/auth.py:553-597` - Change password endpoint
 - `frontend/src/components/common/PasswordStrengthMeter.tsx` - UI feedback
 
 **Testing:**
@@ -616,7 +616,7 @@ class User(db.Model):
 
 **JWT Token Includes Version:**
 ```python
-# backend/routes/auth_routes.py:277-284
+# backend/routes/auth.py:277-284
 additional_claims = {
     'email': user.email,
     'token_version': user.token_version  # Current version embedded in token
@@ -646,14 +646,14 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 
 1. **Password Change** (`/api/change-password`)
    ```python
-   # backend/routes/auth_routes.py:580-581
+   # backend/routes/auth.py:580-581
    user.set_password(new_password)
    user.invalidate_tokens()
    ```
 
 2. **Password Reset** (`/api/reset-password`)
    ```python
-   # backend/routes/auth_routes.py:373-378
+   # backend/routes/auth.py:373-378
    user.set_password(new_password)
    user.invalidate_tokens()
    db.session.commit()
@@ -679,7 +679,7 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 ### Files Involved
 - `backend/models/user.py:34,59-61` - Token version field and invalidation
 - `backend/app.py:83-93` - Token validation check
-- `backend/routes/auth_routes.py:277-284,580-581` - Token creation and invalidation
+- `backend/routes/auth.py:277-284,580-581` - Token creation and invalidation
 - `security_tests/test_token_invalidation.py` - Automated testing
 
 **Testing:**
@@ -708,7 +708,7 @@ cd security_tests
 
 **Email Verification Flow:**
 ```python
-# backend/routes/auth_routes.py:158-203 (Registration)
+# backend/routes/auth.py:158-203 (Registration)
 # 1. User registers
 # 2. Generate 6-digit code (cryptographically secure)
 code = user.generate_2fa_code(minutes=10)
@@ -787,7 +787,7 @@ def send_email(to: str, subject: str, html: str):
 
 ### Files Involved
 - `backend/utils/email.py` - All email templates and sending
-- `backend/routes/auth_routes.py` - Email triggers
+- `backend/routes/auth.py` - Email triggers
 - `backend/.env` - Email configuration
 
 ---
@@ -908,7 +908,7 @@ cd security_tests
 
 **Protected Endpoints:**
 ```python
-# backend/routes/auth_routes.py
+# backend/routes/auth.py
 
 # Registration
 turnstile_token = data.get('turnstile_token')
@@ -928,7 +928,7 @@ if not verify_turnstile(turnstile_token):
 
 **Server-Side Verification:**
 ```python
-# backend/routes/auth_routes.py:44-62
+# backend/routes/auth.py:44-62
 def verify_turnstile(token):
     """Verify Cloudflare Turnstile token"""
     if not token:
@@ -947,7 +947,7 @@ def verify_turnstile(token):
 
 **Honeypot Field (Additional Bot Detection):**
 ```python
-# backend/routes/auth_routes.py (register/login)
+# backend/routes/auth.py (register/login)
 honeypot = data.get('website', '')  # Hidden field humans don't fill
 if honeypot:
     return jsonify({"msg": "Bot detected."}), 400
@@ -978,8 +978,8 @@ VITE_TURNSTILE_SITE_KEY=0x4AAAAAAB7gUtOgGZMb_dNr
 ```
 
 ### Files Involved
-- `backend/routes/auth_routes.py:44-62` - Verification function
-- `backend/routes/auth_routes.py:147,211,320` - Protected endpoints
+- `backend/routes/auth.py:44-62` - Verification function
+- `backend/routes/auth.py:147,211,320` - Protected endpoints
 - `frontend/src/hooks/useTurnstile.tsx` - Frontend integration
 - `frontend/src/components/features/auth/components/*.tsx` - UI components
 
@@ -1063,7 +1063,7 @@ cd security_tests
 **JWT Authentication Required:**
 ```python
 # Protected endpoints use @jwt_required() decorator
-@auth_routes.route('/logout', methods=['POST'])
+@auth.route('/logout', methods=['POST'])
 @jwt_required()  # Must have valid JWT in cookie
 def logout():
     # Only authenticated users can logout
@@ -1072,7 +1072,7 @@ def logout():
 **Authorization Checks:**
 ```python
 # Users can only modify their own content
-@post_routes.route('/posts/<int:post_id>', methods=['PUT'])
+@post.route('/posts/<int:post_id>', methods=['PUT'])
 @jwt_required()
 def update_post(post_id):
     user_id = get_jwt_identity()
@@ -1332,7 +1332,7 @@ Before deploying to production, verify:
 
 ### Contact
 
-Security issues: admin@computeranything.dev
+Security issues: support@computeranything.dev
 
 ---
 

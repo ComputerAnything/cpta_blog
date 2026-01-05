@@ -1,5 +1,5 @@
 from app import db
-from models import BlogPost
+from models.post import BlogPost
 
 
 # Fix upvotes and downvotes for existing records

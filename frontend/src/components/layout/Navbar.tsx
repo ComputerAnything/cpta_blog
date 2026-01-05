@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import { Dropdown } from 'react-bootstrap'
 import { useAuth } from '../../contexts/AuthContext'
 import { colors, shadows, effects, gradients } from '../../theme/colors'
 
@@ -18,7 +19,6 @@ const StyledNavbar = styled.nav`
   /* Enhanced sticky behavior */
   &.navbar-scrolled {
     background: ${colors.backgroundDark} !important;
-    // backdrop-filter: ${effects.backdropBlurStrong};
     box-shadow: ${shadows.navbarScrolled};
   }
 
@@ -130,9 +130,9 @@ const StyledNavbar = styled.nav`
   }
 
   .user-section .btn.btn-outline-success:hover,
-  .user-section .btn.btn-outline-success:focus,
+  .user-section .btn.btn-outline-success:focus-visible,
   .user-section .btn.btn-outline-success.dropdown-toggle:hover,
-  .user-section .btn.btn-outline-success.dropdown-toggle:focus {
+  .user-section .btn.btn-outline-success.dropdown-toggle:focus-visible {
     transform: translateY(-2px);
     box-shadow: 0 12px 30px rgba(40, 167, 69, 0.22);
     opacity: 0.98;
@@ -157,17 +157,17 @@ const StyledNavbar = styled.nav`
     }
   }
 
-  /* Target dropdown items specifically to avoid blue flash on click/tap */
+  /* React Bootstrap Dropdown styling */
   .dropdown-menu {
-    background: ${colors.backgroundDark};
-    border: 1px solid ${colors.borderLight};
-    box-shadow: ${shadows.medium};
+    background: ${colors.backgroundDark} !important;
+    border: 1px solid ${colors.borderLight} !important;
+    box-shadow: ${shadows.medium} !important;
   }
 
-  .dropdown-menu .dropdown-item {
+  .dropdown-item {
     -webkit-tap-highlight-color: transparent;
     transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
-    color: ${colors.text.secondary};
+    color: ${colors.text.secondary} !important;
 
     i {
       margin-right: 0.5rem;
@@ -175,18 +175,22 @@ const StyledNavbar = styled.nav`
     }
   }
 
-  .dropdown-menu .dropdown-item:hover,
-  .dropdown-menu .dropdown-item:focus,
-  .dropdown-menu .dropdown-item:focus-visible {
+  .dropdown-item:hover,
+  .dropdown-item:focus,
+  .dropdown-item:focus-visible {
     outline: none;
     background: ${colors.hover} !important;
     color: ${colors.primary} !important;
     box-shadow: 0 4px 14px rgba(40,167,69,0.06);
   }
 
-  .dropdown-menu .dropdown-item:active {
+  .dropdown-item:active {
     background: ${colors.hoverDark} !important;
     color: ${colors.primary} !important;
+  }
+
+  .dropdown-divider {
+    border-color: ${colors.border} !important;
   }
 
   /* Medium screens */
@@ -264,7 +268,6 @@ const StyledNavbar = styled.nav`
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth()
   const navigate = useNavigate()
-  // const location = useLocation()
   const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
@@ -290,24 +293,17 @@ const Navbar = () => {
   const handleLogout = async () => {
     await logout()
     closeNavbar()
-    navigate('/')
+    // Force full page reload with logout success banner
+    window.location.href = '/?banner=logout-success'
   }
 
   const handleLogin = () => {
     closeNavbar()
-    // Force blur any active element to reset hover states
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur()
-    }
     navigate('/?login=true')
   }
 
   const handleRegister = () => {
     closeNavbar()
-    // Force blur any active element to reset hover states
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur()
-    }
     navigate('/?register=true')
   }
 
@@ -365,44 +361,33 @@ const Navbar = () => {
 
           <div className="user-section">
             {isAuthenticated && user ? (
-              <div className="dropdown">
-                <button
-                  className="btn btn-outline-success dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
+              <Dropdown align="end">
+                <Dropdown.Toggle variant="outline-success">
                   <i className="bi bi-person-circle me-2"></i>
                   @{user.username}
-                </button>
-                <ul className="dropdown-menu dropdown-menu-end">
-                  <li>
-                    <button className="dropdown-item" onClick={() => {
-                      closeNavbar()
-                      navigate('/profile')
-                    }}>
-                      <i className="bi bi-person"></i>
-                      My Profile
-                    </button>
-                  </li>
-                  <li>
-                    <button className="dropdown-item" onClick={() => {
-                      closeNavbar()
-                      navigate('/create-post')
-                    }}>
-                      <i className="bi bi-plus-circle"></i>
-                      Create Post
-                    </button>
-                  </li>
-                  <li><hr className="dropdown-divider" style={{ borderColor: colors.border }} /></li>
-                  <li>
-                    <button className="dropdown-item" onClick={handleLogout}>
-                      <i className="bi bi-box-arrow-right"></i>
-                      Logout
-                    </button>
-                  </li>
-                </ul>
-              </div>
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={() => {
+                    closeNavbar()
+                    navigate('/profile')
+                  }}>
+                    <i className="bi bi-person"></i>
+                    My Profile
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => {
+                    closeNavbar()
+                    navigate('/create-post')
+                  }}>
+                    <i className="bi bi-plus-circle"></i>
+                    Create Post
+                  </Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item onClick={handleLogout}>
+                    <i className="bi bi-box-arrow-right"></i>
+                    Logout
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
             ) : (
               <div className="d-flex gap-2">
                 <button

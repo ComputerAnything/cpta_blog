@@ -337,8 +337,8 @@ redis_1  | 1:M 01 Jan 2024 12:00:00.000 * Ready to accept connections
 
 ```bash
 # From project root, copy development env and run backend
-cp backend/.env.development backend/.env
 source venv/bin/activate
+cp backend/.env.development backend/.env
 cd backend
 python run.py
 ```
@@ -393,7 +393,7 @@ ruff check . --fix
 ruff format .
 
 # Check specific file
-ruff check routes/auth_routes.py
+ruff check routes/auth.py
 ```
 
 **Configuration:** `backend/pyproject.toml` or `backend/ruff.toml`
@@ -454,7 +454,7 @@ Before deploying to production, you should test in a production-like environment
 **Quick summary:**
 - Staging uses `docker-compose.yml` with production-like architecture
 - Network segmentation, security hardening
-- Runs on http://localhost:8001
+- Runs on http://localhost:3000
 - Uses production database (Neon) in staging mode
 
 **Quick start:**

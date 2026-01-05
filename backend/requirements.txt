@@ -33,4 +33,5 @@ gunicorn==22.0.0
 
 # Development & Testing
 pytest==7.4.3
+pytest-cov==4.1.0
 ruff

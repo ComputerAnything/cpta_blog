@@ -231,7 +231,7 @@ BASE_STYLE = """
     </div>
     <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
         <p>This is an automated notification from Computer Anything Blog.</p>
-        <p>Need help? Contact us at <a href="mailto:admin@computeranything.dev" style="color: #28a745;">admin@computeranything.dev</a></p>
+        <p>Need help? Contact us at <a href="mailto:support@computeranything.dev" style="color: #28a745;">support@computeranything.dev</a></p>
     </div>
 </div>
 """
@@ -290,7 +290,7 @@ def get_login_notification_email(email: str, login_time: str, ip_address: str, l
                 <a href="{escape(reset_password_url)}" style="{BUTTON_PRIMARY}">Reset Password Now</a>
             </p>
             <p style="margin-top: 15px;">
-                Then contact our support team at <a href="mailto:admin@computeranything.dev" style="color: #dc3545;">admin@computeranything.dev</a>
+                Then contact our support team at <a href="mailto:support@computeranything.dev" style="color: #dc3545;">support@computeranything.dev</a>
             </p>
         </div>
         <p style="margin-top: 30px;">Best regards,<br>The Computer Anything Blog Team</p>
@@ -370,7 +370,7 @@ def get_password_reset_confirmation_email(email: str) -> tuple[str, str]:
         <div style="{ALERT_DANGER}">
             <strong>⚠️ Didn't make this change?</strong><br>
             If you didn't reset your password, please contact our support team immediately at
-            <a href="mailto:admin@computeranything.dev" style="color: #dc3545;">admin@computeranything.dev</a>
+            <a href="mailto:support@computeranything.dev" style="color: #dc3545;">support@computeranything.dev</a>
         </div>
         <p style="margin-top: 30px;">Best regards,<br>The Computer Anything Blog Team</p>
     """
@@ -391,7 +391,7 @@ def get_password_change_confirmation_email(email: str) -> tuple[str, str]:
         <div style="{ALERT_DANGER}">
             <strong>⚠️ Didn't make this change?</strong><br>
             If you didn't change your password, your account may be compromised. Please contact our support team immediately at
-            <a href="mailto:admin@computeranything.dev" style="color: #dc3545;">admin@computeranything.dev</a>
+            <a href="mailto:support@computeranything.dev" style="color: #dc3545;">support@computeranything.dev</a>
         </div>
         <p style="margin-top: 30px;">Best regards,<br>The Computer Anything Blog Team</p>
     """
@@ -424,7 +424,7 @@ def get_2fa_code_email(code: str) -> tuple[str, str]:
             <strong>⚠️ Didn't request this code?</strong><br>
             If you didn't attempt to log in, someone may be trying to access your account.
             Please secure your account immediately and contact support at
-            <a href="mailto:admin@computeranything.dev" style="color: #dc3545;">admin@computeranything.dev</a>
+            <a href="mailto:support@computeranything.dev" style="color: #dc3545;">support@computeranything.dev</a>
         </div>
         <p style="margin-top: 30px;">Best regards,<br>The Computer Anything Blog Team</p>
     """

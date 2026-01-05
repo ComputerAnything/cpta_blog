@@ -28,4 +28,4 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
   CMD curl -f http://localhost:8000/api/health || exit 1
 
 # Run with Gunicorn
-CMD ["sh", "-c", "gunicorn --workers 2 --threads 4 --worker-class gthread -b 0.0.0.0:8000 --timeout 120 backend.app:app"]
+CMD ["sh", "-c", "gunicorn --workers 2 --threads 4 --worker-class gthread -b 0.0.0.0:8000 --timeout 120 backend.run:app"]

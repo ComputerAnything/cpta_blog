@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import ReactMarkdown from 'react-markdown'
@@ -9,6 +9,7 @@ import { blogAPI } from '../../../../services/api'
 import type { BlogPost } from '../../../../types'
 import { getErrorMessage } from '../../../../utils/errors'
 import StyledAlert from '../../../common/StyledAlert'
+import ConfirmModal from '../../../common/ConfirmModal'
 import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import { colors, shadows, transitions } from '../../../../theme/colors'
 import { PageContainer, PostContent } from '../../../../theme/sharedComponents'
@@ -222,6 +223,7 @@ const EditPostPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [alert, setAlert] = useState<{ variant: 'success' | 'danger' | 'warning' | 'info'; message: string } | null>(null)
   const [showPreview, setShowPreview] = useState(true)
+  const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false)
 
   // Validation limits
   const TITLE_MAX = 200
@@ -231,11 +233,7 @@ const EditPostPage: React.FC = () => {
 
   const tagCount = topicTags ? topicTags.split(',').filter(t => t.trim()).length : 0
 
-  useEffect(() => {
-    fetchPost()
-  }, [postId])
-
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     setLoading(true)
     setError(null)
 
@@ -254,7 +252,11 @@ const EditPostPage: React.FC = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [postId])
+
+  useEffect(() => {
+    fetchPost()
+  }, [fetchPost])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -313,17 +315,20 @@ const EditPostPage: React.FC = () => {
       content !== (post?.content || '') ||
       topicTags !== (post?.topic_tags || '')
     ) {
-      if (!confirm('You have unsaved changes. Are you sure you want to leave?')) {
-        return
-      }
+      setShowUnsavedChangesModal(true)
+    } else {
+      navigate(`/posts/${postId}`)
     }
+  }
+
+  const confirmLeave = () => {
     navigate(`/posts/${postId}`)
   }
 
   // Redirect if not authenticated or not the owner
   useEffect(() => {
     if (!user) {
-      navigate('/posts')
+      navigate('/')
     } else if (post && user && post.user_id !== user.id) {
       setAlert({ variant: 'danger', message: 'You are not authorized to edit this post.' })
       setTimeout(() => navigate(`/posts/${postId}`), 3000)
@@ -526,6 +531,18 @@ const EditPostPage: React.FC = () => {
         )}
       </PageContainer>
       <Footer />
+
+      {/* Unsaved Changes Confirmation */}
+      <ConfirmModal
+        show={showUnsavedChangesModal}
+        onHide={() => setShowUnsavedChangesModal(false)}
+        onConfirm={confirmLeave}
+        title="Unsaved Changes"
+        message="You have unsaved changes. Are you sure you want to leave?"
+        confirmText="Leave"
+        cancelText="Stay"
+        variant="warning"
+      />
     </>
   )
 }

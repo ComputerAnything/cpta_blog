@@ -1,0 +1,57 @@
+# Backend .dockerignore - exclude unnecessary files from Docker build
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+dist
+build
+
+# Virtual environments
+venv
+env
+ENV
+
+# Environment files (will be provided via docker-compose env_file)
+.env.local
+.env.development
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+*.log
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+instance
+
+# Flask
+instance/
+.webassets-cache
+
+# Migrations (keep these - they're needed)
+# migrations
+
+# Misc
+README.md

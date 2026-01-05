@@ -5,10 +5,10 @@ import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useAuth } from '../../../../contexts/AuthContext'
-import { userAPI, authAPI } from '../../../../services/api'
+import { userAPI, authAPI, commentAPI } from '../../../../services/api'
 import type { User, BlogPost } from '../../../../types'
 import { getErrorMessage } from '../../../../utils/errors'
-import { colors, shadows } from '../../../../theme/colors'
+import { colors, shadows, transitions } from '../../../../theme/colors'
 import {
   PageContainer,
   BlogPostCard,
@@ -24,6 +24,7 @@ import {
 import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
 import ChangePasswordModal from '../../auth/components/ChangePasswordModal'
+import ConfirmModal from '../../../common/ConfirmModal'
 import Footer from '../../../layout/Footer'
 
 const ProfileHeader = styled.div`
@@ -79,17 +80,41 @@ const UserInfo = styled.div`
 `
 
 const Stats = styled.div`
-  display: flex;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.5rem;
   margin-top: 1.5rem;
 
-  @media (max-width: 768px) {
-    justify-content: center;
+  @media (max-width: 991px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 576px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+
+    /* Make the last item span 2 columns and center it */
+    & > :last-child {
+      grid-column: 1 / -1;
+      max-width: 200px;
+      margin: 0 auto;
+    }
   }
 `
 
 const StatItem = styled.div`
   text-align: center;
+  padding: 0.75rem;
+  background: ${colors.backgroundDark};
+  border: 1px solid ${colors.borderLight};
+  border-radius: 8px;
+  transition: ${transitions.default};
+
+  &:hover {
+    border-color: ${colors.primary};
+    transform: translateY(-2px);
+  }
 
   .number {
     font-size: 1.5rem;
@@ -98,8 +123,21 @@ const StatItem = styled.div`
   }
 
   .label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: ${colors.text.muted};
+    margin-top: 0.25rem;
+  }
+
+  @media (max-width: 576px) {
+    padding: 0.5rem;
+
+    .number {
+      font-size: 1.25rem;
+    }
+
+    .label {
+      font-size: 0.75rem;
+    }
   }
 `
 
@@ -223,12 +261,18 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Stats state
+  const [votesMade, setVotesMade] = useState(0)
+  const [commentsMade, setCommentsMade] = useState(0)
+  const [commentsReceived, setCommentsReceived] = useState(0)
+
   // Settings state
   const [editingUsername, setEditingUsername] = useState(false)
   const [newUsername, setNewUsername] = useState('')
   const [settingsMessage, setSettingsMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [settingsLoading, setSettingsLoading] = useState(false)
   const [showChangePassword, setShowChangePassword] = useState(false)
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false)
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -243,14 +287,42 @@ const ProfilePage = () => {
 
         setProfile(profileData)
 
-        // Fetch user's posts
-        const postsData = username
-          ? await userAPI.getUserPosts(username)
-          : currentUser?.username
-            ? await userAPI.getUserPosts(currentUser.username)
-            : []
+        const targetUsername = username || currentUser?.username
 
-        setPosts(Array.isArray(postsData) ? postsData : [])
+        if (targetUsername) {
+          // Fetch user's posts, votes, and comments in parallel
+          const [postsData, votesCount, commentsCount] = await Promise.all([
+            userAPI.getUserPosts(targetUsername),
+            userAPI.getUserVotesCount(targetUsername),
+            userAPI.getUserCommentsCount(targetUsername)
+          ])
+
+          setPosts(Array.isArray(postsData) ? postsData : [])
+          setVotesMade(votesCount)
+          setCommentsMade(commentsCount)
+
+          // Calculate comments received on user's posts
+          if (Array.isArray(postsData) && postsData.length > 0) {
+            const commentCounts = await Promise.all(
+              postsData.map(async (post) => {
+                try {
+                  const comments = await commentAPI.getComments(post.id)
+                  return Array.isArray(comments) ? comments.length : 0
+                } catch {
+                  return 0
+                }
+              })
+            )
+            setCommentsReceived(commentCounts.reduce((sum, count) => sum + count, 0))
+          } else {
+            setCommentsReceived(0)
+          }
+        } else {
+          setPosts([])
+          setVotesMade(0)
+          setCommentsMade(0)
+          setCommentsReceived(0)
+        }
       } catch (err) {
         console.error('Failed to load profile:', err)
         setError(getErrorMessage(err, 'Failed to load profile'))
@@ -321,6 +393,29 @@ const ProfilePage = () => {
     }
   }
 
+  const handleDeleteAccount = async () => {
+    if (!currentUser) return
+
+    setSettingsLoading(true)
+    setSettingsMessage(null)
+
+    try {
+      await userAPI.deleteProfile()
+
+      // Log out and redirect to home
+      await authAPI.logout()
+      navigate('/')
+    } catch (err) {
+      console.error('Failed to delete account:', err)
+      setSettingsMessage({
+        type: 'error',
+        text: getErrorMessage(err, 'Failed to delete account. Please try again.')
+      })
+    } finally {
+      setSettingsLoading(false)
+    }
+  }
+
   if (loading) {
     return (
       <>
@@ -370,7 +465,19 @@ const ProfilePage = () => {
                   <div className="number">
                     {posts.reduce((sum, post) => sum + post.upvotes + post.downvotes, 0)}
                   </div>
-                  <div className="label">Total Votes</div>
+                  <div className="label">Votes Received</div>
+                </StatItem>
+                <StatItem>
+                  <div className="number">{votesMade}</div>
+                  <div className="label">Votes Made</div>
+                </StatItem>
+                <StatItem>
+                  <div className="number">{commentsReceived}</div>
+                  <div className="label">Comments Received</div>
+                </StatItem>
+                <StatItem>
+                  <div className="number">{commentsMade}</div>
+                  <div className="label">Comments Made</div>
                 </StatItem>
               </Stats>
             </UserInfo>
@@ -407,7 +514,8 @@ const ProfilePage = () => {
                     <input
                       type="text"
                       value={newUsername}
-                      onChange={(e) => setNewUsername(e.target.value)}
+                      onChange={(e) => setNewUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                      maxLength={20}
                       disabled={settingsLoading}
                       placeholder="New username"
                     />
@@ -460,6 +568,22 @@ const ProfilePage = () => {
                   />
                   <span className="slider"></span>
                 </ToggleSwitch>
+              </SettingRow>
+
+              <SettingRow style={{ borderColor: colors.danger }}>
+                <div className="setting-info">
+                  <h3 style={{ color: colors.danger }}>Delete Account</h3>
+                  <p>
+                    Permanently delete your account and all associated data. This action cannot be undone.
+                  </p>
+                </div>
+                <PrimaryButton
+                  onClick={() => setShowDeleteAccount(true)}
+                  style={{ background: colors.danger }}
+                  disabled={settingsLoading}
+                >
+                  Delete Account
+                </PrimaryButton>
               </SettingRow>
 
             </PostsSection>
@@ -541,6 +665,18 @@ const ProfilePage = () => {
           <ChangePasswordModal
             show={showChangePassword}
             onHide={() => setShowChangePassword(false)}
+          />
+
+          {/* Delete Account Modal */}
+          <ConfirmModal
+            show={showDeleteAccount}
+            onHide={() => setShowDeleteAccount(false)}
+            onConfirm={handleDeleteAccount}
+            title="Delete Account"
+            message="Are you sure you want to delete your account? This will permanently delete all your posts, comments, and votes. This action cannot be undone."
+            confirmText="Delete Account"
+            cancelText="Cancel"
+            variant="danger"
           />
         </div>
       </PageContainer>

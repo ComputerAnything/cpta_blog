@@ -1,10 +1,17 @@
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 import re
 import secrets
 
 from app import db, get_real_ip, limiter
-from flask import Blueprint, jsonify, make_response, render_template_string, request
+from flask import (
+    Blueprint,
+    current_app,
+    jsonify,
+    make_response,
+    render_template_string,
+    request,
+)
 from flask_jwt_extended import (
     create_access_token,
     get_jwt_identity,
@@ -13,10 +20,9 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
-from models import User
+from models.user import User
 import requests
 from sqlalchemy.exc import IntegrityError
-from utils import validate_password
 from utils.email import (
     get_2fa_code_email,
     get_email_verification_email,
@@ -29,9 +35,10 @@ from utils.email import (
     send_password_reset_admin_alert,
 )
 from utils.login_details import get_location_from_ip, parse_user_agent
+from utils.password_validator import validate_password
 
 
-auth_routes = Blueprint('auth_routes', __name__)
+auth_bp = Blueprint('auth', __name__)
 
 secret_key = os.environ.get('SECRET_KEY')
 if not secret_key:
@@ -74,7 +81,7 @@ def send_verification_email(user_email):
 
 
 # VERIFY EMAIL
-@auth_routes.route('/verify-email/<token>', methods=['GET'])
+@auth_bp.route('/verify-email/<token>', methods=['GET'])
 def verify_email(token):
     try:
         email = serializer.loads(token, salt='email-confirm', max_age=3600)
@@ -127,7 +134,7 @@ def verify_email(token):
 
 
 # RESEND VERIFICATION EMAIL
-@auth_routes.route('/resend-verification', methods=['POST'])
+@auth_bp.route('/resend-verification', methods=['POST'])
 def resend_verification():
     data = request.get_json()
     identifier = data.get('identifier')
@@ -141,7 +148,7 @@ def resend_verification():
 
 
 # REGISTER
-@auth_routes.route('/register', methods=['POST'])
+@auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
 
@@ -202,7 +209,7 @@ def register():
 
 
 # LOGIN
-@auth_routes.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST'])
 @limiter.limit("5 per minute")
 def login():
     data = request.get_json()
@@ -268,7 +275,7 @@ def login():
 
     # Send login notification email (security feature)
     try:
-        login_time = datetime.now(UTC).strftime('%B %d, %Y at %I:%M %p UTC')
+        login_time = datetime.now(timezone.utc).strftime('%B %d, %Y at %I:%M %p UTC')
         subject, html = get_login_notification_email(
             email=user.email,
             login_time=login_time,
@@ -288,14 +295,22 @@ def login():
         additional_claims={"token_version": user.token_version}
     )
 
-    # Set httpOnly cookie and return user info
-    response = make_response(jsonify({'user': user.to_dict(), 'message': 'Login successful'}), 200)
+    # Calculate session expiry timestamp (Unix timestamp in seconds)
+    jwt_expires_seconds = current_app.config.get('JWT_ACCESS_TOKEN_EXPIRES', 14400)
+    session_expires_at = int(datetime.now(timezone.utc).timestamp()) + jwt_expires_seconds
+
+    # Set httpOnly cookie and return user info with session expiry
+    response = make_response(jsonify({
+        'user': user.to_dict(),
+        'message': 'Login successful',
+        'sessionExpiresAt': session_expires_at
+    }), 200)
     set_access_cookies(response, access_token)
     return response
 
 
 # LOGOUT
-@auth_routes.route('/logout', methods=['POST'])
+@auth_bp.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
     """Logout by clearing httpOnly cookie"""
@@ -310,8 +325,43 @@ def logout():
         return jsonify({'error': 'An error occurred during logout'}), 500
 
 
+# EXTEND SESSION
+@auth_bp.route('/auth/extend-session', methods=['POST'])
+@jwt_required()
+def extend_session():
+    """Extend session by issuing a new JWT with fresh 4-hour expiry"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+
+        if not user:
+            return jsonify({'error': 'User not found'}), 401
+
+        # Create new JWT with fresh 4-hour expiry
+        access_token = create_access_token(
+            identity=str(user.id),
+            additional_claims={"token_version": user.token_version}
+        )
+
+        # Calculate new session expiry timestamp (Unix timestamp in seconds)
+        jwt_expires_seconds = current_app.config.get('JWT_ACCESS_TOKEN_EXPIRES', 14400)
+        session_expires_at = int(datetime.now(timezone.utc).timestamp()) + jwt_expires_seconds
+
+        # Set new httpOnly cookie and return new expiry time
+        response = make_response(jsonify({
+            'message': 'Session extended successfully',
+            'sessionExpiresAt': session_expires_at
+        }), 200)
+        set_access_cookies(response, access_token)
+        return response
+
+    except Exception as e:
+        print(f"Extend session error: {e!r}")
+        return jsonify({'error': 'An error occurred while extending session'}), 500
+
+
 # FORGOT PASSWORD - Request password reset
-@auth_routes.route('/forgot-password', methods=['POST'])
+@auth_bp.route('/forgot-password', methods=['POST'])
 @limiter.limit("3 per hour")
 def forgot_password():
     data = request.get_json()
@@ -334,7 +384,7 @@ def forgot_password():
     # Generate reset token
     reset_token = secrets.token_urlsafe(32)
     user.reset_token = reset_token
-    user.reset_token_expiry = datetime.now(UTC).replace(tzinfo=None) + timedelta(hours=1)
+    user.reset_token_expiry = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=1)
     db.session.commit()
 
     # Send password reset email using professional template
@@ -353,7 +403,7 @@ def forgot_password():
 
 
 # RESET PASSWORD - Set new password with token
-@auth_routes.route('/reset-password', methods=['POST'])
+@auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
     data = request.get_json()
     token = data.get('token')
@@ -372,7 +422,7 @@ def reset_password():
         return jsonify({"msg": "Invalid or expired reset token"}), 400
 
     # Check if token is expired
-    if not user.reset_token_expiry or user.reset_token_expiry < datetime.now(UTC).replace(tzinfo=None):
+    if not user.reset_token_expiry or user.reset_token_expiry < datetime.now(timezone.utc).replace(tzinfo=None):
         return jsonify({"msg": "Reset token has expired"}), 400
 
     # Set new password and invalidate all existing tokens
@@ -395,7 +445,7 @@ def reset_password():
 
 
 # VERIFY 2FA
-@auth_routes.route('/verify-2fa', methods=['POST'])
+@auth_bp.route('/verify-2fa', methods=['POST'])
 @limiter.limit("5 per 5 minutes")
 def verify_2fa():
     """Verify 2FA code and complete login"""
@@ -430,7 +480,7 @@ def verify_2fa():
 
     # Send login notification email
     try:
-        login_time = datetime.now(UTC).strftime('%B %d, %Y at %I:%M %p UTC')
+        login_time = datetime.now(timezone.utc).strftime('%B %d, %Y at %I:%M %p UTC')
         subject, html = get_login_notification_email(
             email=user.email,
             login_time=login_time,
@@ -449,14 +499,22 @@ def verify_2fa():
         additional_claims={"token_version": user.token_version}
     )
 
-    # Set httpOnly cookie and return user info
-    response = make_response(jsonify({'user': user.to_dict(), 'message': 'Login successful'}), 200)
+    # Calculate session expiry timestamp (Unix timestamp in seconds)
+    jwt_expires_seconds = current_app.config.get('JWT_ACCESS_TOKEN_EXPIRES', 14400)
+    session_expires_at = int(datetime.now(timezone.utc).timestamp()) + jwt_expires_seconds
+
+    # Set httpOnly cookie and return user info with session expiry
+    response = make_response(jsonify({
+        'user': user.to_dict(),
+        'message': 'Login successful',
+        'sessionExpiresAt': session_expires_at
+    }), 200)
     set_access_cookies(response, access_token)
     return response
 
 
 # VERIFY REGISTRATION
-@auth_routes.route('/verify-registration', methods=['POST'])
+@auth_bp.route('/verify-registration', methods=['POST'])
 def verify_registration():
     """Verify registration code and complete account setup"""
     data = request.get_json()
@@ -501,7 +559,7 @@ def verify_registration():
 
     # Send login notification email (optional - user just verified)
     try:
-        login_time = datetime.now(UTC).strftime('%B %d, %Y at %I:%M %p UTC')
+        login_time = datetime.now(timezone.utc).strftime('%B %d, %Y at %I:%M %p UTC')
         subject, html = get_login_notification_email(
             email=user.email,
             login_time=login_time,
@@ -520,14 +578,22 @@ def verify_registration():
         additional_claims={"token_version": user.token_version}
     )
 
-    # Set httpOnly cookie and return user info
-    response = make_response(jsonify({'user': user.to_dict(), 'message': 'Email verified successfully! Welcome!'}), 200)
+    # Calculate session expiry timestamp (Unix timestamp in seconds)
+    jwt_expires_seconds = current_app.config.get('JWT_ACCESS_TOKEN_EXPIRES', 14400)
+    session_expires_at = int(datetime.now(timezone.utc).timestamp()) + jwt_expires_seconds
+
+    # Set httpOnly cookie and return user info with session expiry
+    response = make_response(jsonify({
+        'user': user.to_dict(),
+        'message': 'Email verified successfully! Welcome!',
+        'sessionExpiresAt': session_expires_at
+    }), 200)
     set_access_cookies(response, access_token)
     return response
 
 
 # TOGGLE 2FA
-@auth_routes.route('/toggle-2fa', methods=['POST'])
+@auth_bp.route('/toggle-2fa', methods=['POST'])
 @jwt_required()
 def toggle_2fa():
     """Enable or disable 2FA for the current user"""
@@ -551,7 +617,7 @@ def toggle_2fa():
 
 
 # CHANGE PASSWORD
-@auth_routes.route('/change-password', methods=['POST'])
+@auth_bp.route('/change-password', methods=['POST'])
 @jwt_required()
 def change_password():
     """Change password for the current user"""

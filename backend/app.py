@@ -51,6 +51,7 @@ def create_app(testing=False):
     app.logger.setLevel(logging.INFO)
 
     # JWT Configuration for httpOnly cookies
+    # Cookies: Secure httpOnly for web browsers (XSS-proof)
     app.config['JWT_TOKEN_LOCATION'] = ['cookies']
     # Only require HTTPS for cookies in production (allow HTTP in development)
     is_development = (
@@ -87,7 +88,7 @@ def create_app(testing=False):
             user_id = jwt_payload.get('sub')  # 'sub' is the identity (user ID)
             token_version = jwt_payload.get('token_version', 0)
 
-            from models import User  # noqa: PLC0415
+            from models.user import User  # noqa: PLC0415
             user = User.query.get(int(user_id))
 
             if not user:
@@ -100,19 +101,19 @@ def create_app(testing=False):
             return True  # Error occurred, block token to be safe
 
     # Register all blueprints from routes
-    from routes.auth_routes import auth_routes  # noqa: PLC0415
-    from routes.post_routes import post_routes  # noqa: PLC0415
-    from routes.user_routes import user_routes  # noqa: PLC0415
+    from routes.auth import auth_bp  # noqa: PLC0415
+    from routes.post import post_bp  # noqa: PLC0415
+    from routes.user import user_bp  # noqa: PLC0415
 
-    app.register_blueprint(auth_routes, url_prefix='/api')
-    app.register_blueprint(user_routes, url_prefix='/api')
-    app.register_blueprint(post_routes, url_prefix='/api')
+    app.register_blueprint(auth_bp, url_prefix='/api')
+    app.register_blueprint(user_bp, url_prefix='/api')
+    app.register_blueprint(post_bp, url_prefix='/api')
 
     # Exempt JWT-authenticated endpoints from CSRF (they use JWT cookies with SameSite=Lax)
     # SameSite=Lax prevents CSRF attacks by not sending cookies on cross-site requests
-    csrf.exempt(auth_routes)
-    csrf.exempt(user_routes)
-    csrf.exempt(post_routes)
+    csrf.exempt(auth_bp)
+    csrf.exempt(user_bp)
+    csrf.exempt(post_bp)
 
     # CSRF token endpoint
     @app.route('/api/csrf-token', methods=['GET'])
@@ -153,8 +154,8 @@ def create_app(testing=False):
     @app.errorhandler(429)
     def rate_limit_handler(e):  # noqa: ARG001
         """Handle rate limit exceeded - send admin alert and return error"""
-        from models import User  # noqa: PLC0415
-        from utils import send_rate_limit_alert  # noqa: PLC0415
+        from models.user import User  # noqa: PLC0415
+        from utils.email import send_rate_limit_alert  # noqa: PLC0415
 
         # Get request details
         ip_address = get_real_ip()
@@ -231,6 +232,3 @@ def create_app(testing=False):
         return send_file(os.path.join(REACT_BUILD_DIR, 'index.html'))
 
     return app
-
-# For development/production servers that expect `app`
-app = create_app()

@@ -318,8 +318,8 @@ const RegisterModal = () => {
     try {
       const response = await authAPI.verifyRegistration(verificationEmail, verificationCode)
 
-      // Success - complete registration and log user in
-      await login(response.user)
+      // Success - complete registration and log user in with session expiry
+      await login(response.user, response.sessionExpiresAt)
 
       // Close modal and reset all state
       handleClose()

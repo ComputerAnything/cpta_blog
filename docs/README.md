@@ -167,7 +167,7 @@ See [Security Documentation](security/SECURITY.md) for implementation details.
 
 ## 📞 Support
 
-- **Security Issues:** admin@computeranything.dev
+- **Security Issues:** support@computeranything.dev
 - **Bug Reports:** GitHub Issues
 - **Feature Requests:** GitHub Issues
 
