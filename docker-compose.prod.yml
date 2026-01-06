@@ -50,7 +50,7 @@ services:
       dockerfile: Dockerfile
     container_name: blog_backend_prod
     env_file:
-      - ./backend/.env.production
+      - ./backend/.env
     restart: always
     depends_on:
       - redis
