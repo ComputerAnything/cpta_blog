@@ -56,7 +56,7 @@ jobs:
       - name: Run backup script
         run: |
           ssh -i ~/.ssh/id_ed25519 cheloniixd@${{ secrets.SERVER_IP }} \
-            "cd /opt/blog_app && bash deployment/backup.sh --upload ${{ inputs.include_database == true && '--include-database' || '' }} ${{ inputs.keep_uncompressed == true && '--keep-uncompressed' || '' }}"
+            "cd /opt/cpta_blog && bash deployment/backup.sh --upload ${{ inputs.include_database == true && '--include-database' || '' }} ${{ inputs.keep_uncompressed == true && '--keep-uncompressed' || '' }}"
 
       - name: Notify backup success
         if: success()

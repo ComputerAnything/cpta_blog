@@ -48,7 +48,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_ed25519 cheloniixd@${{ secrets.SERVER_IP }} << 'EOF'
             set -e
-            cd /opt/blog_app
+            cd /opt/cpta_blog
 
             echo "📥 Pulling latest code..."
             git fetch origin
@@ -64,7 +64,7 @@ jobs:
       - name: Verify deployment
         run: |
           ssh -i ~/.ssh/id_ed25519 cheloniixd@${{ secrets.SERVER_IP }} << 'EOF'
-            cd /opt/blog_app
+            cd /opt/cpta_blog
 
             echo "🔍 Checking service status..."
             docker compose -f docker-compose.prod.yml ps

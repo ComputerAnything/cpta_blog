@@ -26,7 +26,7 @@ jobs:
         continue-on-error: true
         run: |
           ssh -i ~/.ssh/id_ed25519 cheloniixd@${{ secrets.SERVER_IP }} << 'EOF'
-            cd /opt/blog_app
+            cd /opt/cpta_blog
 
             # Run monitoring script
             bash deployment/monitoring.sh
