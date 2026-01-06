@@ -60,10 +60,10 @@ export const VoteDisplay = styled.div<{ $netVotes: number }>`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1.25rem;
   background: ${colors.backgroundDark};
   border-radius: 8px;
-  min-width: 80px;
+  min-width: 95px;
 
   .net-votes {
     font-size: 1.5rem;
@@ -77,7 +77,7 @@ export const VoteDisplay = styled.div<{ $netVotes: number }>`
   .total-votes {
     font-size: 0.85rem;
     color: ${colors.text.muted};
-    margin-top: 0.25rem;
+    margin-top: 0.15rem;
   }
 `
 
@@ -172,12 +172,13 @@ export const PostHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: -1rem;
   flex-wrap: wrap;
   gap: 1rem;
+  margin-bottom: 1rem;
 
-  @media (max-width: 768px) {
-    margin-bottom: 1rem;
+  @media (max-width: 900px) {
+    flex-direction: column;
+    align-items: flex-start;
   }
 `
 
