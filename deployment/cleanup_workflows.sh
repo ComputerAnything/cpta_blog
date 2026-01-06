@@ -138,7 +138,7 @@ for workflow_file in $WORKFLOW_FILES; do
         while IFS= read -r run_id; do
             if [ -n "$run_id" ]; then
                 echo "    Deleting run $run_id..."
-                if gh run delete "$run_id" --yes 2>&1; then
+                if gh run delete "$run_id" 2>/dev/null; then
                     ((deleted++)) || true
                 else
                     echo "    Failed to delete run $run_id"
