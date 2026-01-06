@@ -47,7 +47,7 @@ services:
       dockerfile: Dockerfile
     container_name: blog_backend_staging
     env_file:
-      - ./backend/.env.staging
+      - ./backend/.env
     restart: unless-stopped
     depends_on:
       - redis
