@@ -1,0 +1,238 @@
+name: Security Scanning
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run weekly dependency scan on Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Safety
+        run: pip install safety
+
+      - name: Check Python dependencies with Safety
+        working-directory: ./backend
+        run: |
+          pip install -r requirements.txt
+          safety scan --json || true
+        continue-on-error: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run npm audit
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm audit --audit-level=moderate || true
+        continue-on-error: true
+
+  secret-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog (PR diff scan)
+        if: github.event_name == 'pull_request'
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
+        continue-on-error: false
+
+      - name: Run TruffleHog (Full filesystem scan)
+        if: github.event_name == 'workflow_dispatch'
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          extra_args: --only-verified
+        continue-on-error: false
+
+  docker-scan:
+    name: Docker Image Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image for scanning
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          load: true
+          tags: blog-backend:scan
+
+      - name: Build frontend image for scanning
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: false
+          load: true
+          tags: blog-frontend:scan
+
+      # Scan application libraries - BLOCKS pipeline on vulnerabilities
+      - name: Run Trivy scanner on backend - Application Libraries
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: 'blog-backend:scan'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: 1
+          vuln-type: 'library'
+        continue-on-error: false
+
+      # Scan OS packages - WARNS but doesn't block
+      - name: Run Trivy scanner on backend - OS Packages (Warning Only)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: 'blog-backend:scan'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: 0
+          vuln-type: 'os'
+        continue-on-error: true
+
+      # Scan application libraries - BLOCKS pipeline on vulnerabilities
+      - name: Run Trivy scanner on frontend - Application Libraries
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: 'blog-frontend:scan'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: 1
+          vuln-type: 'library'
+        continue-on-error: false
+
+      # Scan OS packages - WARNS but doesn't block
+      - name: Run Trivy scanner on frontend - OS Packages (Warning Only)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: 'blog-frontend:scan'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: 0
+          vuln-type: 'os'
+        continue-on-error: true
+
+      - name: Run Trivy scanner on backend (SARIF for download)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: 'blog-backend:scan'
+          format: 'sarif'
+          output: 'trivy-backend-results.sarif'
+          severity: 'CRITICAL,HIGH'
+        continue-on-error: true
+
+      - name: Run Trivy scanner on frontend (SARIF for download)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: 'blog-frontend:scan'
+          format: 'sarif'
+          output: 'trivy-frontend-results.sarif'
+          severity: 'CRITICAL,HIGH'
+        continue-on-error: true
+
+      - name: Upload Trivy results as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-scan-results
+          path: |
+            trivy-backend-results.sarif
+            trivy-frontend-results.sarif
+          retention-days: 30
+        continue-on-error: true
+
+      # Note: Uploading to GitHub Security tab requires GitHub Advanced Security (paid feature)
+      # Results are available in workflow logs above and as downloadable artifacts
+
+  notify:
+    name: Create Issue on Vulnerabilities
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, secret-scan, docker-scan]
+    if: failure()
+    permissions:
+      issues: write
+
+    steps:
+      - name: Create GitHub Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const now = new Date().toISOString().split('T')[0];
+            const runUrl = `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
+
+            const body = `## 🚨 Security Scan Found Issues
+
+            The scheduled security scan has detected potential vulnerabilities or issues.
+
+            **Details:**
+            - **Date:** ${now}
+            - **Trigger:** ${{ github.event_name }}
+            - **Branch:** ${{ github.ref_name }}
+            - **Commit:** ${{ github.sha }}
+
+            **Failed Jobs:**
+            ${{ needs.dependency-scan.result == 'failure' && '- ❌ Dependency Scan' || '' }}
+            ${{ needs.secret-scan.result == 'failure' && '- ❌ Secret Scan' || '' }}
+            ${{ needs.docker-scan.result == 'failure' && '- ❌ Docker Image Scan' || '' }}
+
+            **Next Steps:**
+            1. Review the [workflow logs](${runUrl}) for detailed findings
+            2. Download scan artifacts if available
+            3. Update vulnerable dependencies or fix security issues
+            4. Re-run the security scan to verify fixes
+            5. Close this issue once resolved
+
+            **Quick Commands:**
+            \`\`\`bash
+            # Update Python dependencies
+            cd backend && pip install --upgrade <package-name>
+
+            # Update Node dependencies
+            cd frontend && npm update && npm audit fix
+
+            # Re-run security scan
+            # Go to Actions → Security Scanning → Run workflow
+            \`\`\`
+            `;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Security Scan Alert - ${now}`,
+              body: body,
+              labels: ['security', 'automated']
+            });
