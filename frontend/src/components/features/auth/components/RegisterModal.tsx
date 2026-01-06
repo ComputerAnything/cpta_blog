@@ -241,11 +241,22 @@ const RegisterModal = () => {
     params.delete('message')
     setSearchParams(params)
 
+    // Reset form fields (matches LoginModal pattern)
+    setUsername('')
+    setEmail('')
+    setPassword('')
+    setConfirmPassword('')
+    setShowPassword(false)
+    setMessage(null)
+    setHoneypot('')
+    setTurnstileToken(null)
+    turnstileRef.current?.reset()
+
     // Reset verification state
     setRequiresVerification(false)
     setVerificationEmail('')
     setVerificationCode('')
-    // Note: DO NOT reset rateLimitedUntil - rate limit persists across modal close/open
+    // Note: DO NOT reset rateLimitedUntil or countdown - rate limit persists across modal close/open
   }
 
   const handleRegister = async (e: FormEvent) => {
@@ -316,7 +327,8 @@ const RegisterModal = () => {
     setLoading(true)
 
     try {
-      const response = await authAPI.verifyRegistration(verificationEmail, verificationCode)
+      // Unified verification endpoint handles both registration and 2FA
+      const response = await authAPI.verify2FA(verificationEmail, verificationCode)
 
       // Success - complete registration and log user in with session expiry
       await login(response.user, response.sessionExpiresAt)
@@ -361,6 +373,21 @@ const RegisterModal = () => {
   }
 
   const handleSwitchToLogin = () => {
+    // Reset all state before switching (except rate limiting which persists)
+    setUsername('')
+    setEmail('')
+    setPassword('')
+    setConfirmPassword('')
+    setShowPassword(false)
+    setMessage(null)
+    setHoneypot('')
+    setTurnstileToken(null)
+    turnstileRef.current?.reset()
+    setRequiresVerification(false)
+    setVerificationEmail('')
+    setVerificationCode('')
+
+    // Switch to login modal
     const params = new URLSearchParams(searchParams)
     params.delete('register')
     params.set('login', 'true')
@@ -375,6 +402,17 @@ const RegisterModal = () => {
         <Modal.Title>{requiresVerification ? 'Verify Your Email' : 'Register'}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        {/* Error alert at the top - matches LoginModal gold standard */}
+        {!requiresVerification && message && (
+          <StyledAlert variant={message.type === 'success' ? 'success' : 'danger'} className="mb-3">
+            <strong>{countdown > 0 ? 'Rate Limited' : 'Registration Failed'}</strong>
+            {countdown > 0
+              ? ` Too many registration attempts. Please try again in ${countdown} seconds.`
+              : ` ${message.text}`
+            }
+          </StyledAlert>
+        )}
+
         {!requiresVerification ? (
         // Regular registration form
         <StyledForm onSubmit={handleRegister}>
@@ -503,23 +541,24 @@ const RegisterModal = () => {
               'Register'
             )}
           </PrimaryButton>
-
-          {message && (
-            <StyledAlert variant={message.type === 'success' ? 'success' : 'danger'}>
-              {message.text}
-            </StyledAlert>
-          )}
         </StyledForm>
         ) : (
-          // Email verification form
+          // Email verification form (matches LoginModal unverified user flow)
           <StyledForm onSubmit={handleVerifyCode}>
             <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(23, 162, 184, 0.1)', border: '1px solid #17a2b8', borderRadius: '8px' }}>
-              <strong><i className="bi bi-envelope-check" style={{ marginRight: '0.5rem' }}></i>Verification Required</strong>
+              <strong>
+                <i className="bi bi-envelope-check" style={{ marginRight: '0.5rem' }}></i>
+                Email Verification Required
+              </strong>
               <div style={{ marginTop: '0.5rem' }}>
-                A 6-digit verification code has been sent to <strong>{verificationEmail}</strong>
+                A 6-digit verification code has been sent to complete your registration. Code sent to <strong>{verificationEmail}</strong>
               </div>
               <div style={{ marginTop: '0.25rem', fontSize: '0.9rem', color: '#ccc' }}>
                 The code expires in 10 minutes.
+              </div>
+              <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#aaa', borderTop: '1px solid rgba(23, 162, 184, 0.2)', paddingTop: '0.75rem' }}>
+                <i className="bi bi-info-circle" style={{ marginRight: '0.4rem' }}></i>
+                After registering, you can toggle 2FA on/off from your profile page.
               </div>
             </div>
 
@@ -542,7 +581,7 @@ const RegisterModal = () => {
                   fontFamily: 'monospace'
                 }}
               />
-              <Form.Text>Enter the 6-digit code from your email</Form.Text>
+              <Form.Text style={{ color: '#a8a8a8ff' }}>Enter the 6-digit code from your email</Form.Text>
             </Form.Group>
 
             {message && (

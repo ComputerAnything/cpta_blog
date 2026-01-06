@@ -345,6 +345,21 @@ const BlogListPage = () => {
           </StyledAlert>
         </BannerAlertWrapper>
       )}
+
+      {/* Delete Profile Success Banner - Green Success */}
+      {bannerType === 'account-deleted-success' && (
+        <BannerAlertWrapper>
+          <StyledAlert
+            variant="success"
+            dismissible
+            onClose={() => setSearchParams({})}
+          >
+            <strong>Profile Deleted Successfully</strong>
+            <div>Your profile and all associated data have been deleted.</div>
+          </StyledAlert>
+        </BannerAlertWrapper>
+      )}
+
       <BlogListContainer>
       <Sidebar>
         <SidebarSection>

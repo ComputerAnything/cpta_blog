@@ -15,11 +15,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Don't redirect for login/auth endpoints - these are expected to return 401 on wrong credentials
-      // Also don't redirect for profile check (used by AuthContext)
+      // Don't redirect for auth endpoints - these handle their own errors/redirects
       const url = error.config?.url || ''
       if (url.includes('/profile') ||
           url.includes('/login') ||
+          url.includes('/logout') ||
           url.includes('/verify-2fa') ||
           url.includes('/register')) {
         return Promise.reject(error)
@@ -112,11 +112,6 @@ export const authAPI = {
 
   verify2FA: async (email: string, code: string) => {
     const response = await api.post('/verify-2fa', { email, code })
-    return response.data
-  },
-
-  verifyRegistration: async (email: string, code: string) => {
-    const response = await api.post('/verify-registration', { email, code })
     return response.data
   },
 }
