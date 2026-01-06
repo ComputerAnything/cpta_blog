@@ -8,6 +8,11 @@ on:
         required: false
         default: '20'
         type: string
+      specific_workflow:
+        description: 'Clean specific workflow only (e.g., ci.yml) - leave blank for all'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   cleanup:
@@ -24,11 +29,19 @@ jobs:
 
       - name: Run cleanup script
         run: |
+          ARGS=""
+
+          # Add --keep flag if specified
           if [ -n "${{ github.event.inputs.keep_runs }}" ]; then
-            bash deployment/cleanup_workflows.sh --keep "${{ github.event.inputs.keep_runs }}"
-          else
-            bash deployment/cleanup_workflows.sh
+            ARGS="$ARGS --keep ${{ github.event.inputs.keep_runs }}"
           fi
+
+          # Add --workflow flag if specified
+          if [ -n "${{ github.event.inputs.specific_workflow }}" ]; then
+            ARGS="$ARGS --workflow ${{ github.event.inputs.specific_workflow }}"
+          fi
+
+          bash deployment/cleanup_workflows.sh $ARGS
 
       - name: Summary
         if: always()
@@ -36,5 +49,12 @@ jobs:
           echo "### Workflow Cleanup Complete :broom:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+
+          if [ -n "${{ github.event.inputs.specific_workflow }}" ]; then
+            echo "- **Target**: ${{ github.event.inputs.specific_workflow }} only" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Target**: All workflows" >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo "- **Retention**: Kept last ${{ github.event.inputs.keep_runs || '20' }} runs per workflow" >> $GITHUB_STEP_SUMMARY
           echo "- **Time**: $(date -u)" >> $GITHUB_STEP_SUMMARY

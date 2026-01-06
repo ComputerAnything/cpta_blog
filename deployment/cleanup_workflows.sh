@@ -1,7 +1,7 @@
 #!/bin/bash
 # GitHub Actions Workflow Cleanup Script
 # Removes old workflow runs, keeping only the last 20 for each workflow
-# Usage: bash cleanup_workflows.sh [--keep N]
+# Usage: bash cleanup_workflows.sh [--keep N] [--workflow FILENAME]
 #
 # Requirements:
 # - GitHub CLI (gh) installed and authenticated
@@ -11,6 +11,7 @@ set -e
 
 # Configuration
 KEEP_RUNS=20  # Default: keep last 20 runs per workflow
+SPECIFIC_WORKFLOW=""  # Default: all workflows
 REPO_DIR="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
 # Parse arguments
@@ -20,9 +21,22 @@ while [[ $# -gt 0 ]]; do
             KEEP_RUNS="$2"
             shift 2
             ;;
+        --workflow)
+            SPECIFIC_WORKFLOW="$2"
+            shift 2
+            ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: bash cleanup_workflows.sh [--keep N]"
+            echo "Usage: bash cleanup_workflows.sh [--keep N] [--workflow FILENAME]"
+            echo ""
+            echo "Options:"
+            echo "  --keep N            Keep last N runs per workflow (default: 20)"
+            echo "  --workflow FILE     Clean only specific workflow (e.g., ci.yml)"
+            echo ""
+            echo "Examples:"
+            echo "  bash cleanup_workflows.sh                    # Clean all workflows, keep 20"
+            echo "  bash cleanup_workflows.sh --keep 10          # Clean all workflows, keep 10"
+            echo "  bash cleanup_workflows.sh --workflow ci.yml  # Clean only ci.yml, keep 20"
             exit 1
             ;;
     esac
@@ -40,6 +54,11 @@ echo "GitHub Actions Workflow Cleanup"
 echo "=========================================${NC}"
 echo "Repository: $(basename $REPO_DIR)"
 echo "Keep last: $KEEP_RUNS runs per workflow"
+if [ -n "$SPECIFIC_WORKFLOW" ]; then
+    echo "Target: $SPECIFIC_WORKFLOW only"
+else
+    echo "Target: All workflows"
+fi
 echo "Time: $(date)"
 echo ""
 
@@ -62,11 +81,26 @@ echo ""
 
 # Get list of workflow files
 cd "$REPO_DIR"
-WORKFLOW_FILES=$(ls .github/workflows/*.yml 2>/dev/null || echo "")
 
-if [ -z "$WORKFLOW_FILES" ]; then
-    echo -e "${YELLOW}No workflow files found in .github/workflows/${NC}"
-    exit 0
+if [ -n "$SPECIFIC_WORKFLOW" ]; then
+    # Clean only the specified workflow
+    WORKFLOW_PATH=".github/workflows/$SPECIFIC_WORKFLOW"
+    if [ ! -f "$WORKFLOW_PATH" ]; then
+        echo -e "${RED}✗ Workflow file not found: $WORKFLOW_PATH${NC}"
+        echo ""
+        echo "Available workflows:"
+        ls .github/workflows/*.yml 2>/dev/null | xargs -n 1 basename || echo "  None"
+        exit 1
+    fi
+    WORKFLOW_FILES="$WORKFLOW_PATH"
+else
+    # Clean all workflows
+    WORKFLOW_FILES=$(ls .github/workflows/*.yml 2>/dev/null || echo "")
+
+    if [ -z "$WORKFLOW_FILES" ]; then
+        echo -e "${YELLOW}No workflow files found in .github/workflows/${NC}"
+        exit 0
+    fi
 fi
 
 # Track statistics
