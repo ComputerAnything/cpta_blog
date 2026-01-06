@@ -135,18 +135,21 @@ for workflow_file in $WORKFLOW_FILES; do
         to_delete=$(echo "$run_ids" | tail -n +$((KEEP_RUNS + 1)))
 
         deleted=0
-        echo "$to_delete" | while read -r run_id; do
+        while IFS= read -r run_id; do
             if [ -n "$run_id" ]; then
-                if gh run delete "$run_id" --yes 2>/dev/null; then
+                echo "    Deleting run $run_id..."
+                if gh run delete "$run_id" --yes 2>&1; then
                     ((deleted++)) || true
+                else
+                    echo "    Failed to delete run $run_id"
                 fi
             fi
-        done
+        done <<< "$to_delete"
 
-        TOTAL_DELETED=$((TOTAL_DELETED + to_delete_count))
+        TOTAL_DELETED=$((TOTAL_DELETED + deleted))
         TOTAL_KEPT=$((TOTAL_KEPT + KEEP_RUNS))
 
-        echo -e "  ${GREEN}✓ Cleanup complete${NC}"
+        echo -e "  ${GREEN}✓ Deleted $deleted runs${NC}"
     else
         echo "  No cleanup needed (under retention limit)"
         TOTAL_KEPT=$((TOTAL_KEPT + total))
