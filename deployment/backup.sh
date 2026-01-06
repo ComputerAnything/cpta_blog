@@ -6,8 +6,8 @@
 set -e
 
 # Configuration
-BACKUP_ROOT="/opt/backups/blog_app"
-APP_DIR="/opt/blog_app"
+BACKUP_ROOT="/opt/backups/cpta_blog"
+APP_DIR="/opt/cpta_blog"
 DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_DIR="$BACKUP_ROOT/$DATE"
 RETENTION_DAYS=30

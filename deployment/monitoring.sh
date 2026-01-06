@@ -6,7 +6,7 @@
 # Note: Do NOT use 'set -e' - this is a monitoring script
 # It should report all checks, not exit early on failures
 
-APP_DIR="/opt/blog_app"
+APP_DIR="/opt/cpta_blog"
 COMPOSE_FILE="docker-compose.prod.yml"
 
 # Color codes
@@ -93,9 +93,9 @@ df -h / | grep -E '(Filesystem|/$)'
 echo ""
 
 # Check backup directory size
-if [ -d "/opt/backups/blog_app" ]; then
-    BACKUP_SIZE=$(du -sh /opt/backups/blog_app 2>/dev/null | cut -f1)
-    BACKUP_COUNT=$(ls -1 /opt/backups/blog_app/*.tar.gz 2>/dev/null | wc -l)
+if [ -d "/opt/backups/cpta_blog" ]; then
+    BACKUP_SIZE=$(du -sh /opt/backups/cpta_blog 2>/dev/null | cut -f1)
+    BACKUP_COUNT=$(ls -1 /opt/backups/cpta_blog/*.tar.gz 2>/dev/null | wc -l)
     echo "Backups: $BACKUP_COUNT files ($BACKUP_SIZE)"
 fi
 echo ""
