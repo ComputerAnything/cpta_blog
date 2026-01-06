@@ -1,0 +1,40 @@
+name: Workflow Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      keep_runs:
+        description: 'Number of runs to keep per workflow'
+        required: false
+        default: '20'
+        type: string
+
+jobs:
+  cleanup:
+    name: Clean Up Old Workflow Runs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      - name: Run cleanup script
+        run: |
+          if [ -n "${{ github.event.inputs.keep_runs }}" ]; then
+            bash deployment/cleanup_workflows.sh --keep "${{ github.event.inputs.keep_runs }}"
+          else
+            bash deployment/cleanup_workflows.sh
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Workflow Cleanup Complete :broom:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Retention**: Kept last ${{ github.event.inputs.keep_runs || '20' }} runs per workflow" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time**: $(date -u)" >> $GITHUB_STEP_SUMMARY
