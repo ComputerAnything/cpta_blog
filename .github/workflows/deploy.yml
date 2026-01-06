@@ -70,8 +70,8 @@ jobs:
             docker compose -f docker-compose.prod.yml ps
 
             echo ""
-            echo "🏥 Checking container health..."
-            docker ps | grep blog || echo "⚠️ No blog containers found"
+            echo "🏥 Running health checks..."
+            bash deployment/monitoring.sh
           EOF
 
       - name: Deployment summary

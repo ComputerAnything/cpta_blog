@@ -1,7 +1,7 @@
-name: Blog Health Monitoring
+name: Health Check Monitoring
 
 on:
-  # Run once daily at 10 AM UTC (super lightweight - it's just a blog!)
+  # Run once daily at 10 AM UTC (lightweight daily check)
   schedule:
     - cron: '0 10 * * *'
 
@@ -10,7 +10,7 @@ on:
 
 jobs:
   health-check:
-    name: Check Blog Health
+    name: Check Production Health
     runs-on: ubuntu-latest
 
     steps:
@@ -21,67 +21,88 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-      - name: Run monitoring script
+      - name: Run health checks
+        id: health
+        continue-on-error: true
         run: |
           ssh -i ~/.ssh/id_ed25519 cheloniixd@${{ secrets.SERVER_IP }} << 'EOF'
             cd /opt/blog_app
+
+            # Run monitoring script
             bash deployment/monitoring.sh
+
+            # Capture exit code
+            EXIT_CODE=$?
+
+            if [ $EXIT_CODE -eq 0 ]; then
+              echo "STATUS=healthy" >> $GITHUB_OUTPUT
+            else
+              echo "STATUS=unhealthy" >> $GITHUB_OUTPUT
+            fi
+
+            exit $EXIT_CODE
           EOF
 
-      # Discord notification ONLY on failure (no spam when healthy!)
-      - name: Discord notification - Alert on failure
-        if: failure()
+      - name: Notify if unhealthy
+        if: steps.health.outcome == 'failure'
+        run: |
+          curl -H "Content-Type: application/json" \
+               -d '{
+                 "content": "@everyone",
+                 "embeds": [{
+                   "title": "🚨 Blog Health Check Failed",
+                   "description": "One or more services are not responding",
+                   "color": 15158332,
+                   "fields": [
+                     {"name": "Time", "value": "'"$(date -u)"'", "inline": true},
+                     {"name": "Server", "value": "${{ secrets.SERVER_IP }}", "inline": true},
+                     {"name": "⚠️ Immediate Action Required", "value": "1. Check Docker containers: `docker compose -f docker-compose.prod.yml ps`\n2. Check logs: `docker logs blog_backend --tail 100`\n3. Verify services are running\n4. Check server resources: `htop`, `df -h`", "inline": false}
+                   ],
+                   "footer": {"text": "Blog - Health Monitor"}
+                 }]
+               }' \
+               ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      # Only notify success on manual runs (not daily)
+      - name: Notify if healthy (manual run only)
+        if: github.event_name == 'workflow_dispatch' && steps.health.outcome == 'success'
         run: |
           curl -H "Content-Type: application/json" \
                -d '{
                  "embeds": [{
-                   "title": "🚨 Blog Health Check FAILED",
-                   "description": "The blog health check has failed. Immediate attention required!",
-                   "color": 15158332,
+                   "title": "✅ All Services Healthy",
+                   "description": "Production health check passed",
+                   "color": 5763719,
                    "fields": [
                      {"name": "Time", "value": "'"$(date -u)"'", "inline": true},
-                     {"name": "Blog", "value": "blog.computeranything.dev", "inline": true},
-                     {"name": "Status", "value": "❌ UNHEALTHY", "inline": false},
-                     {"name": "Actions", "value": "[View Logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})", "inline": false}
-                   ]
+                     {"name": "Backend", "value": "✅ Responding", "inline": true},
+                     {"name": "Frontend", "value": "✅ Accessible", "inline": true},
+                     {"name": "Nginx", "value": "✅ Running", "inline": true},
+                     {"name": "Redis", "value": "✅ Connected", "inline": true},
+                     {"name": "Containers", "value": "✅ All running", "inline": true}
+                   ],
+                   "footer": {"text": "Blog - Health Monitor"}
                  }]
                }' \
                ${{ secrets.DISCORD_WEBHOOK_URL }}
 
       - name: Health check summary
-        if: success()
+        if: always()
         run: |
-          echo "## ✅ Health Check Passed" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.health.outcome }}" == "success" ]; then
+            echo "## ✅ Health Check Passed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All production services are healthy and responding." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Health Check Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "One or more services are not responding correctly." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Troubleshooting steps:**" >> $GITHUB_STEP_SUMMARY
+            echo "1. SSH to server: \`ssh cheloniixd@${{ secrets.SERVER_IP }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "2. Check container status: \`docker compose -f docker-compose.prod.yml ps\`" >> $GITHUB_STEP_SUMMARY
+            echo "3. Check logs: \`docker logs blog_backend --tail 100\`" >> $GITHUB_STEP_SUMMARY
+            echo "4. Restart if needed: \`docker compose -f docker-compose.prod.yml restart\`" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Time:** $(date -u)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status:** All checks passed (no notification sent)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Checks Performed:" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Docker containers running" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Disk space healthy" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Blog accessible (https://blog.computeranything.dev)" >> $GITHUB_STEP_SUMMARY
-
-      - name: Failure summary
-        if: failure()
-        run: |
-          echo "## ❌ Health Check Failed" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "⚠️ Discord notification sent!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "The blog health check has failed. Please investigate immediately." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Quick Actions:**" >> $GITHUB_STEP_SUMMARY
-          echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "# SSH to server" >> $GITHUB_STEP_SUMMARY
-          echo "ssh cheloniixd@${{ secrets.SERVER_IP }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "# Check container status" >> $GITHUB_STEP_SUMMARY
-          echo "cd /opt/blog_app" >> $GITHUB_STEP_SUMMARY
-          echo "docker compose -f docker-compose.prod.yml ps" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "# Check logs" >> $GITHUB_STEP_SUMMARY
-          echo "docker compose -f docker-compose.prod.yml logs --tail=50" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "# Restart services if needed" >> $GITHUB_STEP_SUMMARY
-          echo "docker compose -f docker-compose.prod.yml restart" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u)" >> $GITHUB_STEP_SUMMARY

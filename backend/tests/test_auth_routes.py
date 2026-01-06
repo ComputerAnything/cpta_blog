@@ -12,13 +12,17 @@ def test_register_and_login(client):
     assert response.status_code == 201
     assert b'Please check your email' in response.data
 
-    # Try to login before verification
+    # Try to login before verification (returns 200 but requires 2FA code)
     response = client.post('/api/login', json={
         'identifier': 'testuser',
         'password': 'Test@Pass123'
     })
-    assert response.status_code == 403
-    assert b'verify your email' in response.data
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['requires_2fa'] is True
+    assert data['is_verified'] is False
+    assert 'Verification code sent' in data['message']
+    # No JWT token returned - user must verify first
 
     # Manually verify user for testing
     user = User.query.filter_by(username='testuser').first()

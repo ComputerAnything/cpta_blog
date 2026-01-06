@@ -1,0 +1,79 @@
+name: CI - Test and Lint
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  backend:
+    name: Backend Tests & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest ruff
+
+      - name: Run Ruff linting
+        working-directory: ./backend
+        run: ruff check .
+
+      - name: Run pytest
+        working-directory: ./backend
+        env:
+          # Required for app initialization (overridden by TestConfig in conftest.py)
+          SECRET_KEY: test-secret-key-for-ci
+          JWT_SECRET_KEY: test-jwt-secret-for-ci
+          DATABASE_URL: "sqlite:///:memory:"
+          REDIS_URL: "memory://"
+          # Email configuration
+          RESEND_API_KEY: re_dummy
+          MAIL_DEFAULT_SENDER: test@example.com
+          ADMIN_EMAIL: admin@example.com
+          # Cloudflare Turnstile
+          CF_TURNSTILE_SECRET_KEY: dummy_turnstile
+          # Frontend URL
+          FRONTEND_URL: "http://localhost:5173"
+          # Testing flag
+          TESTING: "true"
+        run: pytest -v
+
+  frontend:
+    name: Frontend Lint & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
