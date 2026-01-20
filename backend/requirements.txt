@@ -37,4 +37,4 @@ pytest-cov==4.1.0
 ruff
 
 # Security overrides (transitive dependencies)
-jaraco.context>=6.1.0
+jaraco.context==6.1.0
