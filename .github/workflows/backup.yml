@@ -1,9 +1,9 @@
 name: Automated Production Backup
 
 on:
-  # Run daily at 2 AM UTC (adjust timezone as needed)
+  # Run weekly on Sunday at 2 AM UTC
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 2 * * 0'
 
   # Allow manual trigger
   workflow_dispatch:
@@ -31,7 +31,7 @@ jobs:
           curl -H "Content-Type: application/json" \
                -d '{
                  "embeds": [{
-                   "title": "🗄️ Backup Started",
+                   "title": "📝 [Blog] Backup Started",
                    "description": "Daily backup process initiated",
                    "color": 3447003,
                    "fields": [
@@ -65,7 +65,7 @@ jobs:
           curl -H "Content-Type: application/json" \
                -d '{
                  "embeds": [{
-                   "title": "✅ Backup Completed Successfully",
+                   "title": "✅ [Blog] Backup Completed",
                    "description": "All data has been backed up",
                    "color": 5763719,
                    "fields": [
@@ -89,7 +89,7 @@ jobs:
           curl -H "Content-Type: application/json" \
                -d '{
                  "embeds": [{
-                   "title": "❌ Backup Failed",
+                   "title": "❌ [Blog] Backup Failed",
                    "description": "The automated backup process has failed",
                    "color": 15158332,
                    "fields": [
