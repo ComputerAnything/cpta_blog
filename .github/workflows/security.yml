@@ -93,6 +93,7 @@ jobs:
           push: false
           load: true
           tags: blog-backend:scan
+          no-cache: true
 
       - name: Build frontend image for scanning
         uses: docker/build-push-action@v5
@@ -102,6 +103,7 @@ jobs:
           push: false
           load: true
           tags: blog-frontend:scan
+          no-cache: true
 
       # Scan application libraries - BLOCKS pipeline on vulnerabilities
       - name: Run Trivy scanner on backend - Application Libraries

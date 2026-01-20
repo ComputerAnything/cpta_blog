@@ -16,7 +16,7 @@ def send_email(to: str | list[str], subject: str, html: str, from_email: str | N
         to: Email address or list of email addresses
         subject: Email subject
         html: HTML content of the email
-        from_email: Sender email (defaults to noreply@computeranything.dev)
+        from_email: Sender email (defaults to noreply@notifications.computeranything.dev)
         reply_to: Reply-to email address (optional)
 
     Returns:
@@ -48,7 +48,7 @@ def send_email(to: str | list[str], subject: str, html: str, from_email: str | N
             f"[DEVELOPMENT MODE] Email NOT sent - logged instead:\n"
             f"  To: {to}\n"
             f"  Subject: {subject}\n"
-            f"  From: {from_email or 'noreply@computeranything.dev'}\n"
+            f"  From: {from_email or 'noreply@notifications.computeranything.dev'}\n"
             f"  Reply-To: {reply_to or 'N/A'}\n"
         )
 
@@ -80,7 +80,7 @@ def send_email(to: str | list[str], subject: str, html: str, from_email: str | N
 
         # Get from email
         if from_email is None:
-            from_email = 'noreply@computeranything.dev'
+            from_email = 'noreply@notifications.computeranything.dev'
 
         # Ensure to is a list
         if isinstance(to, str):

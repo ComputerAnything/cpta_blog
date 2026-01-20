@@ -777,7 +777,7 @@ FRONTEND_URL=https://blog.computeranything.dev
 # backend/utils/email.py:85-118
 def send_email(to: str, subject: str, html: str):
     params = {
-        "from": "Computer Anything Blog <noreply@computeranything.dev>",
+        "from": "Computer Anything Blog <noreply@notifications.computeranything.dev>",
         "to": [to],
         "subject": subject,
         "html": html,

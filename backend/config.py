@@ -25,7 +25,7 @@ class Config:
 
     # Email Configuration (Resend API)
     RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@computeranything.dev')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@notifications.computeranything.dev')
 
     # Admin Email (for security alerts)
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
