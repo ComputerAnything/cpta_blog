@@ -1,3 +1,6 @@
+# Security overrides - MUST be first to take precedence
+jaraco.context==6.1.0
+
 # Core Flask
 Flask==2.3.3
 Flask-SQLAlchemy==3.0.5
@@ -35,6 +38,3 @@ gunicorn==22.0.0
 pytest==7.4.3
 pytest-cov==4.1.0
 ruff
-
-# Security overrides (transitive dependencies)
-jaraco.context==6.1.0
