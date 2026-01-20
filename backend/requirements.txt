@@ -1,6 +1,3 @@
-# Security overrides - MUST be first to take precedence
-jaraco.context==6.1.0
-
 # Core Flask
 Flask==2.3.3
 Flask-SQLAlchemy==3.0.5
