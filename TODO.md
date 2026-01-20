@@ -158,7 +158,7 @@
   JWT_ACCESS_TOKEN_EXPIRES=14400
 
   RESEND_API_KEY=<YOUR_RESEND_API_KEY>
-  MAIL_DEFAULT_SENDER=noreply@computeranything.dev
+  MAIL_DEFAULT_SENDER=noreply@notifications.computeranything.dev
   CONTACT_FORM_RECIPIENTS=contact@computeranything.dev
 
   ADMIN_EMAIL=admin@computeranything.dev
