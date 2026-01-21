@@ -1,4 +1,4 @@
-import type { User, BlogPost, Comment } from '../types'
+import type { User, BlogPost, Comment, VotedPost, CommentedPost } from '../types'
 import axios from 'axios'
 
 // Create axios instance with base URL
@@ -212,6 +212,16 @@ export const userAPI = {
   getUserCommentsCount: async (username: string) => {
     const response = await api.get<{ count: number }>(`/users/${username}/comments/count`)
     return response.data.count
+  },
+
+  getUserVotedPosts: async (username: string) => {
+    const response = await api.get<VotedPost[]>(`/users/${username}/voted-posts`)
+    return response.data
+  },
+
+  getUserCommentedPosts: async (username: string) => {
+    const response = await api.get<CommentedPost[]>(`/users/${username}/commented-posts`)
+    return response.data
   },
 
   updateProfile: async (username: string, email: string) => {

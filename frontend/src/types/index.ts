@@ -19,6 +19,20 @@ export interface BlogPost {
   created_at: string
   user_id: number
   author?: string
+  comment_count?: number
+}
+
+// Extended BlogPost with user's vote info (for voted-posts endpoint)
+export interface VotedPost extends BlogPost {
+  user_vote: 'upvote' | 'downvote'
+}
+
+// Extended BlogPost with user's comment preview (for commented-posts endpoint)
+export interface CommentedPost extends BlogPost {
+  user_comment: {
+    content: string
+    created_at: string | null
+  }
 }
 
 // Comment types

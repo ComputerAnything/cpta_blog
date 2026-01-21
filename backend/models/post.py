@@ -29,7 +29,8 @@ class BlogPost(db.Model):
             "downvotes": self.downvotes,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "user_id": self.user_id,
-            "author": self.user.username if hasattr(self, 'user') and self.user else None
+            "author": self.user.username if hasattr(self, 'user') and self.user else None,
+            "comment_count": len(self.comments) if self.comments else 0
         }
 
     def __repr__(self):

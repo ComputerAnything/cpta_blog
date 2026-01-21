@@ -5,8 +5,8 @@ import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useAuth } from '../../../../contexts/AuthContext'
-import { userAPI, authAPI, commentAPI } from '../../../../services/api'
-import type { User, BlogPost } from '../../../../types'
+import { userAPI, commentAPI } from '../../../../services/api'
+import type { User, BlogPost, VotedPost, CommentedPost } from '../../../../types'
 import { getErrorMessage } from '../../../../utils/errors'
 import { colors, shadows, transitions } from '../../../../theme/colors'
 import {
@@ -21,10 +21,8 @@ import {
   Tag,
   LoadingMessage,
 } from '../../../../theme/sharedComponents'
-import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
-import ChangePasswordModal from '../../auth/components/ChangePasswordModal'
-import ConfirmModal from '../../../common/ConfirmModal'
+import ProfileSettingsModal from '../components/ProfileSettingsModal'
 import Footer from '../../../layout/Footer'
 
 const ProfileHeader = styled.div`
@@ -81,7 +79,7 @@ const UserInfo = styled.div`
 
 const Stats = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   margin-top: 1.5rem;
 
@@ -103,13 +101,30 @@ const Stats = styled.div`
   }
 `
 
-const StatItem = styled.div`
+const PersonalStats = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid ${colors.borderLight};
+  opacity: 0.85;
+
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+`
+
+const StatButton = styled.button<{ $active?: boolean }>`
   text-align: center;
   padding: 0.75rem;
-  background: ${colors.backgroundDark};
-  border: 1px solid ${colors.borderLight};
+  background: ${props => props.$active ? colors.primary : colors.backgroundDark};
+  border: 1px solid ${props => props.$active ? colors.primary : colors.borderLight};
   border-radius: 8px;
   transition: ${transitions.default};
+  cursor: pointer;
+  width: 100%;
 
   &:hover {
     border-color: ${colors.primary};
@@ -119,12 +134,12 @@ const StatItem = styled.div`
   .number {
     font-size: 1.5rem;
     font-weight: 700;
-    color: ${colors.primary};
+    color: ${props => props.$active ? '#000' : colors.primary};
   }
 
   .label {
     font-size: 0.85rem;
-    color: ${colors.text.muted};
+    color: ${props => props.$active ? '#000' : colors.text.muted};
     margin-top: 0.25rem;
   }
 
@@ -141,6 +156,74 @@ const StatItem = styled.div`
   }
 `
 
+const SettingsButton = styled.button`
+  background: transparent;
+  border: 1px solid ${colors.borderLight};
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  color: ${colors.text.muted};
+  cursor: pointer;
+  transition: ${transitions.default};
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+
+  &:hover {
+    border-color: ${colors.primary};
+    color: ${colors.primary};
+  }
+
+  i {
+    font-size: 1rem;
+  }
+`
+
+const UserInfoHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+  }
+`
+
+const CommentPreview = styled.div`
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background: ${colors.backgroundDark};
+  border-left: 3px solid ${colors.primary};
+  border-radius: 0 8px 8px 0;
+
+  .comment-label {
+    font-size: 0.75rem;
+    color: ${colors.primary};
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+
+  .comment-content {
+    color: ${colors.text.secondary};
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+`
+
+const VoteBadge = styled.span<{ $type: 'upvote' | 'downvote' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: ${props => props.$type === 'upvote' ? 'rgba(40, 167, 69, 0.2)' : 'rgba(220, 53, 69, 0.2)'};
+  color: ${props => props.$type === 'upvote' ? '#28a745' : colors.danger};
+`
+
 const PostsSection = styled.div`
   > h2 {
     color: ${colors.primary};
@@ -149,107 +232,7 @@ const PostsSection = styled.div`
   }
 `
 
-const SettingRow = styled.div`
-  background: ${colors.backgroundAlt};
-  border: 1px solid ${colors.borderLight};
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: ${shadows.small};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .setting-info {
-    flex: 1;
-
-    h3 {
-      color: ${colors.text.primary};
-      font-size: 1.1rem;
-      margin-bottom: 0.5rem;
-    }
-
-    p {
-      color: ${colors.text.muted};
-      font-size: 0.9rem;
-      margin: 0;
-    }
-  }
-
-  input[type="text"] {
-    padding: 0.75rem;
-    background: ${colors.backgroundDark};
-    border: 1px solid ${colors.borderLight};
-    border-radius: 8px;
-    color: ${colors.text.primary};
-    font-size: 1rem;
-    min-width: 200px;
-
-    &:focus {
-      outline: none;
-      border-color: ${colors.primary};
-    }
-  }
-`
-
-const ToggleSwitch = styled.label`
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-  cursor: pointer;
-
-  input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .slider {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: ${colors.backgroundDark};
-    transition: 0.4s;
-    border-radius: 34px;
-    border: 2px solid ${colors.borderLight};
-  }
-
-  .slider:before {
-    position: absolute;
-    content: '';
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 2px;
-    background-color: ${colors.text.muted};
-    transition: 0.4s;
-    border-radius: 50%;
-  }
-
-  input:checked + .slider {
-    background-color: ${colors.primary};
-    border-color: ${colors.primary};
-  }
-
-  input:checked + .slider:before {
-    background-color: #000;
-    transform: translateX(24px);
-  }
-
-  input:disabled + .slider {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`
+type ProfileView = 'my-posts' | 'votes-received' | 'comments-received' | 'votes-made' | 'comments-made'
 
 const ProfilePage = () => {
   const { username } = useParams<{ username: string }>()
@@ -266,18 +249,19 @@ const ProfilePage = () => {
   const [commentsMade, setCommentsMade] = useState(0)
   const [commentsReceived, setCommentsReceived] = useState(0)
 
-  // Settings state
-  const [editingUsername, setEditingUsername] = useState(false)
-  const [newUsername, setNewUsername] = useState('')
-  const [settingsMessage, setSettingsMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const [settingsLoading, setSettingsLoading] = useState(false)
-  const [showChangePassword, setShowChangePassword] = useState(false)
-  const [showDeleteAccount, setShowDeleteAccount] = useState(false)
+  // Interactive view state
+  const [activeView, setActiveView] = useState<ProfileView>('my-posts')
+  const [votedPosts, setVotedPosts] = useState<VotedPost[]>([])
+  const [commentedPosts, setCommentedPosts] = useState<CommentedPost[]>([])
+
+  // Settings modal state
+  const [showSettingsModal, setShowSettingsModal] = useState(false)
 
   useEffect(() => {
     const fetchProfile = async () => {
       setLoading(true)
       setError(null)
+      setActiveView('my-posts') // Reset view when profile changes
 
       try {
         // Fetch user profile
@@ -291,15 +275,19 @@ const ProfilePage = () => {
 
         if (targetUsername) {
           // Fetch user's posts, votes, and comments in parallel
-          const [postsData, votesCount, commentsCount] = await Promise.all([
+          const [postsData, votesCount, commentsCount, votedPostsData, commentedPostsData] = await Promise.all([
             userAPI.getUserPosts(targetUsername),
             userAPI.getUserVotesCount(targetUsername),
-            userAPI.getUserCommentsCount(targetUsername)
+            userAPI.getUserCommentsCount(targetUsername),
+            userAPI.getUserVotedPosts(targetUsername),
+            userAPI.getUserCommentedPosts(targetUsername)
           ])
 
           setPosts(Array.isArray(postsData) ? postsData : [])
           setVotesMade(votesCount)
           setCommentsMade(commentsCount)
+          setVotedPosts(Array.isArray(votedPostsData) ? votedPostsData : [])
+          setCommentedPosts(Array.isArray(commentedPostsData) ? commentedPostsData : [])
 
           // Calculate comments received on user's posts
           if (Array.isArray(postsData) && postsData.length > 0) {
@@ -322,6 +310,8 @@ const ProfilePage = () => {
           setVotesMade(0)
           setCommentsMade(0)
           setCommentsReceived(0)
+          setVotedPosts([])
+          setCommentedPosts([])
         }
       } catch (err) {
         console.error('Failed to load profile:', err)
@@ -335,86 +325,82 @@ const ProfilePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [username])
 
-  const handleUsernameUpdate = async () => {
-    if (!newUsername.trim() || !currentUser || !currentUser.email) return
+  // Handler for profile updates from the settings modal
+  const handleProfileUpdate = (updatedUser: User) => {
+    setProfile(updatedUser)
+    updateUser(updatedUser)
+  }
 
-    setSettingsLoading(true)
-    setSettingsMessage(null)
+  // Handler for account deletion from the settings modal
+  const handleAccountDeleted = async () => {
+    // Clear user state from AuthContext (skip auto-redirect so we can show account-deleted banner)
+    await logout(true)
+    // Force full page reload to home with account deleted success banner
+    window.location.href = '/?banner=account-deleted-success'
+  }
 
-    try {
-      const updatedUser = await userAPI.updateProfile(newUsername.trim(), currentUser.email)
-      setProfile(updatedUser)
-      updateUser(updatedUser)
-      setEditingUsername(false)
-      setNewUsername('')
-      setSettingsMessage({
-        type: 'success',
-        text: 'Username updated successfully!'
-      })
-    } catch (err: unknown) {
-      console.error('Failed to update username:', err)
-      setSettingsMessage({
-        type: 'error',
-        text: getErrorMessage(err, 'Failed to update username. It may already be taken.')
-      })
-    } finally {
-      setSettingsLoading(false)
+  // Calculate total votes received on user's posts
+  const votesReceived = posts.reduce((sum, post) => sum + post.upvotes + post.downvotes, 0)
+
+  // Get posts with votes for "Votes Received" view
+  const postsWithVotes = posts.filter(post => (post.upvotes + post.downvotes) > 0)
+
+  // Get posts with comments for "Comments Received" view
+  const postsWithComments = posts.filter(post => (post.comment_count ?? 0) > 0)
+
+  // Get current view's posts
+  const getDisplayPosts = (): (BlogPost | VotedPost | CommentedPost)[] => {
+    switch (activeView) {
+      case 'my-posts':
+        return posts
+      case 'votes-received':
+        return postsWithVotes
+      case 'comments-received':
+        return postsWithComments
+      case 'votes-made':
+        return votedPosts
+      case 'comments-made':
+        return commentedPosts
+      default:
+        return posts
     }
   }
 
-  const handleToggle2FA = async (enable: boolean) => {
-    if (!currentUser) return
-
-    setSettingsLoading(true)
-    setSettingsMessage(null)
-
-    try {
-      await authAPI.toggle2FA(enable)
-
-      // Update local user state
-      const updatedUser = { ...currentUser, twofa_enabled: enable }
-      updateUser(updatedUser)
-      if (profile) {
-        setProfile({ ...profile, twofa_enabled: enable })
-      }
-
-      setSettingsMessage({
-        type: 'success',
-        text: `Two-factor authentication has been ${enable ? 'enabled' : 'disabled'} successfully.`
-      })
-    } catch (err) {
-      console.error('Failed to toggle 2FA:', err)
-      setSettingsMessage({
-        type: 'error',
-        text: 'Failed to update two-factor authentication setting. Please try again.'
-      })
-    } finally {
-      setSettingsLoading(false)
+  // Get view title
+  const getViewTitle = (): string => {
+    const isOwn = !username || (currentUser && currentUser.username === username)
+    switch (activeView) {
+      case 'my-posts':
+        return isOwn ? 'My Posts' : `@${profile?.username}'s Posts`
+      case 'votes-received':
+        return isOwn ? 'Posts with Votes' : `@${profile?.username}'s Posts with Votes`
+      case 'comments-received':
+        return isOwn ? 'Posts with Comments' : `@${profile?.username}'s Posts with Comments`
+      case 'votes-made':
+        return isOwn ? 'Posts I Voted On' : `Posts @${profile?.username} Voted On`
+      case 'comments-made':
+        return isOwn ? 'Posts I Commented On' : `Posts @${profile?.username} Commented On`
+      default:
+        return 'Posts'
     }
   }
 
-  const handleDeleteAccount = async () => {
-    if (!currentUser) return
-
-    setSettingsLoading(true)
-    setSettingsMessage(null)
-
-    try {
-      await userAPI.deleteProfile()
-
-      // Clear user state from AuthContext (skip auto-redirect so we can show account-deleted banner)
-      await logout(true)
-
-      // Force full page reload to home with account deleted success banner
-      window.location.href = '/?banner=account-deleted-success'
-    } catch (err) {
-      console.error('Failed to delete account:', err)
-      setSettingsMessage({
-        type: 'error',
-        text: getErrorMessage(err, 'Failed to delete account. Please try again.')
-      })
-    } finally {
-      setSettingsLoading(false)
+  // Get empty state message
+  const getEmptyMessage = (): string => {
+    const isOwn = !username || (currentUser && currentUser.username === username)
+    switch (activeView) {
+      case 'my-posts':
+        return isOwn ? "You haven't created any posts yet." : "This user hasn't created any posts yet."
+      case 'votes-received':
+        return isOwn ? "None of your posts have received votes yet." : "None of this user's posts have received votes yet."
+      case 'comments-received':
+        return isOwn ? "None of your posts have received comments yet." : "None of this user's posts have received comments yet."
+      case 'votes-made':
+        return isOwn ? "You haven't voted on any posts yet." : "This user hasn't voted on any posts yet."
+      case 'comments-made':
+        return isOwn ? "You haven't commented on any posts yet." : "This user hasn't commented on any posts yet."
+      default:
+        return 'No posts to display.'
     }
   }
 
@@ -451,157 +437,79 @@ const ProfilePage = () => {
           <ProfileHeader>
             <Avatar>{profile.username.charAt(0).toUpperCase()}</Avatar>
             <UserInfo>
-              <h1>@{profile.username}</h1>
-              {isOwnProfile && profile.email && (
-                <div className="email">{profile.email}</div>
-              )}
-              <div className="joined">
-                Member since {new Date(profile.created_at || '').toLocaleDateString()}
-              </div>
+              <UserInfoHeader>
+                <div>
+                  <h1>@{profile.username}</h1>
+                  {isOwnProfile && profile.email && (
+                    <div className="email">{profile.email}</div>
+                  )}
+                  <div className="joined">
+                    Member since {new Date(profile.created_at || '').toLocaleDateString()}
+                  </div>
+                </div>
+                {isOwnProfile && (
+                  <SettingsButton onClick={() => setShowSettingsModal(true)}>
+                    <i className="bi bi-gear"></i>
+                    Settings
+                  </SettingsButton>
+                )}
+              </UserInfoHeader>
               <Stats>
-                <StatItem>
+                <StatButton
+                  $active={activeView === 'my-posts'}
+                  onClick={() => setActiveView('my-posts')}
+                >
                   <div className="number">{posts.length}</div>
                   <div className="label">Posts</div>
-                </StatItem>
-                <StatItem>
-                  <div className="number">
-                    {posts.reduce((sum, post) => sum + post.upvotes + post.downvotes, 0)}
-                  </div>
+                </StatButton>
+                <StatButton
+                  $active={activeView === 'votes-received'}
+                  onClick={() => setActiveView('votes-received')}
+                >
+                  <div className="number">{votesReceived}</div>
                   <div className="label">Votes Received</div>
-                </StatItem>
-                <StatItem>
-                  <div className="number">{votesMade}</div>
-                  <div className="label">Votes Made</div>
-                </StatItem>
-                <StatItem>
+                </StatButton>
+                <StatButton
+                  $active={activeView === 'comments-received'}
+                  onClick={() => setActiveView('comments-received')}
+                >
                   <div className="number">{commentsReceived}</div>
                   <div className="label">Comments Received</div>
-                </StatItem>
-                <StatItem>
-                  <div className="number">{commentsMade}</div>
-                  <div className="label">Comments Made</div>
-                </StatItem>
+                </StatButton>
               </Stats>
+              {isOwnProfile && (
+                <PersonalStats>
+                  <StatButton
+                    $active={activeView === 'votes-made'}
+                    onClick={() => setActiveView('votes-made')}
+                  >
+                    <div className="number">{votesMade}</div>
+                    <div className="label">Votes Made</div>
+                  </StatButton>
+                  <StatButton
+                    $active={activeView === 'comments-made'}
+                    onClick={() => setActiveView('comments-made')}
+                  >
+                    <div className="number">{commentsMade}</div>
+                    <div className="label">Comments Made</div>
+                  </StatButton>
+                </PersonalStats>
+              )}
             </UserInfo>
           </ProfileHeader>
 
-          {isOwnProfile && (
-            <PostsSection>
-              <h2>Settings</h2>
-
-              {settingsMessage && (
-                <StyledAlert
-                  variant={settingsMessage.type === 'success' ? 'success' : 'danger'}
-                  dismissible
-                  onClose={() => setSettingsMessage(null)}
-                >
-                  {settingsMessage.text}
-                </StyledAlert>
-              )}
-
-              <SettingRow>
-                <div className="setting-info">
-                  <h3>Username</h3>
-                  <p>Update your username (must be unique)</p>
-                </div>
-                {!editingUsername ? (
-                  <PrimaryButton onClick={() => {
-                    setEditingUsername(true)
-                    setNewUsername(profile.username)
-                  }}>
-                    Edit Username
-                  </PrimaryButton>
-                ) : (
-                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                    <input
-                      type="text"
-                      value={newUsername}
-                      onChange={(e) => setNewUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                      maxLength={20}
-                      disabled={settingsLoading}
-                      placeholder="New username"
-                    />
-                    <PrimaryButton
-                      onClick={handleUsernameUpdate}
-                      disabled={settingsLoading || !newUsername.trim() || newUsername === profile.username}
-                    >
-                      {settingsLoading ? 'Saving...' : 'Save'}
-                    </PrimaryButton>
-                    <SecondaryButton
-                      onClick={() => {
-                        setEditingUsername(false)
-                        setNewUsername('')
-                        setSettingsMessage(null)
-                      }}
-                      disabled={settingsLoading}
-                    >
-                      Cancel
-                    </SecondaryButton>
-                  </div>
-                )}
-              </SettingRow>
-
-              <SettingRow>
-                <div className="setting-info">
-                  <h3>Change Password</h3>
-                  <p>Update your password to keep your account secure</p>
-                </div>
-                <PrimaryButton onClick={() => setShowChangePassword(true)}>
-                  Change Password
-                </PrimaryButton>
-              </SettingRow>
-
-              <SettingRow>
-                <div className="setting-info">
-                  <h3>Two-Factor Authentication</h3>
-                  <p>
-                    {currentUser?.twofa_enabled
-                      ? 'You will receive a verification code via email when logging in'
-                      : 'Add an extra layer of security to your account by requiring a verification code sent to your email'}
-                  </p>
-                </div>
-
-                <ToggleSwitch>
-                  <input
-                    type="checkbox"
-                    checked={currentUser?.twofa_enabled || false}
-                    onChange={(e) => handleToggle2FA(e.target.checked)}
-                    disabled={settingsLoading}
-                  />
-                  <span className="slider"></span>
-                </ToggleSwitch>
-              </SettingRow>
-
-              <SettingRow style={{ borderColor: colors.danger }}>
-                <div className="setting-info">
-                  <h3 style={{ color: colors.danger }}>Delete Account</h3>
-                  <p>
-                    Permanently delete your account and all associated data. This action cannot be undone.
-                  </p>
-                </div>
-                <PrimaryButton
-                  onClick={() => setShowDeleteAccount(true)}
-                  style={{ background: colors.danger }}
-                  disabled={settingsLoading}
-                >
-                  Delete Account
-                </PrimaryButton>
-              </SettingRow>
-
-            </PostsSection>
-          )}
-
           <PostsSection>
-            <h2>{isOwnProfile ? 'My Posts' : `@${profile.username}'s Posts`}</h2>
+            <h2>{getViewTitle()}</h2>
 
-            {posts.length === 0 ? (
-              <LoadingMessage>
-                {isOwnProfile ? "You haven't created any posts yet." : "This user hasn't created any posts yet."}
-              </LoadingMessage>
+            {getDisplayPosts().length === 0 ? (
+              <LoadingMessage>{getEmptyMessage()}</LoadingMessage>
             ) : (
-              posts.map((post) => {
+              getDisplayPosts().map((post) => {
                 const netVotes = (post.upvotes || 0) - (post.downvotes || 0)
                 const totalVotes = (post.upvotes || 0) + (post.downvotes || 0)
+                const commentCount = post.comment_count || 0
+                const isVotedPost = 'user_vote' in post
+                const isCommentedPost = 'user_comment' in post
 
                 return (
                   <BlogPostCard key={post.id} onClick={() => navigate(`/posts/${post.id}`)}>
@@ -618,7 +526,39 @@ const ProfilePage = () => {
                     </PostHeader>
 
                     <PostMeta>
+                      {post.author && activeView !== 'my-posts' && (
+                        <>
+                          <span>
+                            By{' '}
+                            <a
+                              href={`/profile/${post.author}`}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                e.preventDefault()
+                                navigate(`/profile/${post.author}`)
+                              }}
+                            >
+                              @{post.author}
+                            </a>
+                          </span>
+                          <span>•</span>
+                        </>
+                      )}
                       <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                      <span>•</span>
+                      <span>
+                        <i className="bi bi-chat-dots me-1"></i>
+                        {commentCount} {commentCount === 1 ? 'comment' : 'comments'}
+                      </span>
+                      {isVotedPost && (
+                        <>
+                          <span>•</span>
+                          <VoteBadge $type={(post as VotedPost).user_vote}>
+                            <i className={`bi bi-arrow-${(post as VotedPost).user_vote === 'upvote' ? 'up' : 'down'}`}></i>
+                            {(post as VotedPost).user_vote === 'upvote' ? 'Upvoted' : 'Downvoted'}
+                          </VoteBadge>
+                        </>
+                      )}
                     </PostMeta>
 
                     <PostContent>
@@ -650,6 +590,17 @@ const ProfilePage = () => {
                       </ReactMarkdown>
                     </PostContent>
 
+                    {isCommentedPost && (
+                      <CommentPreview onClick={(e) => e.stopPropagation()}>
+                        <div className="comment-label">Most recent comment:</div>
+                        <div className="comment-content">
+                          {(post as CommentedPost).user_comment.content.length > 150
+                            ? `${(post as CommentedPost).user_comment.content.substring(0, 150)}...`
+                            : (post as CommentedPost).user_comment.content}
+                        </div>
+                      </CommentPreview>
+                    )}
+
                     {post.topic_tags && (
                       <TagsContainer>
                         {post.topic_tags.split(',').map((tag, idx) => (
@@ -663,23 +614,16 @@ const ProfilePage = () => {
             )}
           </PostsSection>
 
-          {/* Change Password Modal */}
-          <ChangePasswordModal
-            show={showChangePassword}
-            onHide={() => setShowChangePassword(false)}
-          />
-
-          {/* Delete Account Modal */}
-          <ConfirmModal
-            show={showDeleteAccount}
-            onHide={() => setShowDeleteAccount(false)}
-            onConfirm={handleDeleteAccount}
-            title="Delete Account"
-            message="Are you sure you want to delete your account? This will permanently delete all your posts, comments, and votes. This action cannot be undone."
-            confirmText="Delete Account"
-            cancelText="Cancel"
-            variant="danger"
-          />
+          {/* Profile Settings Modal */}
+          {isOwnProfile && profile && (
+            <ProfileSettingsModal
+              show={showSettingsModal}
+              onHide={() => setShowSettingsModal(false)}
+              user={profile}
+              onProfileUpdate={handleProfileUpdate}
+              onAccountDeleted={handleAccountDeleted}
+            />
+          )}
         </div>
       </PageContainer>
       <Footer />
