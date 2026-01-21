@@ -10,6 +10,7 @@ import { colors, shadows, transitions } from '../../../../theme/colors'
 import { StyledModal } from '../../../common/StyledModal'
 import { PrimaryButton, SecondaryButton } from '../../../common/StyledButton'
 import StyledAlert from '../../../common/StyledAlert'
+import PasswordStrengthMeter from '../../../common/PasswordStrengthMeter'
 import { useLocalStorage } from '../../../../hooks/useLocalStorage'
 import logger from '../../../../utils/logger'
 import { getErrorMessage, isErrorStatus } from '../../../../utils/errors'
@@ -75,67 +76,6 @@ const SwitchLink = styled.button`
   }
 `
 
-const PasswordStrengthMeter = styled.div`
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-`
-
-const StrengthBar = styled.div<{ strength: number }>`
-  height: 4px;
-  background: ${props => {
-    if (props.strength === 0) return 'rgba(255, 255, 255, 0.1)';
-    if (props.strength === 1) return colors.danger; // Weak - red
-    if (props.strength === 2) return '#ffa500'; // Fair - orange
-    if (props.strength === 3) return colors.success; // Good - green
-    if (props.strength === 4) return colors.success; // Strong - green
-    return 'rgba(255, 255, 255, 0.1)';
-  }};
-  width: ${props => (props.strength / 4) * 100}%;
-  transition: ${transitions.default};
-  border-radius: 2px;
-`
-
-const StrengthBarContainer = styled.div`
-  width: 100%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
-`
-
-const StrengthText = styled.div<{ strength: number }>`
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  color: ${props => {
-    if (props.strength === 0) return colors.text.muted;
-    if (props.strength === 1) return colors.danger;
-    if (props.strength === 2) return '#ffa500';
-    if (props.strength === 3) return colors.success;
-    if (props.strength === 4) return colors.success;
-    return colors.text.muted;
-  }};
-`
-
-const PasswordRequirements = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0.5rem 0 0 0;
-  font-size: 0.75rem;
-
-  li {
-    color: ${colors.text.muted};
-    margin-bottom: 0.25rem;
-
-    &.met {
-      color: ${colors.success};
-    }
-
-    &::before {
-      content: '• ';
-      margin-right: 0.25rem;
-    }
-  }
-`
 
 const RegisterModal = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -162,46 +102,6 @@ const RegisterModal = () => {
   const [countdown, setCountdown] = useState<number>(0)
 
   const show = searchParams.get('register') === 'true'
-
-  // Calculate password strength (matches cpta_app logic)
-  const calculatePasswordStrength = (pwd: string) => {
-    const requirements = {
-      minLength8: pwd.length >= 8,
-      minLength12: pwd.length >= 12,
-      uppercase: /[A-Z]/.test(pwd),
-      lowercase: /[a-z]/.test(pwd),
-      number: /\d/.test(pwd),
-      special: /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
-    }
-
-    // If less than 8 chars, weak
-    if (pwd.length < 8) {
-      return { strength: 1, label: 'Weak', requirements, isValid: false }
-    }
-
-    // If 12+ characters, automatically strong
-    if (requirements.minLength12) {
-      return { strength: 4, label: 'Strong', requirements, isValid: true }
-    }
-
-    // Between 8-11 characters - check complexity
-    const complexityCount = [
-      requirements.uppercase,
-      requirements.lowercase,
-      requirements.number,
-      requirements.special
-    ].filter(Boolean).length
-
-    if (complexityCount === 4) {
-      return { strength: 3, label: 'Good', requirements, isValid: true }
-    } else if (complexityCount >= 2) {
-      return { strength: 2, label: 'Fair', requirements, isValid: false }
-    } else {
-      return { strength: 1, label: 'Weak', requirements, isValid: false }
-    }
-  }
-
-  const { strength: passwordStrength, label, requirements } = calculatePasswordStrength(password)
 
   // Countdown timer for rate limiting
   useEffect(() => {
@@ -468,32 +368,7 @@ const RegisterModal = () => {
                 <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
               </button>
             </div>
-            {password && (
-              <PasswordStrengthMeter>
-                <StrengthBarContainer>
-                  <StrengthBar strength={passwordStrength} />
-                </StrengthBarContainer>
-                <StrengthText strength={passwordStrength}>
-                  Password Strength: {label}
-                </StrengthText>
-                {passwordStrength < 3 && (
-                  <PasswordRequirements>
-                    <li className={requirements.minLength12 ? 'met' : ''}>
-                      12+ characters (recommended)
-                    </li>
-                    {!requirements.minLength12 && (
-                      <>
-                        <li className={requirements.minLength8 ? 'met' : ''}>At least 8 characters</li>
-                        <li className={requirements.uppercase ? 'met' : ''}>One uppercase letter</li>
-                        <li className={requirements.lowercase ? 'met' : ''}>One lowercase letter</li>
-                        <li className={requirements.number ? 'met' : ''}>One number</li>
-                        <li className={requirements.special ? 'met' : ''}>One special character (!@#$%^&*)</li>
-                      </>
-                    )}
-                  </PasswordRequirements>
-                )}
-              </PasswordStrengthMeter>
-            )}
+            <PasswordStrengthMeter password={password} />
           </Form.Group>
 
           <Form.Group className="mb-3">
