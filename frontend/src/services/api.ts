@@ -82,11 +82,9 @@ export const authAPI = {
     return response.data
   },
 
-  forgotPassword: async (email: string, firstName: string, lastName: string, turnstileToken: string) => {
+  forgotPassword: async (email: string, turnstileToken: string) => {
     const response = await api.post('/forgot-password', {
       email,
-      first_name: firstName,
-      last_name: lastName,
       turnstile_token: turnstileToken
     })
     return response.data

@@ -90,10 +90,14 @@ const StyledCard = styled(Card)`
   }
 `
 
+// Email validation helper
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email.trim())
+}
+
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -106,6 +110,19 @@ const ForgotPasswordPage: React.FC = () => {
     setError('')
     setSuccess(false)
 
+    // Trim and validate email
+    const trimmedEmail = email.trim()
+
+    if (!trimmedEmail) {
+      setError('Please enter your email address.')
+      return
+    }
+
+    if (!isValidEmail(trimmedEmail)) {
+      setError('Please enter a valid email address.')
+      return
+    }
+
     // Validate Turnstile
     const turnstileToken = getToken()
 
@@ -117,11 +134,9 @@ const ForgotPasswordPage: React.FC = () => {
     setLoading(true)
 
     try {
-      await authAPI.forgotPassword(email, firstName, lastName, turnstileToken)
+      await authAPI.forgotPassword(trimmedEmail, turnstileToken)
       setSuccess(true)
       setEmail('')
-      setFirstName('')
-      setLastName('')
     } catch (error: unknown) {
       logger.error('Forgot password error:', error)
       setError(getErrorMessage(error, 'An error occurred. Please try again.'))
@@ -177,33 +192,6 @@ const ForgotPasswordPage: React.FC = () => {
                   />
                 </Form.Group>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>First Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Enter your first name"
-                    maxLength={50}
-                    required
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Last Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Enter your last name"
-                    maxLength={50}
-                    required
-                  />
-                  <Form.Text style={{ color: '#aaa', display: 'block', marginTop: '0.5rem' }}>
-                    For security, please enter your full name as registered
-                  </Form.Text>
-                </Form.Group>
-
                 {/* Turnstile CAPTCHA */}
                 <div style={{ textAlign: 'center', marginBottom: '1rem', minHeight: '78px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <div ref={turnstileRef}></div>
@@ -212,7 +200,7 @@ const ForgotPasswordPage: React.FC = () => {
                 <div className="d-grid mb-3">
                   <SubmitButton
                     type="submit"
-                    disabled={loading || !email || !firstName || !lastName}
+                    disabled={loading || !email}
                   >
                     {loading ? (
                       <>
