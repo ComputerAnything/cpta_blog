@@ -176,3 +176,52 @@ def get_user_comments_count(username):
     count = Comment.query.filter_by(user_id=user.id).count()
     return jsonify({"count": count}), 200
 
+# GET POSTS USER HAS VOTED ON
+@user_bp.route('/users/<string:username>/voted-posts', methods=['GET'])
+def get_user_voted_posts(username):
+    """Get all posts that a user has voted on"""
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    # Get all votes by this user with their associated posts
+    votes = Vote.query.filter_by(user_id=user.id).all()
+
+    # Get the posts and include user's vote type
+    posts_with_votes = []
+    for vote in votes:
+        post = BlogPost.query.get(vote.post_id)
+        if post:
+            post_dict = post.to_dict()
+            post_dict['user_vote'] = vote.vote_type
+            posts_with_votes.append(post_dict)
+
+    return jsonify(posts_with_votes), 200
+
+# GET POSTS USER HAS COMMENTED ON
+@user_bp.route('/users/<string:username>/commented-posts', methods=['GET'])
+def get_user_commented_posts(username):
+    """Get all posts that a user has commented on, with their comment preview"""
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    # Get distinct posts user has commented on
+    # For each post, include user's most recent comment as a preview
+    comments = Comment.query.filter_by(user_id=user.id).order_by(Comment.created_at.desc()).all()
+
+    # Track unique posts and their most recent comment from this user
+    seen_posts = {}
+    for comment in comments:
+        if comment.post_id not in seen_posts:
+            post = BlogPost.query.get(comment.post_id)
+            if post:
+                post_dict = post.to_dict()
+                post_dict['user_comment'] = {
+                    'content': comment.content,
+                    'created_at': comment.created_at.isoformat() if comment.created_at else None
+                }
+                seen_posts[comment.post_id] = post_dict
+
+    return jsonify(list(seen_posts.values())), 200
+

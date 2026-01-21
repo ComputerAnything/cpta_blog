@@ -496,6 +496,11 @@ const BlogListPage = () => {
                   </span>
                   <span>•</span>
                   <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                  <span>•</span>
+                  <span>
+                    <i className="bi bi-chat-dots me-1"></i>
+                    {post.comment_count || 0} {(post.comment_count || 0) === 1 ? 'comment' : 'comments'}
+                  </span>
                 </PostMeta>
 
                 <PostContent>

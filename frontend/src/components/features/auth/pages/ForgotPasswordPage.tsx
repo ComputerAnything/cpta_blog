@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Container, Form, Card } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
@@ -7,32 +7,23 @@ import { useTurnstile } from '../../../../hooks/useTurnstile'
 import StyledAlert from '../../../common/StyledAlert'
 import logger from '../../../../utils/logger'
 import { getErrorMessage } from '../../../../utils/errors'
-import { PrimaryButton } from '../../../common/StyledButton'
-import { colors, gradients, shadows } from '../../../../theme/colors'
-import Footer from '../../../layout/Footer'
+import { SubmitButton } from '../../../common/StyledButton'
+import { colors, gradients } from '../../../../theme/colors'
 
 const PageWrapper = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, ${colors.backgroundDark} 0%, ${colors.background} 100%);
-  display: flex;
-  flex-direction: column;
-  padding-top: 70px; /* Account for navbar */
-`
-
-const ContentWrapper = styled.div`
-  flex: 1;
   display: flex;
   align-items: center;
   padding: 40px 0;
 `
 
 const StyledCard = styled(Card)`
-  background: ${colors.backgroundAlt};
-  border: 1px solid ${colors.borderLight};
-  box-shadow: ${shadows.large};
+  background: ${colors.background};
+  border: 1px solid ${colors.primary};
+  box-shadow: 0 8px 32px rgba(40, 167, 69, 0.15);
   max-width: 500px;
   margin: 0 auto;
-  border-radius: 12px;
 
   .card-header {
     background: ${gradients.primary};
@@ -40,20 +31,17 @@ const StyledCard = styled(Card)`
     color: ${colors.text.primary};
     padding: 1.5rem;
     text-align: center;
-    border-radius: 12px 12px 0 0;
 
     h2 {
       margin: 0;
       font-size: 1.75rem;
       font-weight: 600;
-      color: #000;
     }
 
     .subtitle {
       margin-top: 0.5rem;
       font-size: 0.95rem;
       opacity: 0.9;
-      color: #000;
     }
   }
 
@@ -68,29 +56,22 @@ const StyledCard = styled(Card)`
   }
 
   .form-control {
-    background: ${colors.backgroundDark};
-    border: 1px solid ${colors.borderLight};
+    background: ${colors.backgroundLight};
+    border: 1px solid ${colors.borderInput};
     color: ${colors.text.primary};
     padding: 0.75rem;
     border-radius: 8px;
 
     &:focus {
-      background: ${colors.backgroundDark};
+      background: ${colors.backgroundLight};
       border-color: ${colors.primary};
-      box-shadow: 0 0 0 0.2rem rgba(2, 196, 60, 0.25);
+      box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
       color: ${colors.text.primary};
     }
 
     &::placeholder {
       color: ${colors.text.muted};
     }
-  }
-
-  .form-text {
-    color: ${colors.text.muted};
-    display: block;
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
   }
 
   .back-link {
@@ -109,10 +90,14 @@ const StyledCard = styled(Card)`
   }
 `
 
-const ForgotPasswordPage = () => {
+// Email validation helper
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email.trim())
+}
+
+const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -125,6 +110,19 @@ const ForgotPasswordPage = () => {
     setError('')
     setSuccess(false)
 
+    // Trim and validate email
+    const trimmedEmail = email.trim()
+
+    if (!trimmedEmail) {
+      setError('Please enter your email address.')
+      return
+    }
+
+    if (!isValidEmail(trimmedEmail)) {
+      setError('Please enter a valid email address.')
+      return
+    }
+
     // Validate Turnstile
     const turnstileToken = getToken()
 
@@ -136,11 +134,9 @@ const ForgotPasswordPage = () => {
     setLoading(true)
 
     try {
-      await authAPI.forgotPassword(email, firstName, lastName, turnstileToken)
+      await authAPI.forgotPassword(trimmedEmail, turnstileToken)
       setSuccess(true)
       setEmail('')
-      setFirstName('')
-      setLastName('')
     } catch (error: unknown) {
       logger.error('Forgot password error:', error)
       setError(getErrorMessage(error, 'An error occurred. Please try again.'))
@@ -153,114 +149,85 @@ const ForgotPasswordPage = () => {
   }
 
   return (
-    <>
-      <PageWrapper>
-        <ContentWrapper>
-          <Container>
-            <StyledCard>
-              <Card.Header>
-                <h2><i className="bi bi-key me-2"></i>Forgot Password</h2>
-                <div className="subtitle">We'll send you a reset link</div>
-              </Card.Header>
-              <Card.Body>
-                {error && (
-                  <StyledAlert variant="danger" className="mb-3">
-                    <strong>Unable to Process Request</strong>
-                    <div>{error}</div>
-                  </StyledAlert>
-                )}
+    <PageWrapper>
+      <Container>
+        <StyledCard>
+          <Card.Header>
+            <h2><i className="bi bi-key me-2"></i>Forgot Password</h2>
+            <div className="subtitle">We'll send you a reset link</div>
+          </Card.Header>
+          <Card.Body>
+            {error && (
+              <StyledAlert variant="danger" className="mb-3">
+                <strong>Unable to Process Request</strong>
+                {error}
+              </StyledAlert>
+            )}
 
-                {success ? (
-                  <StyledAlert variant="success">
-                    <strong><i className="bi bi-check-circle me-2"></i>Email Sent!</strong>
-                    <p className="mb-2" style={{ marginTop: '0.5rem' }}>
-                      If an account with that email exists, a password reset link has been sent.
-                      Please check your email and follow the instructions. The link will expire in 2 hours.
-                    </p>
-                    <div className="text-center mt-3">
-                      <Link to="/" className="back-link">
-                        <i className="bi bi-arrow-left"></i>
-                        Back to Home
-                      </Link>
-                    </div>
-                  </StyledAlert>
-                ) : (
-                  <Form onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Email Address</Form.Label>
-                      <Form.Control
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                        required
-                      />
-                    </Form.Group>
+            {success ? (
+              <StyledAlert variant="success">
+                <strong><i className="bi bi-check-circle me-2"></i>Email Sent!</strong>
+                <p className="mb-2">
+                  If an account with that email exists, a password reset link has been sent.
+                  Please check your email and follow the instructions. The link will expire in 2 hours.
+                </p>
+                <div className="text-center mt-3">
+                  <Link to="/" className="back-link">
+                    <i className="bi bi-arrow-left"></i>
+                    Back to Home
+                  </Link>
+                </div>
+              </StyledAlert>
+            ) : (
+              <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Email Address</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    maxLength={120}
+                    required
+                  />
+                </Form.Group>
 
-                    <Form.Group className="mb-3">
-                      <Form.Label>First Name</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="Enter your first name"
-                        required
-                      />
-                    </Form.Group>
+                {/* Turnstile CAPTCHA */}
+                <div style={{ textAlign: 'center', marginBottom: '1rem', minHeight: '78px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div ref={turnstileRef}></div>
+                </div>
 
-                    <Form.Group className="mb-3">
-                      <Form.Label>Last Name</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Enter your last name"
-                        required
-                      />
-                      <Form.Text>
-                        For security, please enter your full name as registered
-                      </Form.Text>
-                    </Form.Group>
+                <div className="d-grid mb-3">
+                  <SubmitButton
+                    type="submit"
+                    disabled={loading || !email}
+                  >
+                    {loading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-envelope me-2"></i>
+                        Send Reset Link
+                      </>
+                    )}
+                  </SubmitButton>
+                </div>
 
-                    {/* Turnstile CAPTCHA */}
-                    <div style={{ textAlign: 'center', marginBottom: '1rem', minHeight: '78px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <div ref={turnstileRef}></div>
-                    </div>
-
-                    <div className="d-grid mb-3">
-                      <PrimaryButton
-                        type="submit"
-                        disabled={loading || !email || !firstName || !lastName}
-                      >
-                        {loading ? (
-                          <>
-                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <i className="bi bi-envelope me-2"></i>
-                            Send Reset Link
-                          </>
-                        )}
-                      </PrimaryButton>
-                    </div>
-
-                    <div className="text-center">
-                      <Link to="/" className="back-link">
-                        <i className="bi bi-arrow-left"></i>
-                        Back to Home
-                      </Link>
-                    </div>
-                  </Form>
-                )}
-              </Card.Body>
-            </StyledCard>
-          </Container>
-        </ContentWrapper>
-      </PageWrapper>
-      <Footer />
-    </>
+                <div className="text-center">
+                  <Link to="/" className="back-link">
+                    <i className="bi bi-arrow-left"></i>
+                    Back to Home
+                  </Link>
+                </div>
+              </Form>
+            )}
+          </Card.Body>
+        </StyledCard>
+      </Container>
+    </PageWrapper>
   )
 }
 
