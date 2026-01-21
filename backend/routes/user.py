@@ -20,13 +20,7 @@ def get_profile():
     user = User.query.get(user_id)
     if not user:
         return jsonify({"msg": "User not found"}), 404
-    return jsonify({
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
-        "created_at": user.created_at.isoformat(),
-        "is_verified": user.is_verified
-    }), 200
+    return jsonify(user.to_dict()), 200
 
 # UPDATE USER PROFILE
 @user_bp.route('/profile', methods=['PUT'])
@@ -99,13 +93,7 @@ def get_user_profile(username):
     user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({"msg": "User not found"}), 404
-    return jsonify({
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
-        "created_at": user.created_at.isoformat(),
-        "is_verified": user.is_verified
-    }), 200
+    return jsonify(user.to_dict()), 200
 
 # GET ALL USERS (with pagination and search)
 @user_bp.route('/users', methods=['GET'])
