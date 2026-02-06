@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "check": "tsc -p tsconfig.app.json --noEmit && eslint . --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
